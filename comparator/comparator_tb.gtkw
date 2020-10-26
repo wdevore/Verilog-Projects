@@ -1,0 +1,28 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Mon Oct 26 14:43:58 2020
+[*]
+[dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/comparator/comparator_tb.vcd"
+[dumpfile_mtime] "Mon Oct 26 14:43:24 2020"
+[dumpfile_size] 25908
+[savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/comparator/comparator_tb.gtkw"
+[timestart] 0
+[size] 1822 829
+[pos] -1 -1
+*-12.172604 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 221
+[signals_width] 78
+[sst_expanded] 1
+[sst_vpaned_height] 224
+@28
+comparator_tb.a[1:0]
+comparator_tb.b[1:0]
+comparator_tb.eq
+comparator_tb.gt
+@420
+comparator_tb.i
+comparator_tb.j
+@29
+comparator_tb.lt
+[pattern_trace] 1
+[pattern_trace] 0
