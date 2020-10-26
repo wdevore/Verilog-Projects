@@ -5,9 +5,13 @@
 // Description:
 // Testbench for comparator module.
 //
-// apio init --board TinyFPGA-B2
-// apio build
-// apio sim
+// Note: the "board" selected is irrelevant because I'm only running
+// a simulation and not attempting to upload to board. This simply
+// allows apio to build.
+//
+// > apio init --board TinyFPGA-B2
+// > apio build
+// > apio sim
 
 `timescale 1ns/10ps
 
