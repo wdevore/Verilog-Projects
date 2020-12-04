@@ -127,8 +127,8 @@ module counter_tb;
       Enable_TB = 1'b1;       // Enable the counter
       #70 Enable_TB = 1'b0;   // N units allows the counter to reach h04
       Enable_TB = 1'b0;       // Disable the counter
-      OE_TB = 1'b0;       // Enable output
-      #1;   // The counter has a delay (default 1unit), so we wait before we sample
+      OE_TB = 1'b0;           // Enable output
+      #1;   // The counter has a delay (default 1 sub-unit), so we wait before we sample
 
       $display("B %d, %d", $stime, OCount_TB);
       if (OCount_TB === 8'bz) begin
