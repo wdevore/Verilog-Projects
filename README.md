@@ -11,3 +11,21 @@ Note: the "board" selected in each project is irrelevant because I'm only runnin
 > apio build
 > apio sim
 ```
+
+## Projects
+
+### Simple 8bit CPU
+Simplified 8bit CPU similar to Ben Eater's SMP. https://www.youtube.com/c/BenEater/videos
+Schematics: https://eater.net/8bit/schematics
+
+### Rotary decoders
+
+### Video
+VGA
+TFT
+
+### Basic 6809
+I simple MC6809 adapted from Ben's CPU.
+
+### Advanced 6809
+A non-cycle accurate implementation.
