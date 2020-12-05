@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// N-bit tri-state read/write register
+// N-bit tri-state read/write counter
 // Can be used as a Program-counter
 // Counts even if the output is disabled.
 // --------------------------------------------------------------------------
@@ -22,7 +22,7 @@ module CounterUp
     parameter RDelay = 1;
     reg [BitWidth-1:0] Cnt;
     
-    always @(posedge Clk, negedge Reset, OE) begin
+    always @(posedge Clk, negedge Reset) begin
         // Async Reset
         if (!Reset)
             Cnt <= #RDelay 0;
