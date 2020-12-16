@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/10ps
 
-module register_tb;
+module alu_tb;
    parameter WIDTH = 8;                 // data width
    
    // Test bencch Signals for Counter module
@@ -40,7 +40,7 @@ module register_tb;
    // Configure starting sim states
    // -------------------------------------------
    initial begin
-      $dumpfile("register_tb.vcd");  // waveforms file needs to be the same name as the tb file.
+      $dumpfile("alu_tb.vcd");  // waveforms file needs to be the same name as the tb file.
       $dumpvars;  // Save waveforms to vcd file
       
       $display("%d %m: Starting testbench simulation...", $stime);

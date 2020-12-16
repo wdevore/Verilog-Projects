@@ -9,6 +9,11 @@ Note: the "board" selected in each project is irrelevant because I'm only runnin
 ```
 > apio init --board TinyFPGA-B2
 > apio build
+```
+
+Or for simulation only:
+```
+> apio init --board TinyFPGA-B2
 > apio sim
 ```
 

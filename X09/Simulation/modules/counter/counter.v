@@ -22,19 +22,17 @@ module CounterUp
     parameter RDelay = 1;
     reg [BitWidth-1:0] Cnt;
     
-    always @(posedge Clk, negedge Reset) begin
+    always @(posedge Clk, negedge Reset)
         // Async Reset
         if (!Reset)
             Cnt <= #RDelay 0;
         else begin
-            // Sync inputs
             if (!Load)
                 Cnt <= #RDelay D;
-            if (Enable) begin
+
+            if (Enable)
                 Cnt <= #RDelay Cnt + 1;
-            end
         end
-    end
 
     assign #RDelay Q = OE ? {BitWidth{1'bz}} : Cnt;
 

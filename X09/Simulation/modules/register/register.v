@@ -21,12 +21,11 @@ module Register
     parameter RDelay = 1;
     reg [BitWidth-1:0] Regr;
     
-    always @(posedge Clk, negedge Reset) begin
+    always @(posedge Clk, negedge Reset)
         if (!Reset)
             Regr <= #RDelay 0;
         else if (!EN)
             Regr <= #RDelay D;
-    end
 
     assign #RDelay Q = OE ? {BitWidth{1'bz}} : Regr;
 

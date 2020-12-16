@@ -16,7 +16,7 @@ module counter_tb;
    // -------------------------------------------
    reg Clock_TB;
    initial begin
-      Clock_TB = 1'b0;
+      Clock_TB <= 1'b0;
    end
 
    // The clock runs until the sim finishes.
