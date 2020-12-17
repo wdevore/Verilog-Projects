@@ -16,23 +16,23 @@
 
 module ALU
     #(
-        parameter BitWidth = 8 // Default to 8 bits
+        parameter BitWidth = 8, // Default to 8 bits
+        parameter FlagBits = 4  // O,N,C,Z
     )
     (
-        output tri [BitWidth-1:0] ResLow,    // Tri-state output
-        output tri [BitWidth-1:0] ResHigh,    // Tri-state output
-        output [3:0] Flags,
-        input Clk,
-        input [BitWidth-1:0] A,
-        input [BitWidth-1:0] B,
-        input [3:0] Func,                   // Operation
-        input OE,      // Active low,  enables output
+        output tri [BitWidth-1:0] Y,      // Tri-state output
+        output wire [FlagBits-1:0] OFlags,
+        input wire [FlagBits-1:0] IFlags,
+        input wire [BitWidth-1:0] A,
+        input wire [BitWidth-1:0] B,
+        input wire [3:0] FuncOp,          // Operation
+        input wire OE                     // Active low,  enables output
     );
 
     parameter   ZeroFlag   = 0,
                 CarryFlag  = 1,
                 NegFlag    = 2,
-                OverFlag   = 3;
+                OverFlag   = 3;  // aka. V flag
 
     // Allow operation codes
     parameter   add_op  = 4'b0000,
@@ -43,45 +43,66 @@ module ALU
                 not_op  = 4'b0101, //negation
                 xor_op  = 4'b0110,
                 xnor_op = 4'b0111;
-
+    
     // Local Vars
     parameter RDelay = 1;
-    reg [BitWidth-1:0] Res;
+    reg [BitWidth-1:0] ORes;
+    wire oF, nF, zF;
+    reg cF;
 
-    always @(A, B, OP)
-        case (Func)
+    always @(*)
+        case (FuncOp)
             add_op: begin
+                $display("Add OP: %d + %d", A, B);
+
                 // Carry and sum
-                {Flags[CarryFlag], Res} = #RDelay A + B;
+                {cF, ORes} = #RDelay A + B + IFlags[CarryFlag];
+                // {OFlags[CarryFlag], ORes} = #RDelay A + B + IFlags[CarryFlag];
                 
-                // MSB of signed
-                Flags[NegFlag] = Res[BitWidth-1];
+                // // MSB of signed
+                // OFlags[NegFlag] = #RDelay ORes[BitWidth-1];
 
-                if (Res == 0)
-                    Flags[ZeroFlag] = 1;
-                else
-                    Flags[ZeroFlag] = 0;
+                // if (ORes == 0)
+                //     OFlags[ZeroFlag] = #RDelay 1;
+                // else
+                //     OFlags[ZeroFlag] = #RDelay 0;
 
-                // 2's compliment overflow flag
-                if ( ((A[BitWidth-1] == 0) && (B[BitWidth-1] == 0) && (Result[BitWidth-1] == 1)) ||
-                    ( (A[BitWidth-1] == 1) && (B[BitWidth-1] == 1) && (Result[BitWidth-1] == 0)) )
-                    Flags[OverFlag] = 1;
-                else
-                    Flags[OverFlag] = 0;
+                // // 2's compliment overflow flag
+                // if ( ((A[BitWidth-1] == 0) && (B[BitWidth-1] == 0) && (ORes[BitWidth-1] == 1)) ||
+                //     ( (A[BitWidth-1] == 1) && (B[BitWidth-1] == 1) && (ORes[BitWidth-1] == 0)) )
+                //     OFlags[OverFlag] = #RDelay 1;
+                // else
+                //     OFlags[OverFlag] = #RDelay 0;
             end
-            sub_op:  Res = #RDelay A - B;
-            mul_op:  Res = #RDelay A * B;
-            and_op:  Res = #RDelay A & B;
-            or_op:   Res = #RDelay A | B;
-            not_op:  Res = #RDelay ~A;
-            xor_op:  Res = #RDelay A ^ B;
-            xnor_op: Res = #RDelay ~(A ^ B);
-            default:
-                Res = {2*BitWidth{1'bx}};
-                Flags = 4'bx;
+            sub_op: begin
+                $display("Sub OP: %d + %d", A, B);
+
+                {cF, ORes} = #RDelay A + ((~B) + 1) + IFlags[CarryFlag];
+
+            end
+            // mul_op:  ORes = #RDelay A * B;
+            // and_op:  ORes = #RDelay A & B;
+            // or_op:   ORes = #RDelay A | B;
+            // not_op:  ORes = #RDelay ~A;
+            // xor_op:  ORes = #RDelay A ^ B;
+            // xnor_op: ORes = #RDelay ~(A ^ B);
+            default: begin
+                ORes = #RDelay {BitWidth{1'bx}};
+                // OFlags = #RDelay 4'bx;
+            end
         endcase
 
-    assign #RDelay ResHigh = OE ? {BitWidth{1'bz}} : Res & 16'h;
-    assign #RDelay {ResHigh, ResLow} = OE ? {BitWidth{1'bz}} : Res;
+    assign zF = ORes == {BitWidth{1'b0}};
+    assign nF = ORes[BitWidth-1];
+    // 2's compliment overflow flag
+    assign oF = (
+            ((A[BitWidth-1] == 0) && (B[BitWidth-1] == 0) && (ORes[BitWidth-1] == 1)) ||
+            ((A[BitWidth-1] == 1) && (B[BitWidth-1] == 1) && (ORes[BitWidth-1] == 0))
+        );
+
+    //               O,  N,  C,  Z
+    assign OFlags = {oF, nF, cF, zF};
+
+    assign #RDelay Y = OE ? {BitWidth{1'bz}} : ORes;
 
 endmodule
