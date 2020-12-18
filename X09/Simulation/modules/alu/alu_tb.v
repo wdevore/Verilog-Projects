@@ -53,7 +53,7 @@ module alu_tb;
       #10;
    end
    
-   `include "tests/add_op.v"
-
+   // `include "tests/add_op.v"
+   `include "tests/sub_op.v"
 
 endmodule

@@ -5,7 +5,7 @@ initial begin
     // -------------------------------------------------------
     // Sum of two unsigned values
     // Add 0+0
-    //            O N C Z
+    //            V N C Z
     // Flags set: 0,0,0,1
     // -------------------------------------------------------
     FuncOp_TB = dut.add_op;  // Select Add with no carry operation
@@ -27,7 +27,7 @@ initial begin
     // -------------------------------------------------------
     // Sum of two unsigned values
     // Add 2+2
-    //            O N C Z
+    //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
     FuncOp_TB = dut.add_op;  // Select Add with no carry operation
@@ -49,7 +49,7 @@ initial begin
     // -------------------------------------------------------
     // Sum of two unsigned values
     // Add 0xFF + 0x02 = 0x0101
-    //            O N C Z
+    //            V N C Z
     // Flags set: 0,0,1,0
     // -------------------------------------------------------
     FuncOp_TB = dut.add_op;  // Select Add with no carry operation
@@ -94,7 +94,7 @@ initial begin
     // adding the hex values 0xE0 and 0x40 will set the Carry flag
     // but not the Overflow flag.
     // Add 0xE0 + 0x40 = 0x0120
-    //            O N C Z
+    //            V N C Z
     // Flags set: 0,0,1,0
     // -------------------------------------------------------
     FuncOp_TB = dut.add_op;  // Select Add with no carry operation
@@ -116,7 +116,7 @@ initial begin
     // -------------------------------------------------------
     // Sum of two unsigned values, but causes a signed result.
     // Add 0xEF + 0x01 = 0xF0 = 240
-    //            O N C Z
+    //            V N C Z
     // Flags set: 0,1,0,0
     // -------------------------------------------------------
     FuncOp_TB = dut.add_op;  // Select Add with no carry operation
@@ -184,7 +184,7 @@ initial begin
     // -------------------------------------------------------
     // Sum of two unsigned values, but causes a signed negative and overflow.
     // Add 0x80 + 0x80 = 0x0100
-    //            O N C Z
+    //            V N C Z
     // Flags set: 1,0,1,1
     // -------------------------------------------------------
     FuncOp_TB = dut.add_op;  // Select Add with no carry operation
@@ -211,7 +211,7 @@ initial begin
     // -------------------------------------------------------
     // Sum of two unsigned values
     // Add 0x7F + 0x7F = 0xFE = -2
-    //            O N C Z
+    //            V N C Z
     // Flags set: 1,1,0,0
     // -------------------------------------------------------
     FuncOp_TB = dut.add_op;  // Select Add with no carry operation
@@ -235,7 +235,7 @@ initial begin
     // -------------------------------------------------------
     // Sum of two unsigned values
     // Add 0xC0 + 0xC0 = 0x0180
-    //            O N C Z
+    //            V N C Z
     // Flags set: 0,1,1,0
     // -------------------------------------------------------
     FuncOp_TB = dut.add_op;  // Select Add with no carry operation
@@ -257,7 +257,7 @@ initial begin
     // -------------------------------------------------------
     // Sum of two unsigned values + input carry flag
     // Add 0x01 + 0x01 + Cf = 0x03
-    //            O N C Z
+    //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
     IFlags_TB = 4'b0010;        // Set Carry flag
