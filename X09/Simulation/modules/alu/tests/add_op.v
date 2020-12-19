@@ -8,7 +8,7 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,1
     // -------------------------------------------------------
-    FuncOp_TB = dut.add_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
     IA_TB = 8'h0;            // Load A
     IB_TB = 8'h0;            // Load B
     
@@ -30,7 +30,7 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.add_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
     IA_TB = 8'h02;           // Load A
     IB_TB = 8'h02;           // Load B
 
@@ -52,7 +52,7 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,1,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.add_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
     IA_TB = 8'hFF;           // Load A
     IB_TB = 8'h02;           // Load B
 
@@ -97,7 +97,7 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,1,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.add_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
     IA_TB = 8'hE0;           // Load A
     IB_TB = 8'h40;           // Load B
 
@@ -119,7 +119,7 @@ initial begin
     //            V N C Z
     // Flags set: 0,1,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.add_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
     IA_TB = 8'hEF;           // Load A
     IB_TB = 8'h01;           // Load B
 
@@ -187,7 +187,7 @@ initial begin
     //            V N C Z
     // Flags set: 1,0,1,1
     // -------------------------------------------------------
-    FuncOp_TB = dut.add_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
     IA_TB = 8'h80;           // Load A
     IB_TB = 8'h80;           // Load B
 
@@ -214,7 +214,7 @@ initial begin
     //            V N C Z
     // Flags set: 1,1,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.add_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
     IA_TB = 8'h7F;           // Load A
     IB_TB = 8'h7F;           // Load B
 
@@ -238,7 +238,7 @@ initial begin
     //            V N C Z
     // Flags set: 0,1,1,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.add_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
     IA_TB = 8'hC0;           // Load A
     IB_TB = 8'hC0;           // Load B
 
@@ -262,7 +262,7 @@ initial begin
     // -------------------------------------------------------
     IFlags_TB = 4'b0010;        // Set Carry flag
 
-    FuncOp_TB = dut.add_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
     IA_TB = 8'h01;           // Load A
     IB_TB = 8'h01;           // Load B
 

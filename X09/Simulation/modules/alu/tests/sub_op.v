@@ -7,7 +7,7 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,1
     // -------------------------------------------------------
-    FuncOp_TB = dut.sub_op;  // Select Add with no carry operation
+    FuncOp_TB = dut.Sub_OP;  // Select Add with no carry operation
     IA_TB = 8'h0;            // Load A
     IB_TB = 8'h0;            // Load B
     
@@ -27,7 +27,7 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.sub_op;  // Subtract without carry/borrow
+    FuncOp_TB = dut.Sub_OP;  // Subtract without carry/borrow
     IA_TB = 8'h02;           // Load A
     IB_TB = 8'h01;           // Load B
 
@@ -47,7 +47,7 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.sub_op;  // Subtract without carry/borrow
+    FuncOp_TB = dut.Sub_OP;  // Subtract without carry/borrow
     IA_TB = 8'h00;           // Load A
     IB_TB = 8'h01;           // Load B
 
@@ -67,11 +67,12 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.sub_op;  // Subtract without carry/borrow
+    FuncOp_TB = dut.Sub_OP;  // Subtract without carry/borrow
     IA_TB = 8'hFF;           // Load A
     IB_TB = 8'h0F;           // Load B
 
     #1;
+    $display("----------------------------------");
     $display("out: %d", OY_TB);
     $display("flags: %04b", OFlags_TB);
     if (OFlags_TB != 4'b0100) begin
@@ -91,12 +92,13 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.subc_op; // Subtract with carry/borrow
+    FuncOp_TB = dut.Subc_OP; // Subtract with carry/borrow
     IFlags_TB = 4'b0000;     // Borrow cleared
     IA_TB = 8'hFF;           // Load A
     IB_TB = 8'h01;           // Load B
 
     #1;
+    $display("----------------------------------");
     $display("%08b, %08b", IA_TB, (~IB_TB)+8'b00000001);
     $display("out: %d, %h, %08b", OY_TB, OY_TB, OY_TB);
     $display("flags: %04b", OFlags_TB);
@@ -113,16 +115,18 @@ initial begin
     #10;
     // -------------------------------------------------------
     // Setting carry results in subtracting 2
-    // 0xFF - 0x01 w borrow = 0xFD
+    // 0xFF - 0x01 w borrow = 0xFD. Without borrow the answer
+    // would be 0xFE.
     //            V N C Z
-    // Flags set: 0,0,0,0
+    // Flags set: 0,1,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.subc_op; // Subtract with carry/borrow
+    FuncOp_TB = dut.Subc_OP; // Subtract with carry/borrow
     IFlags_TB = 4'b0010;     // Borrow set
     IA_TB = 8'hFF;           // Load A
     IB_TB = 8'h01;           // Load B
 
     #1;
+    $display("----------------------------------");
     $display("%08b, %08b", IA_TB, (~IB_TB)+8'b00000001);
     $display("out: %d, %h, %08b", OY_TB, OY_TB, OY_TB);
     $display("flags: %04b", OFlags_TB);
@@ -138,17 +142,19 @@ initial begin
 
     #10;
     // -------------------------------------------------------
-    // 0x23 – 0xCF = 0x54 w/o borrow  <- ~CF = 31
-    // 0x23 + 0x31 = 01 _ 0x54  = d84
+    // 0x23 – 0xCF = 0x54 w/o borrow  <- (~0xCF+1) = 31
+    // Or CF as 2s complemented.
+    // 0x23 + 0x31 = 0x54 + borrow generated (aka Carry flag set) = d84
     //            V N C Z
     // Flags set: 0,0,1,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.subc_op; // Subtract with carry/borrow
-    IFlags_TB = 4'b0000;     // Borrow set
+    FuncOp_TB = dut.Subc_OP; // Subtract
+    IFlags_TB = 4'b0000;     // Borrow cleared = without borrow
     IA_TB = 8'h23;           // Load A
     IB_TB = 8'hCF;           // Load B
 
     #1;
+    $display("----------------------------------");
     $display("%08b, %08b", IA_TB, (~IB_TB)+8'b00000001);
     $display("out: %d, %h, %08b", OY_TB, OY_TB, OY_TB);
     $display("flags: %04b", OFlags_TB);

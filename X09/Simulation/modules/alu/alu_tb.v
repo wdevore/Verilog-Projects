@@ -54,6 +54,12 @@ module alu_tb;
    end
    
    // `include "tests/add_op.v"
-   `include "tests/sub_op.v"
+   // `include "tests/sub_op.v"
+   // `include "tests/and_op.v"
+   // `include "tests/or_op.v"
+   // `include "tests/not_op.v"
+   // `include "tests/xor_op.v"
+   // `include "tests/lsr_op.v"
+   `include "tests/lsl_op.v"
 
 endmodule
