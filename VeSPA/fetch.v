@@ -1,8 +1,4 @@
-function [WIDTH-1:0] read_mem;
-    input[WIDTH-1:0] addr;  // The address from which to read
-    // Big-endian ordering
-    read_mem = {MEM[addr],MEM[addr+1],MEM[addr+2],MEM[addr+3]};
-endfunction
+// Fetch the next instruction from memory and move it into the IR.
 
 task fetch;
     begin
