@@ -17,10 +17,10 @@ module Mux
    output wire [DataWidth-1:0] DOut  // Output
 );
 
-assign DOut = (Select == 4'b0000) ? DIn0 :
-                (Select == 4'b0001) ? DIn1 :
-                (Select == 4'b0010) ? DIn2 :
-                (Select == 4'b0011) ? DIn3 :
+assign DOut = (Select == 2'b00) ? DIn0 :
+                (Select == 2'b01) ? DIn1 :
+                (Select == 2'b10) ? DIn2 :
+                (Select == 2'b11) ? DIn3 :
                 1'b0;
 
 // Requires output defined as "reg"
