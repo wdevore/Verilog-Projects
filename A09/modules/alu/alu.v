@@ -55,7 +55,7 @@ module ALU
                 // Xnor_OP = 4'b0111;
     
     // Local Vars
-    parameter RDelay = 1;
+    parameter RDelay = 0;
     reg [N-1:0] ORes;
     wire oF, nF, zF;
     reg cF;
