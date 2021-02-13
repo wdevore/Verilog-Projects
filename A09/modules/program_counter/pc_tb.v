@@ -14,6 +14,7 @@ module pc_tb;
    // Inputs
    reg Reset_TB;
    reg LD_TB;
+   reg Inc_TB;
    reg [Data_WIDTH-1:0] DIn_TB;
 
    reg Clock_TB;
@@ -26,6 +27,7 @@ module pc_tb;
       .Reset(Reset_TB),
       .Clk(Clock_TB),
       .LD(LD_TB),
+      .Inc(Inc_TB),
       .DIn(DIn_TB),
       .DOut(DOut_TB)
       );
@@ -54,6 +56,7 @@ module pc_tb;
       Reset_TB = 1'b1;  // Disable reset
       DIn_TB = {Data_WIDTH{1'b0}};  // DIn = 0
       LD_TB = 1'b1;     // Disable load
+      Inc_TB = 1'b1;    // Disable counting
    end
 
    always begin
@@ -104,6 +107,8 @@ module pc_tb;
       // ------------------------------------
       Reset_TB = 1'b1;  // Disable reset
       LD_TB = 1'b1;     // Disable load
+      Inc_TB = 1'b0;    // Enable counting
+
       #300; // Wait for clock edge
 
       if (DOut_TB != 16'h0002) begin
