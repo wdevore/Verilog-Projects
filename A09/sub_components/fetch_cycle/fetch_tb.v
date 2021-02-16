@@ -43,11 +43,11 @@ module fetch_tb;
       .IR_Ld(IR_Ld_TB),
       .MEM_RW(MEM_RW_TB),
       .MEM_En(MEM_En_TB),
-      .DOut(DOut_TB)
+      .IROut(DOut_TB)
    );
 
    // -------------------------------------------
-   // Test bench clock - not really need for this TB
+   // Test bench clock
    // -------------------------------------------
    initial begin
       Clock_TB <= 1'b0;
@@ -64,7 +64,7 @@ module fetch_tb;
    initial begin
       $dumpfile("fetch_tb.vcd");  // waveforms file needs to be the same name as the tb file.
       $dumpvars;  // Save waveforms to vcd file
-      
+       
       $display("%d %m: Starting testbench simulation...", $stime);
 
       // Setup defaults
@@ -84,42 +84,68 @@ module fetch_tb;
       // Reset PC
       // ------------------------------------
       Reset_TB = 1'b0;  // Enable reset
-      DIn_TB = {DataWidth_TB{1'b0}};  // DIn can any value
-      PC_Ld_TB = 1'b1;     // Disable load
+      PC_Ld_TB = 1'b1;  // Disable load
 
-      // #100; // Wait for clock edge to pass
-      // $display("%d <-- Marker", $stime);
+      #200; // Wait for clock edge to pass
+      $display("%d <-- Marker", $stime);
 
-      // if (DOut_TB != 16'h0000) begin
-      //    $display("%d %m: ERROR - (0) PC output incorrect (%h).", $stime, DOut_TB);
-      //    $finish;
-      // end
-
-      // ------------------------------------
-      // Load
-      // ------------------------------------
-      // Reset_TB = 1'b1;  // Disable reset
-      // DIn_TB = 16'h00A0;  // Set Address to 0x00A0
-      // LD_TB = 1'b0;     // Enable load
-
-      // #300; // Wait for clock edge
-
-      // if (DOut_TB != 16'h00A0) begin
-      //    $display("%d %m: ERROR - (1) PC output incorrect (%h).", $stime, DOut_TB);
-      //    $finish;
-      // end
+      if (dut.PC.DOut != 16'h0000) begin
+         $display("%d %m: ERROR - Reset PC output incorrect (%h).", $stime, DOut_TB);
+         $finish;
+      end
 
       // ------------------------------------
-      // Reset
+      // Load PC
       // ------------------------------------
-      // Reset_TB = 1'b0;  // Enable reset
-      // LD_TB = 1'b1;     // Disable load
-      // #300; // Wait for clock edge
+      Reset_TB = 1'b1;  // Disable reset
+      PC_Ld_TB = 1'b0;  // Enable load
+      DIn_TB = 16'h00A0;
 
-      // if (DOut_TB != 16'h0000) begin
-      //    $display("%d %m: ERROR - (2) PC output incorrect (%h).", $stime, DOut_TB);
-      //    $finish;
-      // end
+      #200; // Wait for clock edge to pass
+      $display("%d <-- Marker", $stime);
+
+      if (dut.PC.DOut !== 16'h00A0) begin
+         $display("%d %m: ERROR - Load PC output incorrect (%h).", $stime, DOut_TB);
+         $finish;
+      end
+
+      // ------------------------------------
+      // Read Memory (1st clock of fetch)
+      // ------------------------------------
+      ADDR_Src_TB = 2'b00; // Select PC Source
+      PC_Ld_TB = 1'b1;  // Disable load
+      MEM_RW_TB = 1'b0; // Enable Read
+      MEM_En_TB = 1'b0; // Enable Memory
+
+      #200; // Wait for clock edge
+
+      if (dut.MUX_ADDR.DOut !== 16'h00A0) begin
+         $display("%d %m: ERROR - MUX_ADDR output incorrect (%h).", $stime, DOut_TB);
+         $finish;
+      end
+
+      // ------------------------------------
+      // Load IR (2nd clock of fetch)
+      // ------------------------------------
+      IR_Ld_TB = 1'b0;  // Enable load
+      // We can also move PC to next address
+      PC_Inc_TB = 1'b0; // Enable PC increment
+
+      #200; // Wait for clock edge
+
+      if (DOut_TB !== 16'h9202) begin
+         $display("%d %m: ERROR - IR output incorrect (%h).", $stime, DOut_TB);
+         $finish;
+      end
+
+      // ------------------------------------
+      // End fetch cycle
+      // ------------------------------------
+      MEM_RW_TB = 1'b1; // Disable Read
+      MEM_En_TB = 1'b1; // Disable Memory
+      PC_Inc_TB = 1'b1; // Disable PC increment
+
+      #200; // Wait for clock edge
 
       // ------------------------------------
       // Simulation duration

@@ -28,7 +28,7 @@ module FetchCycle
     input wire IR_Ld,                       // Load: Active Low
     input wire MEM_RW,                      // Load: Write = Active Low
     input wire MEM_En,                      // Load: Active Low
-    output wire [DataWidth-1:0] DOut        // IR Output
+    output wire [DataWidth-1:0] IROut       // IR Output
 );
 
 // --------------------------------------------------
@@ -74,13 +74,13 @@ Memory #(.AddrWidth(AddrWidth)) memory(
 );
 
 // Create IR and connect to putput
-Register #(.DataWidth(DataWidth)) ir
+Register #(.DataWidth(DataWidth)) IR
 (
     .Reset(Reset),
     .Clk(Clk),
     .LD(IR_Ld),
     .DIn(mem_to_ir),
-    .DOut(DOut)
+    .DOut(IROut)
 );
 
 endmodule

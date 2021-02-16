@@ -2,7 +2,11 @@
 // 256x8 BRAM memory
 // Single-Port
 // --------------------------------------------------------------------------
-`define ROM_CONTENTS "ROM.dat"
+// The path to the data file is relative to the test bench (TB).
+// If the TB is run from this directory then the path would be "ROM.dat"
+// `define ROM_CONTENTS "ROM.dat"
+// Otherwise it is relative to the TB.
+`define ROM_CONTENTS "../../modules/memory/ROM.dat"
 
 module Memory
     #(
