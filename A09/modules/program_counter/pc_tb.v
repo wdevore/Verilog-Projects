@@ -68,10 +68,11 @@ module pc_tb;
       DIn_TB = {Data_WIDTH{1'b0}};  // DIn can any value
       LD_TB = 1'b1;     // Disable load
 
-      #100; // Wait for clock edge to pass
+      #150; // Wait for clock edge to pass
+      #10;
       $display("%d <-- Marker", $stime);
 
-      if (DOut_TB != 16'h0000) begin
+      if (DOut_TB !== 16'h0000) begin
          $display("%d %m: ERROR - (0) PC output incorrect (%h).", $stime, DOut_TB);
          $finish;
       end
@@ -85,7 +86,7 @@ module pc_tb;
 
       #300; // Wait for clock edge
 
-      if (DOut_TB != 16'h00A0) begin
+      if (DOut_TB !== 16'h00A0) begin
          $display("%d %m: ERROR - (1) PC output incorrect (%h).", $stime, DOut_TB);
          $finish;
       end
@@ -97,7 +98,7 @@ module pc_tb;
       LD_TB = 1'b1;     // Disable load
       #300; // Wait for clock edge
 
-      if (DOut_TB != 16'h0000) begin
+      if (DOut_TB !== 16'h0000) begin
          $display("%d %m: ERROR - (2) PC output incorrect (%h).", $stime, DOut_TB);
          $finish;
       end
@@ -111,7 +112,7 @@ module pc_tb;
 
       #300; // Wait for clock edge
 
-      if (DOut_TB != 16'h0002) begin
+      if (DOut_TB !== 16'h0002) begin
          $display("%d %m: ERROR - (3) PC output incorrect (%h).", $stime, DOut_TB);
          $finish;
       end
@@ -121,7 +122,7 @@ module pc_tb;
       // ------------------------------------
       #200; // Wait for clock edge
 
-      if (DOut_TB != 16'h0004) begin
+      if (DOut_TB !== 16'h0004) begin
          $display("%d %m: ERROR - (4) PC output incorrect (%h).", $stime, DOut_TB);
          $finish;
       end
@@ -131,8 +132,8 @@ module pc_tb;
       // ------------------------------------
       #200; // Wait for clock edge
 
-      if (DOut_TB != 16'h0006) begin
-         $display("%d %m: ERROR - (4) PC output incorrect (%h).", $stime, DOut_TB);
+      if (DOut_TB !== 16'h0006) begin
+         $display("%d %m: ERROR - (5) PC output incorrect (%h).", $stime, DOut_TB);
          $finish;
       end
 

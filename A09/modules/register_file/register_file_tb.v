@@ -77,9 +77,10 @@ module register_file_tb;
       REG_WE_TB = 1'b0;  // Enable writing
       DIn_TB = 16'h00A0;  // Write 0x00A0
       REG_Dst_TB = 3'b000;    // Select Reg 0 as destination
-      REG_Src1_TB = 3'b000;   // reg 0 as Src #1
+      REG_Src1_TB = 3'b000;   // Reg 0 as Src #1 for reading
 
-      #110; // Wait for clock edge to pass
+      #150; // Wait for clock edge to pass
+      #10;
       $display("%d <-- Marker", $stime);
 
       if (SRC1_TB !== 16'h00A0) begin
@@ -98,11 +99,12 @@ module register_file_tb;
       REG_Dst_TB = 3'b001;    // Select Reg 1 as destination
       REG_Src1_TB = 3'b001;   // reg 1 as Src #1
 
-      #110; // Wait for clock edge to pass
+      #150; // Wait for clock edge to pass
+      #10;
       $display("%d <-- Marker", $stime);
 
       if (SRC1_TB !== 16'h000A) begin
-         $display("%d %m: ERROR - Src #1 output incorrect (%h).", $stime, SRC1_TB);
+         $display("%d %m: ERROR(2) - Src #1 output incorrect (%h).", $stime, SRC1_TB);
          $finish;
       end
 
@@ -118,7 +120,7 @@ module register_file_tb;
       $display("%d <-- Marker", $stime);
 
       if (SRC1_TB !== 16'h00A0) begin
-         $display("%d %m: ERROR - Read Src #1 output incorrect (%h).", $stime, SRC1_TB);
+         $display("%d %m: ERROR(3) - Read Src #1 output incorrect (%h).", $stime, SRC1_TB);
          $finish;
       end
 

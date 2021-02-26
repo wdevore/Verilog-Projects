@@ -23,12 +23,12 @@ module RegisterFile
 
 // The registers.
 // Note: Not sure if this will be refactored to actual
-// registers. The code below could trigger BRAM synthisys
+// registers. The code below could trigger BRAM synthization
 reg [DataWidth-1:0] reg_file [(1<<RegisterCnt)-1:0];
 
 // An alternative is to sync the outputs too. Mine is Async
 // See: "Digital Systems Design Using Verilog by Charles Roth, Lizy K. John, Byeong Kil Lee 2016 MIPS CPU"
-always @(posedge Clk) begin
+always @(negedge Clk) begin
     if (REG_WE == 1'b0)
         reg_file[REG_Dst] <= DIn;
 end

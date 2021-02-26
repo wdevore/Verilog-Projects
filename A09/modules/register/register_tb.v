@@ -60,11 +60,13 @@ module register_tb;
       // Reset first
       // ------------------------------------
       #50; // Pause for a bit
+
       Reset_TB = 1'b0;  // Enable reset
       DIn_TB = {Data_WIDTH{1'b0}};  // DIn can any value
       LD_TB = 1'b1;     // Disable load
 
-      #100; // Wait for clock edge to pass
+      #150; // Wait for clock edge to pass
+      #10
       $display("%d <-- Marker", $stime);
 
       if (DOut_TB !== 16'h0000) begin

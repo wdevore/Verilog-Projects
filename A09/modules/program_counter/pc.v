@@ -17,7 +17,7 @@ module ProgramCounter
     output reg [DataWidth-1:0] DOut  // Output
 );
 
-always @(posedge Clk) begin
+always @(negedge Clk) begin
     if (~Reset)
         DOut <= {DataWidth{1'b0}};
     else if (~LD)

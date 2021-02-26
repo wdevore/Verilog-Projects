@@ -6,6 +6,8 @@
 // If the TB is run from this directory then the path would be "ROM.dat"
 // `define ROM_CONTENTS "ROM.dat"
 // Otherwise it is relative to the TB.
+`timescale 1ns/1ps
+
 `define ROM_CONTENTS "../../modules/memory/ROM.dat"
 
 module Memory
@@ -13,12 +15,13 @@ module Memory
         parameter AddrWidth = 8,
         parameter DataWidth = 16)
     (
-        input wire [DataWidth-1:0] DIn,      // Memory data input
-        input wire [AddrWidth-1:0] Address,  // Memory address
-        input wire Write_EN,                 // Write enable (Active Low)
-        input wire Clk,
-        output reg [DataWidth-1:0] DOut      // Memory register data output (Sync)
-        // output wire [DataWidth-1:0] DOut     // Memory register data output (Async)
+        input wire [DataWidth-1:0] DIn,     // Memory data input
+        input wire [AddrWidth-1:0] Address, // Memory address
+        input wire Write_EN,                // Write enable (Active Low)
+        input wire Mem_En,                  // Memory enable (active Low)
+        input wire Clk,                     // neg-edge
+        output reg [DataWidth-1:0] DOut     // Memory register data output (Sync)
+        // output wire [DataWidth-1:0] DOut // Memory register data output (Async)
     );
     
     // Memory bank
@@ -41,22 +44,26 @@ module Memory
         //     $display("memory[%d] = %b <- 0x%h", index[4:0], mem[index], mem[index]);
     end
     
-    always @(posedge Clk)
+    // --------------------------------
+    // Write to memory
+    // --------------------------------
+    always @(negedge Clk)
     begin
-        if (~Write_EN) begin
+        if (~Mem_En && ~Write_EN) begin
             mem[Address] <= DIn;
+            $display("(%d) WRITE data 0x%h, 0x%h, 0x%h", $stime, Address, mem[Address], DIn);
             // $display("written data 0x%h, 0x%h, 0x%h", Address, mem[Address], DIn);
         end
     end
 
     // --------------------------------
-    // Example of Sync read
+    // Sync read from memory
     // --------------------------------
-    always @(posedge Clk)
+    always @(negedge Clk)
     begin
-        if (Write_EN) begin  // = Read
+        if (~Mem_En && Write_EN) begin  // = Read
             DOut <= mem[Address];
-            $display("read data 0x%h, 0x%h, 0x%h", Address, mem[Address], DIn);
+            $display("(%d) READ data 0x%h, 0x%h, 0x%h", $stime, Address, mem[Address], DIn);
         end
     end
 
@@ -66,7 +73,7 @@ module Memory
     // assign DOut = mem[Address];
     // OR
     // Used with: output reg [DataWidth-1:0] DOut
-    // always @(posedge Clk)
+    // always @(negedge Clk)
     // begin
     //     DOut = mem[Address]; // Output register controlled by clock.
     // end
