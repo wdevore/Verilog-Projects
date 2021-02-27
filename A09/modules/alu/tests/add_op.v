@@ -1,6 +1,7 @@
 initial begin
-    #10 OE_TB = 1'b0;        // Enable output
-    IFlags_TB = 4'b0;        // All flags cleared
+    IFlags_TB = 4'b0000;        // All flags cleared
+
+    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
 
     // -------------------------------------------------------
     // Sum of two unsigned values
@@ -8,17 +9,18 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,1
     // -------------------------------------------------------
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
-    IA_TB = 8'h0;            // Load A
-    IB_TB = 8'h0;            // Load B
-    
+    IA_TB = 'h0000;            // Load A
+    IB_TB = 'h0000;            // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
+
     #1;
-    if (OFlags_TB[dut.ZeroFlag] != 1'b1) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0001) begin
         $display("%d %m: ERROR - Expected Zero flag set. Got: (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'b0) begin
+    if (OY_TB !== 'b0) begin
         $display("%d %m: ERROR - Expected sum of 0. Got: (%0d).", $stime, OY_TB);
         $finish;
     end
@@ -30,17 +32,20 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
+    IFlags_TB = 4'b0000;        // All flags cleared
     FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
-    IA_TB = 8'h02;           // Load A
-    IB_TB = 8'h02;           // Load B
+    IA_TB = 'h02;           // Load A
+    IB_TB = 'h02;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    if (OFlags_TB[dut.ZeroFlag] != 1'b0) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0000) begin
         $display("%d %m: ERROR - Expected Zero flag cleared. Got: (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'h04) begin
+    if (OY_TB !== 'h04) begin
         $display("%d %m: ERROR - Expected sum of 4: Got (%0d).", $stime, OY_TB);
         $finish;
     end
@@ -52,17 +57,19 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,1,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
-    IA_TB = 8'hFF;           // Load A
-    IB_TB = 8'h02;           // Load B
+    IFlags_TB = 4'b0000;        // All flags cleared
+    IA_TB = 'hFFFF;           // Load A
+    IB_TB = 'h0002;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    if (OFlags_TB[dut.CarryFlag] != 1'b1) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0010) begin
         $display("%d %m: ERROR - Expected Carry flag Set. Got (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'h01) begin
+    if (OY_TB !== 'h01) begin
         $display("%d %m: ERROR - Expected value of 1: Got (%0d).", $stime, OY_TB);
         $finish;
     end
@@ -97,18 +104,20 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,1,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
-    IA_TB = 8'hE0;           // Load A
-    IB_TB = 8'h40;           // Load B
+    IFlags_TB = 4'b0000;        // All flags cleared
+    IA_TB = 'hFFE0;           // Load A
+    IB_TB = 'h0040;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    if (OFlags_TB[dut.CarryFlag] != 1'b1) begin
-        $display("%d %m: ERROR - Expected Carry flag Set. Got (%04b).", $stime, OFlags_TB);
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0010) begin
+        $display("%d %m: ERROR - 2 Expected Carry flag Set. Got (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'h20) begin
-        $display("%d %m: ERROR - Expected value of 0x20: Got (%0d).", $stime, OY_TB);
+    if (OY_TB !== 'h20) begin
+        $display("%d %m: ERROR - 2 Expected value of 0x20: Got (%0d).", $stime, OY_TB);
         $finish;
     end
 
@@ -119,19 +128,19 @@ initial begin
     //            V N C Z
     // Flags set: 0,1,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
-    IA_TB = 8'hEF;           // Load A
-    IB_TB = 8'h01;           // Load B
+    IFlags_TB = 4'b0000;        // All flags cleared
+    IA_TB = 'hFFEF;           // Load A
+    IB_TB = 'h0001;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    // $display(OY_TB);
-    // $display("%04b", OFlags_TB);
-    if (OFlags_TB[dut.NegFlag] != 1'b1) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0100) begin
         $display("%d %m: ERROR - Expected Negative flag Set. Got %04b.", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'hF0) begin
+    if (OY_TB !== 'hFFF0) begin
         $display("%d %m: ERROR - Expected value of 240: Got (%0d).", $stime, OY_TB);
         $finish;
     end
@@ -187,22 +196,24 @@ initial begin
     //            V N C Z
     // Flags set: 1,0,1,1
     // -------------------------------------------------------
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
-    IA_TB = 8'h80;           // Load A
-    IB_TB = 8'h80;           // Load B
+    IFlags_TB = 4'b0000;        // All flags cleared
+    IA_TB = 'h8000;           // Load A
+    IB_TB = 'h8000;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    if (OFlags_TB[dut.NegFlag] != 1'b0 && OFlags_TB[dut.OverFlag] != 1'b1) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b1011) begin
         $display("%d %m: ERROR - Expected only Overflow flag Set. Got %04b.", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OFlags_TB[dut.CarryFlag] != 1'b1 && OFlags_TB[dut.ZeroFlag] != 1'b1) begin
+    if (OFlags_TB[dut.CarryFlag] !== 1'b1 && OFlags_TB[dut.ZeroFlag] !== 1'b1) begin
         $display("%d %m: ERROR - Expected Carry and Zero flags Set too. Got %04b.", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'h00) begin
+    if (OY_TB !== 'h0000) begin
         $display("%d %m: ERROR - Expected value of 0: Got (%0d).", $stime, OY_TB);
         $finish;
     end
@@ -212,21 +223,21 @@ initial begin
     // Sum of two unsigned values
     // Add 0x7F + 0x7F = 0xFE = -2
     //            V N C Z
-    // Flags set: 1,1,0,0
+    // Flags set: 1,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
-    IA_TB = 8'h7F;           // Load A
-    IB_TB = 8'h7F;           // Load B
+    IFlags_TB = 4'b0000;        // All flags cleared
+    IA_TB = 'h7FFF;           // Load A
+    IB_TB = 'h7FFF;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    // $display(OY_TB);
-    // $display("%04b", OFlags_TB);
-    if (OFlags_TB[dut.NegFlag] != 1'b1 && OFlags_TB[dut.OverFlag] != 1'b1) begin
+    $display("%d Flags2 : %04b", $time, OFlags_TB);  // 1011
+    if (OFlags_TB !== 4'b1100) begin
         $display("%d %m: ERROR - Expected Negative flag Set. Got %04b.", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'hFE) begin
+    if (OY_TB !== 'hFFFE) begin
         $display("%d %m: ERROR - Expected value of 254: Got (%0d).", $stime, OY_TB);
         $finish;
     end
@@ -238,17 +249,19 @@ initial begin
     //            V N C Z
     // Flags set: 0,1,1,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
-    IA_TB = 8'hC0;           // Load A
-    IB_TB = 8'hC0;           // Load B
+    IFlags_TB = 4'b0000;        // All flags cleared
+    IA_TB = 'hC000;           // Load A
+    IB_TB = 'hC000;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    if (OFlags_TB[dut.OverFlag] != 1'b0) begin
-        $display("%d %m: ERROR - Expected Overflow flag Cleared. Got %04b.", $stime, OFlags_TB);
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0110) begin
+        $display("%d %m: ERROR - Expected Overflow flag Set. Got %04b.", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'h80) begin
+    if (OY_TB !== 'h8000) begin
         $display("%d %m: ERROR - Expected value of 128: Got (%0d).", $stime, OY_TB);
         $finish;
     end
@@ -262,19 +275,18 @@ initial begin
     // -------------------------------------------------------
     IFlags_TB = 4'b0010;        // Set Carry flag
 
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
-    IA_TB = 8'h01;           // Load A
-    IB_TB = 8'h01;           // Load B
+    IA_TB = 'h0001;           // Load A
+    IB_TB = 'h0001;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    // $display(OY_TB);
-    // $display("%04b", OFlags_TB);
-    if (OFlags_TB != 4'b0) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0000) begin
         $display("%d %m: ERROR - Expected all flags Cleared. Got %04b.", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'h03) begin
+    if (OY_TB !== 'h0003) begin
         $display("%d %m: ERROR - Expected value of 3: Got (%0d).", $stime, OY_TB);
         $finish;
     end

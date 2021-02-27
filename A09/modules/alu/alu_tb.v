@@ -6,7 +6,7 @@
 `timescale 1ns/10ps
 
 module alu_tb;
-   parameter WIDTH = 8;                 // data width
+   parameter WIDTH = 16;                 // data width
    
    wire [WIDTH-1:0] OY_TB;         // Output result
    wire [3:0] OFlags_TB;           // Flags output
@@ -15,7 +15,6 @@ module alu_tb;
    reg [3:0] IFlags_TB;            // Flags input
    reg [WIDTH-1:0] IA_TB, IB_TB;   // A,B register inputs
    reg [3:0] FuncOp_TB;            // ALU function to perform
-   reg OE_TB;
 
    // -------------------------------------------
    // Test bench clock
@@ -24,23 +23,22 @@ module alu_tb;
    initial begin
       Clock_TB <= 1'b0;
    end
-
+ 
    // The clock runs until the sim finishes. 20ns cycle
    always begin
       #10 Clock_TB = ~Clock_TB;
    end
-
+ 
    // -------------------------------------------
    // Device under test
    // -------------------------------------------
-   ALU #(.BitWidth(WIDTH)) dut(
-      .Y(OY_TB),
-      .OFlags(OFlags_TB),
+   ALU #(.DataWidth(WIDTH)) dut(
       .IFlags(IFlags_TB),
       .A(IA_TB),
       .B(IB_TB),
       .FuncOp(FuncOp_TB),
-      .OE(OE_TB)
+      .Y(OY_TB),
+      .OFlags(OFlags_TB)
       );
 
    // -------------------------------------------
@@ -53,14 +51,11 @@ module alu_tb;
       $display("%d %m: Starting testbench simulation...", $stime);
       #10;
    end
-   
-   `include "tests/add_op.v"
+
+   // `include "tests/add_op.v"
    // `include "tests/sub_op.v"
    // `include "tests/and_op.v"
    // `include "tests/or_op.v"
-   // `include "tests/not_op.v"
-   // `include "tests/xor_op.v"
-   // `include "tests/lsr_op.v"
-   // `include "tests/lsl_op.v"
+   `include "tests/xor_op.v"
 
 endmodule

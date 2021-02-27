@@ -43,13 +43,13 @@ module SequenceControl
 );
 
 // Sequence states
-parameter S_Reset         = 3'b000;
-parameter S_FetchPCtoMEM  = 3'b001;
-parameter S_FetchMEMtoIR  = 3'b010;
-parameter S_Decode        = 3'b011;
-parameter S_Execute0      = 3'b100;
-parameter S_Execute1      = 3'b101;
-parameter S_Idle          = 3'b110;
+parameter S_Reset         = 3'b000,
+          S_FetchPCtoMEM  = 3'b001,
+          S_FetchMEMtoIR  = 3'b010,
+          S_Decode        = 3'b011,
+          S_Execute0      = 3'b100,
+          S_Execute1      = 3'b101,
+          S_Idle          = 3'b110;
 
 // Instruction Field
 `define OPCODE IR[15:12]    // op-code field
@@ -158,7 +158,7 @@ always @(posedge Clk) begin
 end
 
 // -------------------------------------------------------------
-// Route internal to outputs
+// Route internal signals to outputs
 // -------------------------------------------------------------
 assign PC_Rst = pc_rst;
 assign PC_Inc = pc_inc;

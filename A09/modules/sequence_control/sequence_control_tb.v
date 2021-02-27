@@ -2,12 +2,12 @@
 
 // --------------------------------------------------------------------------
 // Test bench
+// Test the sequence control matrix up to the Loading of the IR
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
 `include "../../modules/program_counter/pc.v"
 
-// Test the sequence control matrix
 
 module sequence_control_tb;
    parameter Data_WIDTH = 16;                 // data width
@@ -57,7 +57,7 @@ module sequence_control_tb;
    reg Clock_TB;
 
    // -------------------------------------------
-   // Device under test
+   // Devices under test
    // -------------------------------------------
    SequenceControl #(.DataWidth(Data_WIDTH)) ControlMatrix
    (
@@ -99,7 +99,7 @@ module sequence_control_tb;
    );
 
    // -------------------------------------------
-   // Test bench clock - not really need for this TB
+   // Test bench clock
    // -------------------------------------------
    initial begin
       Clock_TB <= 1'b0;

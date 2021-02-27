@@ -1,24 +1,25 @@
 initial begin
-    #10 OE_TB = 1'b0;        // Enable output
-    IFlags_TB = 4'b0;        // All flags cleared
+    IFlags_TB = 4'b0000;        // All flags cleared
+    FuncOp_TB = dut.Sub_OP;  // Select Add with no carry operation
 
     // -------------------------------------------------------
     // Difference of two unsigned values
     //            V N C Z
     // Flags set: 0,0,0,1
     // -------------------------------------------------------
-    FuncOp_TB = dut.Sub_OP;  // Select Add with no carry operation
-    IA_TB = 8'h0;            // Load A
-    IB_TB = 8'h0;            // Load B
+    IA_TB = 'h0000;            // Load A
+    IB_TB = 'h0000;            // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
     
     #1;
-    if (OFlags_TB[dut.ZeroFlag] != 1'b1) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB[dut.ZeroFlag] !== 1'b1) begin
         $display("%d %m: ERROR - Expected Zero flag set. Got: (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'b0) begin
-        $display("%d %m: ERROR - Expected Diff of 0. Got: (%0d).", $stime, OY_TB);
+    if (OY_TB !== 'h0000) begin
+        $display("%d %m: ERROR - Expected Diff of 0. Got: (%0d = %04h).", $stime, OY_TB, OY_TB);
         $finish;
     end
 
@@ -27,18 +28,20 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Sub_OP;  // Subtract without carry/borrow
-    IA_TB = 8'h02;           // Load A
-    IB_TB = 8'h01;           // Load B
+    IFlags_TB = 4'b0000;        // All flags cleared
+    IA_TB = 'h0002;           // Load A
+    IB_TB = 'h0001;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    if (OFlags_TB[dut.ZeroFlag] != 1'b0) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0000) begin
         $display("%d %m: ERROR - Expected Zero flag cleared. Got: (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'h01) begin
-        $display("%d %m: ERROR - Expected value of 1: Got (%0d).", $stime, OY_TB);
+    if (OY_TB !== 'h0001) begin
+        $display("%d %m: ERROR - Expected value of 1: Got (%0d = %04h).", $stime, OY_TB, OY_TB);
         $finish;
     end
 
@@ -47,18 +50,20 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Sub_OP;  // Subtract without carry/borrow
-    IA_TB = 8'h00;           // Load A
-    IB_TB = 8'h01;           // Load B
+    IFlags_TB = 4'b0000;        // All flags cleared
+    IA_TB = 'h0000;           // Load A
+    IB_TB = 'h0001;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    if (OFlags_TB != 4'b1110) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b1110) begin
         $display("%d %m: ERROR - Expected 1110. Got: (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'hFF) begin
-        $display("%d %m: ERROR - Expected value of 1: Got (%0d).", $stime, OY_TB);
+    if (OY_TB !== 'hFFFF) begin
+        $display("%d %m: ERROR - Expected value of 1: Got (%0d = %04h).", $stime, OY_TB, OY_TB);
         $finish;
     end
 
@@ -67,21 +72,20 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Sub_OP;  // Subtract without carry/borrow
-    IA_TB = 8'hFF;           // Load A
-    IB_TB = 8'h0F;           // Load B
+    IFlags_TB = 4'b0000;        // All flags cleared
+    IA_TB = 'hFFFF;           // Load A
+    IB_TB = 'h00FF;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    $display("----------------------------------");
-    $display("out: %d", OY_TB);
-    $display("flags: %04b", OFlags_TB);
-    if (OFlags_TB != 4'b0100) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0100) begin
         $display("%d %m: ERROR - Expected 1110. Got: (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'hF0) begin
-        $display("%d %m: ERROR - Expected value of 0xF0: Got (%0d).", $stime, OY_TB);
+    if (OY_TB !== 'hFF00) begin
+        $display("%d %m: ERROR - Expected value of 0xF0: Got (%0d = %04h).", $stime, OY_TB, OY_TB);
         $finish;
     end
 
@@ -92,51 +96,43 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Subc_OP; // Subtract with carry/borrow
     IFlags_TB = 4'b0000;     // Borrow cleared
-    IA_TB = 8'hFF;           // Load A
-    IB_TB = 8'h01;           // Load B
+    IA_TB = 'hFFFF;           // Load A
+    IB_TB = 'h0001;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    $display("----------------------------------");
-    $display("%08b, %08b", IA_TB, (~IB_TB)+8'b00000001);
-    $display("out: %d, %h, %08b", OY_TB, OY_TB, OY_TB);
-    $display("flags: %04b", OFlags_TB);
-    if (OFlags_TB != 4'b0100) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0100) begin
         $display("%d %m: ERROR - Expected 0100. Got: (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'hFE) begin
-        $display("%d %m: ERROR - Expected value of 0xFD: Got (%0d).", $stime, OY_TB);
+    if (OY_TB !== 'hFFFE) begin
+        $display("%d %m: ERROR - Expected value of 0xFD: Got (%0d = %04h).", $stime, OY_TB, OY_TB);
         $finish;
     end
 
     #10;
     // -------------------------------------------------------
-    // Setting carry results in subtracting 2
-    // 0xFF - 0x01 w borrow = 0xFD. Without borrow the answer
+    // 0xFF - 0x02 w borrow = 0xFD. Without borrow the answer
     // would be 0xFE.
     //            V N C Z
     // Flags set: 0,1,0,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Subc_OP; // Subtract with carry/borrow
-    IFlags_TB = 4'b0010;     // Borrow set
-    IA_TB = 8'hFF;           // Load A
-    IB_TB = 8'h01;           // Load B
+    IA_TB = 'hFFFF;           // Load A
+    IB_TB = 'h0002;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    $display("----------------------------------");
-    $display("%08b, %08b", IA_TB, (~IB_TB)+8'b00000001);
-    $display("out: %d, %h, %08b", OY_TB, OY_TB, OY_TB);
-    $display("flags: %04b", OFlags_TB);
-    if (OFlags_TB != 4'b0100) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0100) begin
         $display("%d %m: ERROR - Expected 0100. Got: (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'hFD) begin
-        $display("%d %m: ERROR - Expected value of 0xFD: Got (%0d).", $stime, OY_TB);
+    if (OY_TB !== 'hFFFD) begin
+        $display("%d %m: ERROR - Expected value of 0xFD: Got (%0d = %04h).", $stime, OY_TB, OY_TB);
         $finish;
     end
 
@@ -148,24 +144,20 @@ initial begin
     //            V N C Z
     // Flags set: 0,0,1,0
     // -------------------------------------------------------
-    FuncOp_TB = dut.Subc_OP; // Subtract
     IFlags_TB = 4'b0000;     // Borrow cleared = without borrow
-    IA_TB = 8'h23;           // Load A
-    IB_TB = 8'hCF;           // Load B
+    IA_TB = 'h0023;           // Load A
+    IB_TB = 'hFFCF;           // Load B
+    $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);
 
     #1;
-    $display("----------------------------------");
-    $display("%08b, %08b", IA_TB, (~IB_TB)+8'b00000001);
-    $display("out: %d, %h, %08b", OY_TB, OY_TB, OY_TB);
-    $display("flags: %04b", OFlags_TB);
-
-    if (OFlags_TB != 4'b0010) begin
+    $display("%d Flags : %04b", $time, OFlags_TB);
+    if (OFlags_TB !== 4'b0010) begin
         $display("%d %m: ERROR - Expected 1110. Got: (%04b).", $stime, OFlags_TB);
         $finish;
     end
 
-    if (OY_TB != 8'h54) begin
-        $display("%d %m: ERROR - Expected value of 0x54: Got (%0d).", $stime, OY_TB);
+    if (OY_TB !== 'h0054) begin
+        $display("%d %m: ERROR - Expected value of 0x54: Got (%0d = %04h).", $stime, OY_TB, OY_TB);
         $finish;
     end
 
