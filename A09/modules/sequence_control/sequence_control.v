@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------------
 // Sequence control matrix
 // --------------------------------------------------------------------------
-`include "constants.v"
+// `include "constants.v"
 
 module SequenceControl
 #(
@@ -12,7 +12,7 @@ module SequenceControl
 (
     input wire Clk,
     input wire [DataWidth-1:0] IR,  // Provides: Op-code, CN, Dest/Src regs
-    input wire [3:0] ALU_Flgs,
+    input wire [3:0] ALU_FlgsIn,
     input wire Reset,               // Active low
     // Branch and Stack
     output wire STK_Ld,
@@ -169,9 +169,3 @@ assign ADDR_Src = addr_src;
 assign Halt = halt;
 
 endmodule
-
-
-/*
-//Sign extend immediate field
-assign imm_ext = (instr[15] == 1)? {16'hFFFF, instr[15:0]} : {16'h0000, instr[15:0]};
-*/

@@ -36,3 +36,9 @@ Or for simulation only:
 > apio init --board TinyFPGA-B2
 > apio sim
 ```
+
+
+```
+//Sign extend immediate field
+assign imm_ext = (instr[15] == 1)? {16'hFFFF, instr[15:0]} : {16'h0000, instr[15:0]};
+```
