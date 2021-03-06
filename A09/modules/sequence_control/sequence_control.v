@@ -261,6 +261,7 @@ always @(state) begin
                         pc_ld = 1'b0;       // Enable PC load
                         bra_src = 1'b0;     // Select Reg File source1
                         pc_src = 2'b00;     // Select Branch address source
+                        src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
                     end
                 end
             endcase

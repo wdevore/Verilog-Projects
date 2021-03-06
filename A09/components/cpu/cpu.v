@@ -110,13 +110,13 @@ assign absoluteZeroExt = {{DataWidth-AbsoluteAddrSize{1'b0}}, `AbsoluteAddr};
 // OR
 assign relativeSignedExt = {{DataWidth-SignedAddrSize{ir[SignedAddrSize]}}, `SignedAddr};
 
-// To generate the branch address we need to subtract 2 from the PC
+// To generate the branch address we need to subtract 1 from the PC
 // because the PC has been auto-incremented to the next address which
 // means it isn't at the current address.
-assign branchAddress = mux_bra_to_alu2 + (pc_to_out - 2);
+assign branchAddress = mux_bra_to_alu2 + (pc_to_out - WordSize);
 
 // The return address from a JPL instruction
-assign returnAddress = source1 + 2;
+assign returnAddress = source1 + WordSize;
 
 // -------- Module ------------------------------------------
 // Sequence control matrix
