@@ -62,6 +62,7 @@ parameter BEQ = 2'b00;      // Branch on equal
 parameter BNE = 2'b01;      // Branch on equal
 parameter BLT = 2'b10;      // Branch on equal
 parameter BCS = 2'b11;      // Branch on equal
+reg takeBranch;            
 
 `define ZFlag ALU_FlgsIn[0] // Zero results
 `define CFlag ALU_FlgsIn[1] // Carry generated
@@ -220,46 +221,47 @@ always @(state) begin
                 end
 
                 `BRD: begin // Branch direct
-                    // BEQ CN = (‘b00), BNE (‘b01), BLT (‘b10), BCS (‘b11)
-                    // Determine if the PC should be loaded with a
-                    // branch address specified by the lower 10 bits.
                     case (`CN)
-                        BEQ: begin
-                            // If Z-flag set then branch
-                            if (`ZFlag == 1'b1) begin
-                                pc_ld = 1'b0;       // Enable PC load
-                                bra_src = 1'b1;     // Select Sign extend
-                                pc_src = 2'b00;     // Select Branch address source
-                            end
-                        end
-
-                        BNE: begin
-                            // If Z-flag NOT set then branch
-                            if (`ZFlag == 1'b0) begin
-                                pc_ld = 1'b0;       // Enable PC load
-                                bra_src = 1'b1;     // Select Sign extend
-                                pc_src = 2'b00;     // Select Branch address source
-                            end
-                        end
-
-                        BLT: begin
-                            // If Sign Flag != Overfloat Flag
-                            if (`NFlag != `VFlag) begin
-                                pc_ld = 1'b0;       // Enable PC load
-                                bra_src = 1'b1;     // Select Sign extend
-                                pc_src = 2'b00;     // Select Branch address source
-                            end
-                        end
-
-                        BCS: begin
-                            // If Carry set then branch
-                            if (`CFlag == 1'b1) begin
-                                pc_ld = 1'b0;       // Enable PC load
-                                bra_src = 1'b1;     // Select Sign extend
-                                pc_src = 2'b00;     // Select Branch address source
-                            end
-                        end
+                        BEQ:
+                            takeBranch = `ZFlag == 1'b1; // If Z-flag Set then branch
+                        BNE:
+                            takeBranch = `ZFlag == 1'b0; // If Z-flag NOT Set then branch
+                        BLT:
+                            takeBranch = `NFlag != `VFlag; // If Sign Flag != Overfloat Flag
+                        BCS:
+                            takeBranch = `CFlag == 1'b1; // If Carry set then branch
                     endcase
+
+                    // Determine if the PC should be loaded with a
+                    // branch address specified by the lower 10 bits, but
+                    // only if a condition is meet.
+                    if (takeBranch == 1'b1) begin
+                        pc_ld = 1'b0;       // Enable PC load
+                        bra_src = 1'b1;     // Select Sign extend
+                        pc_src = 2'b00;     // Select Branch address source
+                    end
+                end
+
+                `BRX: begin // Branch Indexed
+                    case (`CN)
+                        BEQ:
+                            takeBranch = `ZFlag == 1'b1; // If Z-flag Set then branch
+                        BNE:
+                            takeBranch = `ZFlag == 1'b0; // If Z-flag NOT Set then branch
+                        BLT:
+                            takeBranch = `NFlag != `VFlag; // If Sign Flag != Overfloat Flag
+                        BCS:
+                            takeBranch = `CFlag == 1'b1; // If Carry set then branch
+                    endcase
+
+                    // Determine if the PC should be loaded with a
+                    // branch address specified by the lower 10 bits, but
+                    // only if a condition is meet.
+                    if (takeBranch == 1'b1) begin
+                        pc_ld = 1'b0;       // Enable PC load
+                        bra_src = 1'b0;     // Select Reg File source1
+                        pc_src = 2'b00;     // Select Branch address source
+                    end
                 end
             endcase
         end
@@ -282,6 +284,7 @@ always @(state) begin
             endcase
         end
 
+        // We don't want latches
         default:
             next_state = S_Idle;
 

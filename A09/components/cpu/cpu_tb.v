@@ -27,7 +27,7 @@ module fetch_tb;
       .Clk(Clock_TB),
       .Reset(Reset_TB)
    );
-
+   
    // -------------------------------------------
    // Test bench clock
    // -------------------------------------------
@@ -39,7 +39,7 @@ module fetch_tb;
    always begin
       #100 Clock_TB = ~Clock_TB;
    end
-
+  
    // -------------------------------------------
    // Configure starting sim states
    // -------------------------------------------
