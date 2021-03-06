@@ -54,6 +54,7 @@ wire [DataWidth-1:0] source2;
 wire [DataWidth-1:0] absoluteZeroExt;
 wire [DataWidth-1:0] relativeSignedExt;
 wire [DataWidth-1:0] branchAddress;
+wire [DataWidth-1:0] returnAddress;
 
 // ---------------------------------------------------
 // Control matrix signals
@@ -95,7 +96,11 @@ wire halt;               // Active High
 `define Src2Reg         ir[6:4]
 `define AbsoluteAddr    ir[AbsoluteAddrSize-1:0]
 `define SignedAddr      ir[SignedAddrSize-1:0]
-`define CN              ir[11:10]
+// CN = (‘b00), BNE (‘b01), BLT (‘b10), BCS (‘b11)
+`define CN              ir[11:10]       // Branch Condition type
+// A Jump can store the return address (a.k.a Link) which
+// provides for returning using RET 
+`define JPLink          ir[11]          // Link=1 or not Link=0
 
 // Zero extend lower absolute address bits from the IR register.
 assign absoluteZeroExt = {{DataWidth-AbsoluteAddrSize{1'b0}}, `AbsoluteAddr};
@@ -109,6 +114,9 @@ assign relativeSignedExt = {{DataWidth-SignedAddrSize{ir[SignedAddrSize]}}, `Sig
 // because the PC has been auto-incremented to the next address which
 // means it isn't at the current address.
 assign branchAddress = mux_bra_to_alu2 + (pc_to_out - 2);
+
+// The return address from a JPL instruction
+assign returnAddress = source1 + 2;
 
 // -------- Module ------------------------------------------
 // Sequence control matrix
@@ -181,6 +189,9 @@ RegisterFile #(.DataWidth(DataWidth)) RegFile
     .SRC2(source2)          // Output
 );
 
+// -------- Module ------------------------------------------
+// Create ALU and connect to Register file and memory
+// ----------------------------------------------------------
 ALU #(.DataWidth(DataWidth)) Alu(
     .IFlags({ALUFlagSize{1'b0}}),    // Not used yet
     .A(source1),
@@ -203,7 +214,7 @@ Mux #(
 (
     .Select(addr_src),
     .DIn0(pc_to_out),           // PC source
-    .DIn1({DataWidth{1'b0}}),   // Source 2
+    .DIn1(source2),             // Source 2
     .DIn2(absoluteZeroExt),     // IR[8:0] zero extended to [15:0]
     .DIn3({DataWidth{1'b0}}),   // Unused
     .DOut(mux_addr_to_mem_addr)
@@ -214,7 +225,7 @@ Mux #(
     .SelectSize(2)) MUX_PC
 (
     .Select(pc_src),
-    .DIn0(branchAddress),   // Branch address
+    .DIn0(branchAddress),       // Branch address
     .DIn1(stk_to_mux_pc),       // Return address
     .DIn2(source1),             // Register file src 1 (address)
     .DIn3({DataWidth{1'b0}}),   // Unused
@@ -278,7 +289,7 @@ Register #(.DataWidth(DataWidth)) Stack
     .Clk(Clk),
     .Reset(Reset),
     .LD(stk_ld),
-    .DIn(pc_to_out),
+    .DIn(returnAddress),    // Reg file source1 + 2
     .DOut(stk_to_mux_pc)
 );
 

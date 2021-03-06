@@ -34,7 +34,7 @@ module fetch_tb;
    initial begin
       Clock_TB <= 1'b0;
    end
-
+ 
    // The clock runs until the sim finishes. #100 = 200ns clock cycle
    always begin
       #100 Clock_TB = ~Clock_TB;
@@ -54,7 +54,7 @@ module fetch_tb;
 
    always begin
       #50 // wait a bit
-
+    
       // ------------------------------------
       // Reset PC
       // ------------------------------------
@@ -63,12 +63,12 @@ module fetch_tb;
 
       // #200; // Wait for clock edge to pass
       // $display("%d <-- Marker", $stime);
-
+ 
       // if (dut.PC.DOut != 16'h0000) begin
       //    $display("%d %m: ERROR - Reset PC output incorrect (%h).", $stime, DOut_TB);
       //    $finish;
       // end
-
+ 
       #200; // Wait for clock edge
 
       // ------------------------------------

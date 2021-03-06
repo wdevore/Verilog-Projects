@@ -40,6 +40,7 @@ module sequence_control_tb;
    wire [RegFileSelectSize-1:0] REG_Dest_TB;     // 3Bits
    wire [RegFileSelectSize-1:0] REG_Src1_TB;
    wire [RegFileSelectSize-1:0] REG_Src2_TB;
+   wire Src1_Sel_TB;
    // ALU
    wire [ALUOpsSize-1:0] ALU_Op_TB;       // ALU operation: ADD, SUB etc.
    wire FLG_Ld_TB;
@@ -80,6 +81,7 @@ module sequence_control_tb;
       .REG_Dest(REG_Dest_TB),
       .REG_Src1(REG_Src1_TB),
       .REG_Src2(REG_Src2_TB),
+      .Src1_Sel(Src1_Sel_TB),
       .ALU_Op(ALU_Op_TB),
       .FLG_Ld(FLG_Ld_TB),
       .FLG_Rst(FLG_Rst_TB),

@@ -13,7 +13,7 @@
 `define BRD 4'b0111
 `define BRX 4'b1000
 `define JPL 4'b1001
-`define JPL 4'b1010
+`define JMP 4'b1001
 `define RET 4'b1011
 
 // Load/Store
