@@ -34,7 +34,7 @@ module fetch_tb;
    initial begin
       Clock_TB <= 1'b0;
    end
- 
+   
    // The clock runs until the sim finishes. #100 = 200ns clock cycle
    always begin
       #100 Clock_TB = ~Clock_TB;

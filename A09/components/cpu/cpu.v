@@ -55,6 +55,7 @@ wire [DataWidth-1:0] absoluteZeroExt;
 wire [DataWidth-1:0] relativeSignedExt;
 wire [DataWidth-1:0] branchAddress;
 wire [DataWidth-1:0] returnAddress;
+wire [DataWidth-1:0] alu_res_to_mux_data;
 
 // ---------------------------------------------------
 // Control matrix signals
@@ -86,6 +87,7 @@ wire src1_sel;
 wire [ALUFlagSize-1:0] alu_flgs_to_scm;
 wire [ALUOpsSize-1:0] alu_op;       // ALU operation: ADD, SUB etc.
 wire flg_ld;
+wire alu_ld;
 wire flg_rst;
 // Misc
 wire halt;               // Active High
@@ -144,6 +146,7 @@ SequenceControl #(.DataWidth(DataWidth)) ControlMatrix
     .ALU_Op(alu_op),
     .ALU_FlgsIn(alu_flgs_to_scm),
     .FLG_Ld(flg_ld),
+    .ALU_Ld(alu_ld),
     .FLG_Rst(flg_rst),
     .Halt(halt)
 );
@@ -251,7 +254,7 @@ Mux #(
     .Select(data_src),
     .DIn0(absoluteZeroExt),     // IR[8:0] zero extended to [15:0]
     .DIn1(mem_to_out),          // Memory data out
-    .DIn2(alu_to_out),          // ALU output
+    .DIn2(alu_res_to_mux_data),          // ALU output
     .DIn3({DataWidth{1'b0}}),   // Unused
     .DOut(mux_data_to_regfile)
 );
@@ -291,6 +294,15 @@ Register #(.DataWidth(DataWidth)) Stack
     .LD(stk_ld),
     .DIn(returnAddress),    // Reg file source1 + 2
     .DOut(stk_to_mux_pc)
+);
+
+Register #(.DataWidth(DataWidth)) ALUResults
+(
+    .Clk(Clk),
+    .Reset(Reset),
+    .LD(alu_ld),
+    .DIn(alu_to_out),       // ALU output
+    .DOut(alu_res_to_mux_data)
 );
 
 // The ALU flags could feed the control matrix and

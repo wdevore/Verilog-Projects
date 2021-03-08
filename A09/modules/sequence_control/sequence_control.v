@@ -37,6 +37,7 @@ module SequenceControl
     output wire Src1_Sel,           // 1Bit
     // ALU
     output wire [3:0] ALU_Op,       // ALU operation: ADD, SUB etc.
+    output wire ALU_Ld,
     output wire FLG_Ld,
     output wire FLG_Rst,
     // Misc
@@ -49,8 +50,7 @@ parameter S_Idle          = 3'b000,
           S_FetchPCtoMEM  = 3'b010,
           S_FetchMEMtoIR  = 3'b011,
           S_Decode        = 3'b100,
-          S_Execute       = 3'b101,
-          S_WriteBack     = 3'b110;
+          S_Execute       = 3'b101;
 
 // Instruction Field
 `define OPCODE IR[15:12]    // op-code field
@@ -89,6 +89,9 @@ reg stk_ld;
 reg bra_src;
 reg flg_ld;
 reg src1_sel;
+reg alu_ld;
+reg alu_op;
+reg alu_instr;
 
 // Simulation
 initial begin
@@ -123,12 +126,12 @@ always @(state) begin
             // --- Previous State clean up ---------
             pc_rst = 1'b1;      // Disable resetting PC
             pc_ld =  1'b1;      // Disable PC loading
-            // Note if previous instruction was JPL then the
-            // Stack is now loaded.
             stk_ld = 1'b1;      // Disable Stack loading
             flg_ld = 1'b1;      // Disable Flag state loading
+            alu_ld = 1'b1;      // Disable loading ALU output
+            flg_rst = 1'b1;     // Disbled ALU flags reset
             reg_we = 1'b1;      // Disable writing to reg file
-            
+
             // Next state
             next_state = S_FetchMEMtoIR;
 
@@ -240,6 +243,8 @@ always @(state) begin
                         bra_src = 1'b1;     // Select Sign extend
                         pc_src = 2'b00;     // Select Branch address source
                     end
+
+                    flg_rst = 1'b0;     // Enable ALU flags reset
                 end
 
                 `BRX: begin // Branch Indexed
@@ -263,8 +268,38 @@ always @(state) begin
                         pc_src = 2'b00;     // Select Branch address source
                         src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
                     end
+
+                    flg_rst = 1'b0;     // Enable ALU flags reset
+                end
+
+                `ADD: begin // ALU add operation
+                    alu_instr = 1'b1;
+                    alu_op = 4'b0000;
+                end
+                `SUB: begin // ALU subtract operation
+                    alu_instr = 1'b1;
+                    alu_op = 4'b0001;
+                end
+                `AND: begin // ALU AND operation
+                    alu_instr = 1'b1;
+                    alu_op = 4'b0010;
+                end
+                `OR: begin // ALU OR operation
+                    alu_instr = 1'b1;
+                    alu_op = 4'b0011;
+                end
+                `XOR: begin // ALU XOR operation
+                    alu_instr = 1'b1;
+                    alu_op = 4'b0100;
                 end
             endcase
+
+            if (alu_instr == 1'b1) begin
+                next_state = S_Execute;
+                src1_sel = 1'b1;    // Select Src1-IR to Reg-file Src1
+                flg_ld = 1'b0;      // Enable loading ALU flags
+                alu_ld = 1'b0;      // Enable loading ALU output
+            end
         end
 
         S_Execute: begin
@@ -282,10 +317,19 @@ always @(state) begin
                     reg_we = 1'b0;      // Enable writing to reg file
                     data_src = 2'b01;   // Select memory output source
                 end
+                default: begin
+                    if (alu_instr == 1'b1) begin
+                        alu_instr = 1'b0;   // Complete ALU instruction
+
+                        alu_ld = 1'b1;      // Disable loading ALU output
+                        data_src = 2'b10;   // Select ALU output
+                        reg_we = 1'b0;      // Enable write to Reg File
+                    end                    
+                end
             endcase
         end
 
-        // We don't want latches
+        // Avoiding latches
         default:
             next_state = S_Idle;
 
@@ -323,5 +367,6 @@ assign ADDR_Src = addr_src;
 assign Halt = halt;
 assign REG_WE = reg_we;
 assign DATA_Src = data_src;
-
+assign ALU_Ld = alu_ld;
+assign ALU_Op = alu_op;
 endmodule

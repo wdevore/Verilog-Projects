@@ -44,6 +44,7 @@ module sequence_control_tb;
    // ALU
    wire [ALUOpsSize-1:0] ALU_Op_TB;       // ALU operation: ADD, SUB etc.
    wire FLG_Ld_TB;
+   wire ALU_Ld_TB;
    wire FLG_Rst_TB;
    // Misc
    wire Halt_TB;               // Active High
@@ -84,6 +85,7 @@ module sequence_control_tb;
       .Src1_Sel(Src1_Sel_TB),
       .ALU_Op(ALU_Op_TB),
       .FLG_Ld(FLG_Ld_TB),
+      .ALU_Ld(ALU_Ld_TB),
       .FLG_Rst(FLG_Rst_TB),
       .Halt(Halt_TB)
    );

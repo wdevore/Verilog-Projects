@@ -29,7 +29,7 @@ module ALU
     input wire [DataWidth-1:0] A,
     input wire [DataWidth-1:0] B,
     input wire [3:0] FuncOp,            // Operation
-    output wire [DataWidth-1:0] Y,              // Results output
+    output wire [DataWidth-1:0] Y,      // Results output
     output wire [FlagBits-1:0] OFlags   // Flag result
 );
 
@@ -40,10 +40,10 @@ parameter ZeroFlag   = 0,
 
 // Allow operation codes
 parameter Add_OP  = 4'b0000,
-          Sub_OP  = 4'b0001, // Subtract
-          And_OP  = 4'b0011,
-          Or_OP   = 4'b0100,
-          Xor_OP  = 4'b0110;
+          Sub_OP  = 4'b0001,
+          And_OP  = 4'b0010,
+          Or_OP   = 4'b0011,
+          Xor_OP  = 4'b0100;
 
 // Local Vars
 reg [DataWidth-1:0] ORes;
