@@ -88,6 +88,7 @@ reg pc_ld;
 reg stk_ld;
 reg bra_src;
 reg flg_ld;
+reg flg_rst;
 reg src1_sel;
 reg alu_ld;
 reg alu_op;
@@ -105,24 +106,30 @@ always @(state) begin
     case (state)
         // Machine is idling
         S_Idle: begin
+            $display("%d S_Idle", $stime);
             // We always know immediately what the next state is
             next_state = S_Idle;
         end
 
         S_Reset: begin
+            $display("%d S_Reset", $stime);
             // --- Previous State clean up ---------
             // None
 
             next_state = S_FetchPCtoMEM;
 
             // --- Next state setup -------------
+            ir_ld = 1'b1;       // Disable IR loading
+            pc_inc = 1'b1;      // Disable PC Inc
             pc_rst = 1'b0;      // Enable resetting PC (active low)
+            mem_wr = 1'b1;      // Enable memory read
             mem_en = 1'b1;      // Disable memory
             halt = 1'b0;        // Disable Halt regardless of state
         end
 
         // Part 1 of fetch sequence: PC to Mem address input
         S_FetchPCtoMEM: begin
+            $display("%d S_FetchPCtoMEM", $stime);
             // --- Previous State clean up ---------
             pc_rst = 1'b1;      // Disable resetting PC
             pc_ld =  1'b1;      // Disable PC loading
@@ -143,6 +150,7 @@ always @(state) begin
 
         // Part 2 of fetch sequence
         S_FetchMEMtoIR: begin
+            $display("%d S_FetchMEMtoIR", $stime);
             mem_en = 1'b1;      // Disable memory
 
             next_state = S_Decode;
@@ -154,6 +162,7 @@ always @(state) begin
         end
 
         S_Decode: begin
+            $display("%d S_Decode", $stime);
             ir_ld = 1'b1;       // Disable loading IR
             pc_inc = 1'b1;      // Disable Increment PC
 
@@ -230,6 +239,8 @@ always @(state) begin
                         BNE:
                             takeBranch = `ZFlag == 1'b0; // If Z-flag NOT Set then branch
                         BLT:
+                            // Computer Architecture Tutorial Using an FPGA: ARM and Verilog Introduction
+                            // Chp 11 "Status Register" pg 213-214
                             takeBranch = `NFlag != `VFlag; // If Sign Flag != Overfloat Flag
                         BCS:
                             takeBranch = `CFlag == 1'b1; // If Carry set then branch
@@ -295,6 +306,7 @@ always @(state) begin
             endcase
 
             if (alu_instr == 1'b1) begin
+                $display("%d S_Decode.alu_instr", $stime);
                 next_state = S_Execute;
                 src1_sel = 1'b1;    // Select Src1-IR to Reg-file Src1
                 flg_ld = 1'b0;      // Enable loading ALU flags
@@ -303,6 +315,7 @@ always @(state) begin
         end
 
         S_Execute: begin
+            $display("%d S_Execute", $stime);
             // The next state is alway fetch
             next_state = S_FetchPCtoMEM;
 
@@ -319,6 +332,7 @@ always @(state) begin
                 end
                 default: begin
                     if (alu_instr == 1'b1) begin
+                        $display("%d S_Execute.alu_instr", $stime);
                         alu_instr = 1'b0;   // Complete ALU instruction
 
                         alu_ld = 1'b1;      // Disable loading ALU output
@@ -361,6 +375,7 @@ assign IR_Ld = ir_ld;
 assign STK_Ld = stk_ld;
 assign BRA_Src = bra_src;
 assign FLG_Ld = flg_ld;
+assign FLG_Rst = flg_rst;
 assign MEM_Wr = mem_wr;
 assign MEM_En = mem_en;
 assign ADDR_Src = addr_src;

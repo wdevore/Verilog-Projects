@@ -28,7 +28,7 @@ module Memory
     reg [DataWidth-1:0] mem [(1<<AddrWidth)-1:0]; // The actual memory
 
     // Debugging
-    // integer index;
+    integer index;
     
     initial begin
         // I explicitly specify the start/end address in order to avoid the
@@ -40,8 +40,9 @@ module Memory
         //     mem[index] = 16'h0000;
 
         // Example of displaying contents
-        // for(index = 0; index < 25; index = index + 1)
-        //     $display("memory[%d] = %b <- 0x%h", index[4:0], mem[index], mem[index]);
+        $display("------- ROM contents ------");
+        for(index = 0; index < 10; index = index + 1)
+            $display("memory[%d] = %b <- 0x%h", index[4:0], mem[index], mem[index]);
     end
     
     // --------------------------------

@@ -159,7 +159,7 @@ ProgramCounter #(
     .WordByteSize(WordSize)) PC
 (
     .Clk(Clk),
-    .Reset(Reset),
+    .Reset(pc_rst),
     .LD(pc_ld),
     .Inc(pc_inc),
     .DIn(mux_pc_to_pc),
@@ -173,7 +173,8 @@ Memory #(.AddrWidth(AddrWidth)) memory(
     .Clk(Clk),
     .DIn(source1),              // Register file src 1
     .Address(mux_addr_to_mem_addr[AddrWidth-1:0]),
-    .Write_EN(mem_en),
+    .Write_EN(mem_wr),
+    .Mem_En(mem_en),
     .DOut(mem_to_out)
 );
 

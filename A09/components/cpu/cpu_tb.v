@@ -12,9 +12,8 @@ module fetch_tb;
    // Test bench Signals
 
    // Inputs
-   reg Reset_TB;
-
    reg Clock_TB;
+   reg Reset_TB;
 
    // -------------------------------------------
    // Device under test
@@ -50,26 +49,41 @@ module fetch_tb;
       $display("%d %m: Starting testbench simulation...", $stime);
 
       // Setup defaults
+      Reset_TB = 1'b1;
    end
 
    always begin
-      #50 // wait a bit
-    
-      // ------------------------------------
-      // Reset PC
-      // ------------------------------------
-      // Reset_TB = 1'b0;  // Enable reset
-      // PC_Ld_TB = 1'b1;  // Disable load
 
-      // #200; // Wait for clock edge to pass
-      // $display("%d <-- Marker", $stime);
+      // ------------------------------------
+      // Allow CPU to idle for several cycles
+      // ------------------------------------
+      #600 // wait 3 cycles
  
-      // if (dut.PC.DOut != 16'h0000) begin
-      //    $display("%d %m: ERROR - Reset PC output incorrect (%h).", $stime, DOut_TB);
-      //    $finish;
-      // end
+      // ------------------------------------
+      // Reset CPU
+      // ------------------------------------
+      Reset_TB = 1'b0;  // Enable reset
+
+      #100; // Wait 1/2 cycle. The CPU state should have changed
+      $display("%d <-- Marker", $stime);
+
+      #1; // Delay
+      if (cpu.ControlMatrix.state !== cpu.ControlMatrix.S_Reset) begin
+         $display("%d %m: ERROR - Reset state incorrect (%b)", $stime, cpu.ControlMatrix.state);
+         $finish;
+      end
+      $display("%d CPU state: (%b)", $stime, cpu.ControlMatrix.state);
+  
+      Reset_TB = 1'b1;  // Disable reset
  
-      #200; // Wait for clock edge
+      #(200); // Wait 1 cycle then raise reset
+      if (cpu.ControlMatrix.state !== cpu.ControlMatrix.S_FetchPCtoMEM) begin
+         $display("%d %m: ERROR - Expected S_FetchPCtoMEM got: (%b)", $stime, cpu.ControlMatrix.state);
+         $finish;
+      end
+      $display("%d CPU state: (%b)", $stime, cpu.ControlMatrix.state);
+
+      #(200*10); // Allow 10 cycles for simulation
 
       // ------------------------------------
       // Simulation duration
