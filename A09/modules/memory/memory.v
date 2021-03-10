@@ -40,9 +40,9 @@ module Memory
         //     mem[index] = 16'h0000;
 
         // Example of displaying contents
-        $display("------- ROM contents ------");
-        for(index = 0; index < 10; index = index + 1)
-            $display("memory[%d] = %b <- 0x%h", index[4:0], mem[index], mem[index]);
+        // $display("------- ROM contents ------");
+        // for(index = 0; index < 10; index = index + 1)
+        //     $display("memory[%d] = %b <- 0x%h", index[4:0], mem[index], mem[index]);
     end
     
     // --------------------------------

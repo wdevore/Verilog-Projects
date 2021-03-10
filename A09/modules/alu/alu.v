@@ -53,11 +53,11 @@ reg cF;
 always @(*)
     case (FuncOp)
         Add_OP: begin
-            // $display("Add_OP: A: %16b, B: %16b", A, B);
+            $display("Add_OP: A: %h, B: %h", A, B);
 
             // Carry and sum
             {cF, ORes} = A + B + IFlags[CarryFlag];
-            // $display("Add_OP: Carry %b, Sum %b", cF, ORes);
+            $display("Add_OP: Carry %b, Sum %h", cF, ORes);
         end
         Sub_OP: begin  // As if the Carry == 0
             // $display("Sub_OP: %d - %d", A, B);
@@ -77,7 +77,7 @@ always @(*)
             {cF, ORes} = {1'b0, A ^ B};
         end
         default: begin
-            // $display("*** UNKNOWN OP: %04b", FuncOp);
+            $display("*** ALU UNKNOWN OP: %04b", FuncOp);
             ORes = {DataWidth{1'bx}};
         end
     endcase

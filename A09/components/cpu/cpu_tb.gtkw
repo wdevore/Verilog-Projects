@@ -1,0 +1,78 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Wed Mar 10 01:29:02 2021
+[*]
+[dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.vcd"
+[dumpfile_mtime] "Wed Mar 10 01:26:22 2021"
+[dumpfile_size] 34580
+[savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.gtkw"
+[timestart] 2528000
+[size] 2338 857
+[pos] 0 27
+*-17.301369 3578600 700000 801000 900200 1000200 1200700 1499500 1900400 2300100 2700500 3500300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] fetch_tb.
+[treeopen] fetch_tb.cpu.
+[sst_width] 242
+[signals_width] 288
+[sst_expanded] 1
+[sst_vpaned_height] 232
+@28
+[color] 2
+fetch_tb.Clock_TB
+fetch_tb.Reset_TB
+fetch_tb.cpu.ControlMatrix.state[2:0]
+fetch_tb.cpu.ControlMatrix.next_state[2:0]
+@29
+fetch_tb.cpu.halt
+@22
+[color] 3
+fetch_tb.cpu.ControlMatrix.IR[15:0]
+@28
+fetch_tb.cpu.ControlMatrix.MEM_En
+fetch_tb.cpu.mem_wr
+fetch_tb.cpu.ControlMatrix.IR_Ld
+fetch_tb.cpu.pc_inc
+@22
+[color] 7
+fetch_tb.cpu.pc_to_out[15:0]
+@28
+fetch_tb.cpu.addr_src[1:0]
+@22
+fetch_tb.cpu.mem_to_out[15:0]
+@28
+fetch_tb.cpu.data_src[1:0]
+fetch_tb.cpu.reg_we
+fetch_tb.cpu.reg_src1[2:0]
+fetch_tb.cpu.reg_src2[2:0]
+fetch_tb.cpu.reg_dest[2:0]
+fetch_tb.cpu.src1_sel
+@22
+fetch_tb.cpu.RegFile.DIn[15:0]
+fetch_tb.cpu.RegFile.SRC1[15:0]
+fetch_tb.cpu.RegFile.SRC2[15:0]
+@c00022
+[color] 5
+fetch_tb.cpu.alu_op[3:0]
+@28
+[color] 5
+(0)fetch_tb.cpu.alu_op[3:0]
+[color] 5
+(1)fetch_tb.cpu.alu_op[3:0]
+[color] 5
+(2)fetch_tb.cpu.alu_op[3:0]
+[color] 5
+(3)fetch_tb.cpu.alu_op[3:0]
+@1401200
+-group_end
+@22
+fetch_tb.cpu.alu_res_to_mux_data[15:0]
+@c00028
+fetch_tb.cpu.mux_src1_to_reg_src1[2:0]
+@28
+(0)fetch_tb.cpu.mux_src1_to_reg_src1[2:0]
+(1)fetch_tb.cpu.mux_src1_to_reg_src1[2:0]
+(2)fetch_tb.cpu.mux_src1_to_reg_src1[2:0]
+@1401200
+-group_end
+[pattern_trace] 1
+[pattern_trace] 0

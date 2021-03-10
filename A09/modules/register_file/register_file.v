@@ -29,8 +29,10 @@ reg [DataWidth-1:0] reg_file [(1<<RegisterCnt)-1:0];
 // An alternative is to sync the outputs too. Mine is Async
 // See: "Digital Systems Design Using Verilog by Charles Roth, Lizy K. John, Byeong Kil Lee 2016 MIPS CPU"
 always @(negedge Clk) begin
-    if (REG_WE == 1'b0)
-        reg_file[REG_Dst] <= DIn;
+    if (REG_WE == 1'b0) begin
+        $display("%d Write Reg File DIn: %h, Reg: ", $stime, DIn, REG_Dst);
+        reg_file[REG_Dst] <= DIn;        
+    end
 end
 
 // Source outputs

@@ -6,7 +6,7 @@
 module fetch_tb;
    parameter AddrWidth_TB = 8;      // 8bit Address width
    parameter DataWidth_TB = 16;     // 16bit Data width
-   parameter WordSize_TB = 2;       // Instructions a 2bytes in size
+   parameter WordSize_TB = 1;       // Instructions a 1 = 2bytes in size
    parameter SelectSize_TB = 2;     // MUX select bits
    
    // Test bench Signals
@@ -67,7 +67,7 @@ module fetch_tb;
       #100; // Wait 1/2 cycle. The CPU state should have changed
       $display("%d <-- Marker", $stime);
 
-      #1; // Delay
+      #1; // Wait for the falling edge
       if (cpu.ControlMatrix.state !== cpu.ControlMatrix.S_Reset) begin
          $display("%d %m: ERROR - Reset state incorrect (%b)", $stime, cpu.ControlMatrix.state);
          $finish;
@@ -75,15 +75,15 @@ module fetch_tb;
       $display("%d CPU state: (%b)", $stime, cpu.ControlMatrix.state);
   
       Reset_TB = 1'b1;  // Disable reset
- 
+
       #(200); // Wait 1 cycle then raise reset
       if (cpu.ControlMatrix.state !== cpu.ControlMatrix.S_FetchPCtoMEM) begin
          $display("%d %m: ERROR - Expected S_FetchPCtoMEM got: (%b)", $stime, cpu.ControlMatrix.state);
          $finish;
       end
       $display("%d CPU state: (%b)", $stime, cpu.ControlMatrix.state);
-
-      #(200*10); // Allow 10 cycles for simulation
+  
+      #(200*15); // Allow 10 cycles for simulation
 
       // ------------------------------------
       // Simulation duration

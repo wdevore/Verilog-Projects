@@ -143,6 +143,7 @@ SequenceControl #(.DataWidth(DataWidth)) ControlMatrix
     .REG_Dest(reg_dest),
     .REG_Src1(reg_src1),
     .REG_Src2(reg_src2),
+    .Src1_Sel(src1_sel),
     .ALU_Op(alu_op),
     .ALU_FlgsIn(alu_flgs_to_scm),
     .FLG_Ld(flg_ld),

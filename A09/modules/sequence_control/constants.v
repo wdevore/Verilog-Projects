@@ -14,10 +14,11 @@
 `define BRX 4'b1000
 `define JPL 4'b1001
 `define JMP 4'b1001
-`define RET 4'b1011
+`define RET 4'b1010
 
 // Load/Store
-`define LDI 4'b1100
-`define LD  4'b1101
-`define ST  4'b1110
-`define STX 4'b1111
+`define LDI 4'b1011
+`define LD  4'b1100
+`define ST  4'b1101
+`define STX 4'b1110
+`define MOV 4'b1111
