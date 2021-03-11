@@ -113,6 +113,7 @@ always @(state) begin
             $display("%d S_Idle", $stime);
             // We always know immediately what the next state is
             next_state = S_Idle;
+            halt = 1'b0;        // Disable Halt regardless of state
         end
 
         S_Reset: begin

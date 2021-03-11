@@ -21,6 +21,8 @@ Memory map
 - Load ROM
 - Sequence state = 'b00
 
+https://www.chipverify.com/verilog/verilog-timing-control
+
 # Synthization
 
 

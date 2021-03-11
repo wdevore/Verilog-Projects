@@ -60,9 +60,10 @@ always @(*)
             $display("Add_OP: Carry %b, Sum %h", cF, ORes);
         end
         Sub_OP: begin  // As if the Carry == 0
-            // $display("Sub_OP: %d - %d", A, B);
+            $display("Sub_OP: A: %h - B: %h", A, B);
 
             {cF, ORes} = A + ((~B) + 1);
+            $display("Sub_OP: Carry %b, Sum %h", cF, ORes);
         end
         And_OP: begin
             // $display("And_OP: (%d) & (%d)", A, B);
