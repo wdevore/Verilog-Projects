@@ -231,7 +231,10 @@ always @(state) begin
 
                 // This is also the JMP instruction
                 `JPL: begin // Jump and "Link (JPL) or not Link (JMP)"
-                    $display("%d OPCODE: JPL", $stime);
+                    if (`JPLink == 1'b1)
+                        $display("%d OPCODE: JMP", $stime);
+                    else
+                        $display("%d OPCODE: JPL", $stime);
                     // IR[11] specifies stack action
 
                     src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
@@ -247,7 +250,7 @@ always @(state) begin
                 end
 
                 `BRD: begin // Branch direct
-                    $display("%d OPCODE: BRD", $stime);
+                    $display("%d OPCODE: BRD: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
                     case (`CN)
                         BEQ:
                             takeBranch = `ZFlag == 1'b1; // If Z-flag Set then branch
@@ -265,6 +268,7 @@ always @(state) begin
                     // branch address specified by the lower 10 bits, but
                     // only if a condition is meet.
                     if (takeBranch == 1'b1) begin
+                        $display("%d Taking branch...", $stime);
                         pc_ld = 1'b0;       // Enable PC load
                         bra_src = 1'b1;     // Select Sign extend
                         pc_src = 2'b00;     // Select Branch address source
@@ -356,7 +360,7 @@ always @(state) begin
                         $display("%d S_Execute.alu_instr", $stime);
                         alu_instr = 1'b0;   // Complete ALU instruction
 
-                        alu_op = 4'b1000;   // Select Unknown Op
+                        //alu_op = 4'b1000;   // Select Unknown Op
                         alu_ld = 1'b1;      // Disable loading ALU output
                         data_src = 2'b10;   // Select ALU output
                         reg_we = 1'b0;      // Enable write to Reg File

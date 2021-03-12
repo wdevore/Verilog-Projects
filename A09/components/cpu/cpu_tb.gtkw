@@ -1,36 +1,37 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Thu Mar 11 03:04:07 2021
+[*] Fri Mar 12 20:38:40 2021
 [*]
 [dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.vcd"
-[dumpfile_mtime] "Thu Mar 11 03:03:23 2021"
-[dumpfile_size] 34598
+[dumpfile_mtime] "Fri Mar 12 20:35:28 2021"
+[dumpfile_size] 35287
 [savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.gtkw"
-[timestart] 1646400
-[size] 2338 857
+[timestart] 0
+[size] 2338 891
 [pos] 0 27
-*-17.427975 2221800 1700000 2500000 500000 1100300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-17.427975 941600 1700000 2900000 500000 1100300 3500000 4100000 2300700 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[markername] ALDI R2
+[markername] BRET
+[markername] CLDI R1
+[markername] DJPL
+[markername] ENOP 1
+[markername] FHLT
+[markername] GNOP
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
 [sst_width] 242
 [signals_width] 288
 [sst_expanded] 1
-[sst_vpaned_height] 232
+[sst_vpaned_height] 242
 @28
 [color] 2
 cpu_tb.Clock_TB
 [color] 1
 cpu_tb.cpu.Reset
-@29
 [color] 1
 cpu_tb.cpu.halt
-@28
 cpu_tb.cpu.ControlMatrix.state[2:0]
 cpu_tb.cpu.ControlMatrix.next_state[2:0]
-cpu_tb.cpu.pc_inc
-@22
-[color] 7
-cpu_tb.cpu.pc_to_out[15:0]
 @c00022
 [color] 3
 cpu_tb.cpu.ir[15:0]
@@ -69,19 +70,53 @@ cpu_tb.cpu.ir[15:0]
 (15)cpu_tb.cpu.ir[15:0]
 @1401200
 -group_end
+@200
+-
+@28
+cpu_tb.cpu.pc_inc
+cpu_tb.cpu.pc_ld
+cpu_tb.cpu.pc_src[1:0]
 @22
-cpu_tb.cpu.alu_op[3:0]
-cpu_tb.cpu.alu_res_to_mux_data[15:0]
-[color] 5
-cpu_tb.cpu.alu_to_out[15:0]
+[color] 7
+cpu_tb.cpu.pc_to_out[15:0]
+@200
+-
 @28
 cpu_tb.cpu.ControlMatrix.REG_Src1[2:0]
 cpu_tb.cpu.ControlMatrix.REG_Src2[2:0]
 cpu_tb.cpu.ControlMatrix.REG_Dest[2:0]
+cpu_tb.cpu.data_src[1:0]
 @22
+cpu_tb.cpu.mux_data_to_regfile[15:0]
 cpu_tb.cpu.RegFile.DIn[15:0]
 @28
 cpu_tb.cpu.mem_en
 cpu_tb.cpu.reg_we
+@200
+-
+@22
+cpu_tb.cpu.alu_op[3:0]
+cpu_tb.cpu.alu_to_flags[3:0]
+@28
+cpu_tb.cpu.alu_ld
+cpu_tb.cpu.flg_ld
+cpu_tb.cpu.flg_rst
+@22
+cpu_tb.cpu.alu_flgs_to_scm[3:0]
+[color] 5
+cpu_tb.cpu.alu_to_out[15:0]
+cpu_tb.cpu.alu_res_to_mux_data[15:0]
+@200
+-
+@28
+cpu_tb.cpu.bra_src
+@22
+cpu_tb.cpu.branchAddress[15:0]
+cpu_tb.cpu.mux_bra_to_alu2[15:0]
+cpu_tb.cpu.relativeSignedExt[15:0]
+@28
+cpu_tb.cpu.stk_ld
+@22
+cpu_tb.cpu.stk_to_mux_pc[15:0]
 [pattern_trace] 1
 [pattern_trace] 0

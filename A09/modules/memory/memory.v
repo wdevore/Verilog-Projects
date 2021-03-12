@@ -52,7 +52,7 @@ module Memory
     begin
         if (~Mem_En && ~Write_EN) begin
             mem[Address] <= DIn;
-            $display("(%d) WRITE data 0x%h, 0x%h, 0x%h", $stime, Address, mem[Address], DIn);
+            $display("%d WRITE data Addr (0x%h), Data(0x%h), DIn(0x%h)", $stime, Address, mem[Address], DIn);
             // $display("written data 0x%h, 0x%h, 0x%h", Address, mem[Address], DIn);
         end
     end
@@ -64,7 +64,7 @@ module Memory
     begin
         if (~Mem_En && Write_EN) begin  // = Read
             DOut <= mem[Address];
-            $display("(%d) READ data 0x%h, 0x%h, 0x%h", $stime, Address, mem[Address], DIn);
+            $display("%d READ data Addr (0x%h), Data(0x%h), DIn(0x%h)", $stime, Address, mem[Address], DIn);
         end
     end
 

@@ -50,38 +50,39 @@ reg [DataWidth-1:0] ORes;
 // wire oF, nF, zF;
 reg cF;
 
-always @(*)
+always @(FuncOp, A, B, IFlags) begin
     case (FuncOp)
         Add_OP: begin
-            $display("Add_OP: A: %h, B: %h", A, B);
+            $display("%d Add_OP: A: %h, B: %h", $stime, A, B);
 
             // Carry and sum
             {cF, ORes} = A + B + IFlags[CarryFlag];
-            $display("Add_OP: Carry %b, Sum %h", cF, ORes);
+            $display("%d Add_OP: Carry %b, Sum %h", $stime, cF, ORes);
         end
         Sub_OP: begin  // As if the Carry == 0
-            $display("Sub_OP: A: %h - B: %h", A, B);
+            $display("%d Sub_OP: A: %h - B: %h", $stime, A, B);
 
             {cF, ORes} = A + ((~B) + 1);
-            $display("Sub_OP: Carry %b, Sum %h", cF, ORes);
+            $display("%d Sub_OP: Carry %b, Diff %h", $stime, cF, ORes);
         end
         And_OP: begin
-            // $display("And_OP: (%d) & (%d)", A, B);
+            $display("%d And_OP: (%d) & (%d)", $stime, A, B);
             {cF, ORes} = {1'b0, A & B};
         end
         Or_OP: begin
-            // $display("Or_OP: (%d) | (%d)", A, B);
+            $display("%d Or_OP: (%d) | (%d)", $stime, A, B);
             {cF, ORes} = {1'b0, A | B};
         end
         Xor_OP: begin
-            // $display("Xor_OP: (%d) ^ (%d)", A, B);
+            $display("%d Xor_OP: (%d) ^ (%d)", $stime, A, B);
             {cF, ORes} = {1'b0, A ^ B};
         end
         default: begin
-            $display("*** ALU UNKNOWN OP: %04b", FuncOp);
-            ORes = {DataWidth{1'bx}};
+            $display("%d *** ALU UNKNOWN OP: %04b", $stime, FuncOp);
+            ORes = {DataWidth{1'b0}};// {DataWidth{1'bx}};
         end
     endcase
+end
 
 // Set remaining flags
 // assign zF = ORes == {DataWidth{1'b0}};  // Zero

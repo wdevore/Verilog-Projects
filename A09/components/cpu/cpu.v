@@ -54,7 +54,6 @@ wire [DataWidth-1:0] source2;
 wire [DataWidth-1:0] absoluteZeroExt;
 wire [DataWidth-1:0] relativeSignedExt;
 wire [DataWidth-1:0] branchAddress;
-wire [DataWidth-1:0] returnAddress;
 wire [DataWidth-1:0] alu_res_to_mux_data;
 
 // ---------------------------------------------------
@@ -110,15 +109,12 @@ assign absoluteZeroExt = {{DataWidth-AbsoluteAddrSize{1'b0}}, `AbsoluteAddr};
 // Sign extend the lower signed address bit from the IR register.
 // assign relativeSignedExt = (ir[SignedAddrSize] == 1) ? {{DataWidth-SignedAddrSize{1'b1}}, `SignedAddr} : {{DataWidth-SignedAddrSize{1'b0}}, `SignedAddr};
 // OR
-assign relativeSignedExt = {{DataWidth-SignedAddrSize{ir[SignedAddrSize]}}, `SignedAddr};
+assign relativeSignedExt = {{DataWidth-SignedAddrSize{ir[SignedAddrSize-1]}}, `SignedAddr};
 
 // To generate the branch address we need to subtract 1 from the PC
 // because the PC has been auto-incremented to the next address which
 // means it isn't at the current address.
 assign branchAddress = mux_bra_to_alu2 + (pc_to_out - WordSize);
-
-// The return address from a JPL instruction
-assign returnAddress = source1 + WordSize;
 
 // -------- Module ------------------------------------------
 // Sequence control matrix
@@ -256,7 +252,7 @@ Mux #(
     .Select(data_src),
     .DIn0(absoluteZeroExt),     // IR[8:0] zero extended to [15:0]
     .DIn1(mem_to_out),          // Memory data out
-    .DIn2(alu_res_to_mux_data),          // ALU output
+    .DIn2(alu_res_to_mux_data), // ALU output
     .DIn3({DataWidth{1'b0}}),   // Unused
     .DOut(mux_data_to_regfile)
 );
@@ -294,7 +290,7 @@ Register #(.DataWidth(DataWidth)) Stack
     .Clk(Clk),
     .Reset(Reset),
     .LD(stk_ld),
-    .DIn(returnAddress),    // Reg file source1 + 2
+    .DIn(pc_to_out),    // No need adjust PC because it sits at the next addr.
     .DOut(stk_to_mux_pc)
 );
 
@@ -308,12 +304,12 @@ Register #(.DataWidth(DataWidth)) ALUResults
 );
 
 // The ALU flags could feed the control matrix and
-// feed back into the ALU, however, for A09 only
+// feed back into the ALU, however, for A09 only,
 // the control matrix is feed.
 Register #(.DataWidth(ALUFlagSize)) ALU_Flags
 (
     .Clk(Clk),
-    .Reset(flg_rst),        // Typically reset after instruction
+    .Reset(flg_rst),        // Typically reset after Branch instructions
     .LD(flg_ld),
     .DIn(alu_to_flags),
     .DOut(alu_flgs_to_scm)

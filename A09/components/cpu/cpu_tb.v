@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
-`define ROM "../../roms/Add_Halt.dat"
+`define ROM "../../roms/JPL_Halt.dat"
 
 module cpu_tb;
    parameter AddrWidth_TB = 8;      // 8bit Address width
@@ -31,7 +31,7 @@ module cpu_tb;
       .Clk(Clock_TB),
       .Reset(Reset_TB)
    );
-   
+
    // -------------------------------------------
    // Test bench clock
    // -------------------------------------------
@@ -39,12 +39,12 @@ module cpu_tb;
       Clock_TB <= 1'b0;
       cycleCnt = 0;
    end
-
+ 
    // The clock runs until the sim finishes. #100 = 200ns clock cycle
    always begin
       #100 Clock_TB = ~Clock_TB;
    end
-   
+    
    // -------------------------------------------
    // Configure starting sim states
    // -------------------------------------------
@@ -67,11 +67,11 @@ module cpu_tb;
       $display("------- ROM contents ------");
       for(index = 0; index < 10; index = index + 1)
          $display("memory[%d] = %b <- 0x%h", index[3:0], cpu.memory.mem[index], cpu.memory.mem[index]);
- 
+  
       // Setup defaults
       Reset_TB = 1'b1;
    end
- 
+   
    always begin
       // Wait for halt to deactivate during Idle state
       @(negedge cpu.halt)
@@ -92,7 +92,7 @@ module cpu_tb;
       end
   
       Reset_TB = 1'b1;  // Disable reset
-
+ 
       // ---------------------------------------------------
       // Wait for the beginning of an instruction.
       // ---------------------------------------------------
@@ -100,21 +100,25 @@ module cpu_tb;
       wait(cpu.ControlMatrix.state === cpu.ControlMatrix.S_FetchPCtoMEM && cpu.ControlMatrix.next_state === cpu.ControlMatrix.S_FetchMEMtoIR);
       $display("%d <-- Instruction (%d) at", $stime, cycleCnt);
       cycleCnt++;
-
+  
       // Sync on PC incrementing
       wait(cpu.pc_inc === 1'b0);
-  
+   
       // Now wait for the neg-edge when the PC is incremented
       @(negedge Clock_TB);
-
+  
       // If should have changed from 0x0000 to 0x0001
       wait(cpu.pc_to_out === 16'h0001);
-       
-      `include "tests/add_halt.v"
-  
+ 
+      // `include "tests/add_halt.v"
+      // `include "tests/sub_halt.v"
+
+      // Use this if the simulation goes into a "run-away"
+      // #5000 $finish; 
+
       // Wait for Halt to complete. Waiting on a posedge will
       // conflicts with other waits that occur at the same time,
-      // so we wait on the neg-ege.
+      // so we wait on the neg-edge.
       @(negedge cpu.halt)
       $display("%d %m: Halt un-triggered", $stime);
 
