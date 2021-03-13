@@ -18,8 +18,10 @@ module Register
 always @(negedge Clk) begin
     if (~Reset)
         DOut <= {DataWidth{1'b0}};
-    else if (~LD)
+    else if (~LD) begin
+        $display("%d Register Load: %h", $stime, DIn);
         DOut <= DIn;
+    end
     else
         DOut <= DOut;
 end

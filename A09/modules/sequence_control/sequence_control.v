@@ -207,7 +207,7 @@ always @(state) begin
                 end
 
                 `ST: begin // Store Direct
-                    $display("%d OPCODE: st", $stime);
+                    $display("%d OPCODE: ST", $stime);
                     // IR[11:9] specifies a Src register for the
                     // the data. destination Address is "zero-extended"
                     // and specified IR[8:0]
@@ -225,7 +225,7 @@ always @(state) begin
 
                     mem_wr = 1'b0;      // Enable writing to memory
                     mem_en = 1'b0;      // Enable memory
-                    addr_src = 2'b10;   // Select zero-extend as source
+                    addr_src = 2'b01;   // Select Source2 as Address
                     src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
                 end
 

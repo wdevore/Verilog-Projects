@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
-`define ROM "../../roms/JPL_Halt.dat"
+`define ROM "../../roms/STX_Halt.dat"
 
 module cpu_tb;
    parameter AddrWidth_TB = 8;      // 8bit Address width
@@ -64,8 +64,8 @@ module cpu_tb;
       //     mem[index] = 16'h0000;
 
       // Example of displaying contents
-      $display("------- ROM contents ------");
-      for(index = 0; index < 10; index = index + 1)
+      $display("------- Memory contents ------");
+      for(index = 0; index < 15; index = index + 1)
          $display("memory[%d] = %b <- 0x%h", index[3:0], cpu.memory.mem[index], cpu.memory.mem[index]);
   
       // Setup defaults
@@ -115,13 +115,21 @@ module cpu_tb;
 
       // Use this if the simulation goes into a "run-away"
       // #5000 $finish; 
-
+   
       // Wait for Halt to complete. Waiting on a posedge will
       // conflicts with other waits that occur at the same time,
       // so we wait on the neg-edge.
       @(negedge cpu.halt)
       $display("%d %m: Halt un-triggered", $stime);
-
+ 
+      $display("------- Reg File contents ------");
+      for(index = 0; index < 8; index = index + 1)
+         $display("Reg [%h] = %b <- 0x%h", index, cpu.RegFile.reg_file[index], cpu.RegFile.reg_file[index]);
+ 
+      $display("------- Memory contents ------");
+      for(index = 0; index < 15; index = index + 1)
+         $display("memory [%h] = %b <- 0x%h", index, cpu.memory.mem[index], cpu.memory.mem[index]);
+ 
       // ------------------------------------
       // Simulation END
       // ------------------------------------
