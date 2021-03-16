@@ -119,22 +119,22 @@ Adr Hex     Binary                  Assembly
 ```
 @00 B205    1011_0010_0000_0101     LDI R1, 0x05  <-- Counter (A)
 @01 B401    1011_0100_0000_0001     LDI R2, 0x01  <-- Count down by 1 (B)
-@02 3221    0011_0010_0010_0001     SUB R1, R2, R1   <-------  Dec (A - B)
-@03 77FF    0111_0111_1111_1111     BNE -1           -------|  Loop until 0
+@02 3221    0011_0010_0010_0001     SUB R1, R2, R1   <-|  Dec (A - B)
+@03 77FF    0111_0111_1111_1111     BNE -1    ---------|  Loop until 0
 @04 1000    0001_0000_0000_0000     HLT
 ```
 
 # Out_Mem.dat
 ```
-Binary      Binary                  Assembly
-@00 F002    1111_1000_0000_0010     OUT 0x02   <-- Copy mem 0 to output
+Adr Hex     Binary                  Assembly
+@00 F002    1111_1000_0000_0010     OUT 0x02   <-- Copy mem to output
 @01 1000    0001_0000_0000_0000     HLT
 @02 F0F0                            [Data]
 ```
 
 # Out_Reg.dat
 ```
-Binary      Binary                  Assembly
+Adr Hex     Binary                  Assembly
 @00 B2A5    1011_0010_1010_0101     LDI R1, 0xA5
 @01 F801    1111_1000_0000_0001     OUT R1   <-- Copy Reg 1 to output
 @02 1000    0001_0000_0000_0000     HLT
