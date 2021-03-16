@@ -21,4 +21,4 @@
 `define LD  4'b1100
 `define ST  4'b1101
 `define STX 4'b1110
-`define MOV 4'b1111
+`define OUT 4'b1111

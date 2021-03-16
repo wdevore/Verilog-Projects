@@ -40,6 +40,8 @@ module SequenceControl
     output wire ALU_Ld,
     output wire FLG_Ld,
     output wire FLG_Rst,
+    output wire OUT_Ld,
+    output wire [1:0] OUT_Sel,     // 2Bits
     // Misc
     output wire Halt                // Active High
 );
@@ -61,6 +63,9 @@ parameter S_Idle          = 3'b000,
 `define REG_DEST IR[11:9]     // Dest reg file or Src 1
 
 `define CN IR[11:10]        // Branch conditions
+`define IgnoreDest IR[8]    // Used mostly SUB for comparisons
+`define OutSrc IR[11]       // Memory (0) or Register file (1)
+
 parameter BEQ = 2'b00;      // Branch on equal
 parameter BNE = 2'b01;      // Branch on equal
 parameter BLT = 2'b10;      // Branch on equal
@@ -97,6 +102,8 @@ reg src1_sel;
 reg alu_ld;
 reg [ALUOpSize-1:0] alu_op;
 reg alu_instr;
+reg out_ld;
+reg [1:0] out_sel;
 
 // Simulation
 initial begin
@@ -141,6 +148,7 @@ always @(state) begin
             stk_ld = 1'b1;      // Disable Stack loading
             flg_ld = 1'b1;      // Disable Flag state loading
             alu_ld = 1'b1;      // Disable loading ALU output
+            out_ld = 1'b1;      // Disable output loading
             flg_rst = 1'b1;     // Disbled ALU flags reset
             reg_we = 1'b1;      // Disable writing to reg file
             src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
@@ -216,6 +224,23 @@ always @(state) begin
                     mem_en = 1'b0;      // Enable memory
                     addr_src = 2'b10;   // Select zero-extend as source
                     src1_sel = 1'b0;    // Route Dest-IR to Reg-file Src1
+                end
+
+                `OUT: begin // Copy source to output register
+                    if (`OutSrc == 1'b1) begin
+                        $display("%d OPCODE: OUT from Reg-File", $stime);
+                        // Source is a Reg-File.
+                        out_ld = 1'b0;      // Enable output loading
+                        out_sel = 2'b01;    // Reg-File
+                    end
+                    else begin
+                        $display("%d OPCODE: OUT from Memory", $stime);
+                        // Source is Memory
+                        next_state = S_Execute; // needs extra cycle
+                        mem_en = 1'b0;      // Enable memory
+                        addr_src = 2'b10;   // Select zero-extend
+                        out_sel = 2'b00;    // Memory
+                    end
                 end
 
                 `STX: begin // Store Direct
@@ -309,7 +334,11 @@ always @(state) begin
                     alu_op = 4'b0000;
                 end
                 `SUB: begin // ALU subtract operation
-                    $display("%d OPCODE: SUB", $stime);
+                    if (`IgnoreDest == 1'b0)
+                        $display("%d OPCODE: SUB", $stime);
+                    else
+                        $display("%d OPCODE: CMP", $stime);
+
                     alu_instr = 1'b1;
                     alu_op = 4'b0001;
                 end
@@ -331,21 +360,37 @@ always @(state) begin
             endcase
 
             if (alu_instr == 1'b1) begin
-                $display("%d S_Decode.alu_instr", $stime);
-                next_state = S_Execute;
-                src1_sel = 1'b1;    // Select Src1-IR to Reg-file Src1
+                $display("%d S_Decode.alu_instr, IgnoreDest: %b", $stime, `IgnoreDest);
+                // If the instruction indicates that the destination
+                // should be stored then we need the extra cycle via S_Execute.
+                // For some instructions, for example CMP, we
+                // don't care about a destination.
+                if (`IgnoreDest == 1'b0) begin
+                    // The destination is required so an Execute cycle is needed.
+                    next_state = S_Execute;
+
+                    src1_sel = 1'b1;    // Select Src1-IR to Reg-file Src1
+                    alu_ld = 1'b0;      // Enable loading ALU output
+                end
+                else begin
+                    // We don't need the alu_instr flag Set anymore because
+                    // we are skipping the S_Execute cycle which depended
+                    // on it.
+                    alu_instr = 1'b0;                    
+                end
+
+                // We always need the ALU status bits
                 flg_ld = 1'b0;      // Enable loading ALU flags
-                alu_ld = 1'b0;      // Enable loading ALU output
             end
         end
 
         S_Execute: begin
-            $display("%d S_Execute", $stime);
             // The next state is alway fetch
             next_state = S_FetchPCtoMEM;
 
             case (`OPCODE)
                 `LD: begin
+                    $display("%d S_Execute LD", $stime);
                     // This cycle completes the instruction by loading
                     // the reg file with the data from memory.
                     // --- Previous State clean up ---------
@@ -355,15 +400,19 @@ always @(state) begin
                     reg_we = 1'b0;      // Enable writing to reg file
                     data_src = 2'b01;   // Select memory output source
                 end
+                `OUT: begin
+                    $display("%d S_Execute OUT", $stime);
+                    out_ld = 1'b0;      // Enable output loading
+                end
                 default: begin
+                    $display("%d S_Execute", $stime);
                     if (alu_instr == 1'b1) begin
                         $display("%d S_Execute.alu_instr", $stime);
                         alu_instr = 1'b0;   // Complete ALU instruction
 
-                        //alu_op = 4'b1000;   // Select Unknown Op
-                        alu_ld = 1'b1;      // Disable loading ALU output
-                        data_src = 2'b10;   // Select ALU output
-                        reg_we = 1'b0;      // Enable write to Reg File
+                        alu_ld = 1'b1;       // Disable loading ALU output
+                        data_src = 2'b10;    // Select ALU output
+                        reg_we = 1'b0;       // Enable write to Reg File
                     end                    
                 end
             endcase
@@ -414,4 +463,7 @@ assign Src1_Sel = src1_sel;
 assign REG_Src1 = `REG_SRC1;
 assign REG_Src2 = `REG_SRC2;
 assign REG_Dest = `REG_DEST;
+assign OUT_Ld = out_ld;
+assign OUT_Sel = out_sel;
+
 endmodule

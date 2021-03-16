@@ -1,10 +1,14 @@
+Tool for hex calcs
+
+http://www.eecs.umich.edu/courses/eng100/calc.html
+
 # Add_Halt.dat
 ```
-Binary                  Assembly
-1011_0010_0000_0010     LDI R1, 0x02
-1011_0100_0000_0100     LDI R2, 0x04
-0010_0110_0010_0001     ADD R3, R2, R1
-0001_0000_0000_0000     HLT
+Binary      Binary                  Assembly
+@00 B202    1011_0010_0000_0010     LDI R1, 0x02
+@01 B404    1011_0100_0000_0100     LDI R2, 0x04
+@02 2621    0010_0110_0010_0001     ADD R3, R2, R1
+@03 1000    0001_0000_0000_0000     HLT
 ```
 
 # Sub_Halt.dat
@@ -98,4 +102,40 @@ Adr Hex     Binary                  Assembly
 @07 xxxx         R1's contents stored here        |
 @08 0000    <--------------------------------------
 @09 xxxx
+```
+
+# Count_Up.data
+```
+@00 B200    1011_0010_0000_0000     LDI R1, 0x00  <-- Counter
+@01 B402    1011_0100_0000_0010     LDI R2, 0x02  <-- Count by 2
+@02 B606    1011_0110_0000_0110     LDI R3, 0x06  <-- Count up to 6
+@03 2221    0010_0010_0010_0001     ADD R1, R2, R1   <-------  Inc
+@04 3131    0011_0001_0011_0001     CMP R3, R1              |  Compare
+@05 77FE    0111_0111_1111_1110     BNE -2           --------  Loop until 0
+@06 1000    0001_0000_0000_0000     HLT
+```
+
+# Count_Down.data
+```
+@00 B205    1011_0010_0000_0101     LDI R1, 0x05  <-- Counter (A)
+@01 B401    1011_0100_0000_0001     LDI R2, 0x01  <-- Count down by 1 (B)
+@02 3221    0011_0010_0010_0001     SUB R1, R2, R1   <-------  Dec (A - B)
+@03 77FF    0111_0111_1111_1111     BNE -1           -------|  Loop until 0
+@04 1000    0001_0000_0000_0000     HLT
+```
+
+# Out_Mem.dat
+```
+Binary      Binary                  Assembly
+@00 F002    1111_1000_0000_0010     OUT 0x02   <-- Copy mem 0 to output
+@01 1000    0001_0000_0000_0000     HLT
+@02 F0F0                            [Data]
+```
+
+# Out_Reg.dat
+```
+Binary      Binary                  Assembly
+@00 B2A5    1011_0010_1010_0101     LDI R1, 0xA5
+@01 F801    1111_1000_0000_0001     OUT R1   <-- Copy Reg 1 to output
+@02 1000    0001_0000_0000_0000     HLT
 ```

@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
-`define ROM "../../roms/STX_Halt.dat"
+`define ROM "../../roms/Out_Reg.dat"
 
 module cpu_tb;
    parameter AddrWidth_TB = 8;      // 8bit Address width
@@ -44,7 +44,7 @@ module cpu_tb;
    always begin
       #100 Clock_TB = ~Clock_TB;
    end
-    
+ 
    // -------------------------------------------
    // Configure starting sim states
    // -------------------------------------------
@@ -71,7 +71,7 @@ module cpu_tb;
       // Setup defaults
       Reset_TB = 1'b1;
    end
-   
+  
    always begin
       // Wait for halt to deactivate during Idle state
       @(negedge cpu.halt)
@@ -106,7 +106,7 @@ module cpu_tb;
    
       // Now wait for the neg-edge when the PC is incremented
       @(negedge Clock_TB);
-  
+   
       // If should have changed from 0x0000 to 0x0001
       wait(cpu.pc_to_out === 16'h0001);
  
@@ -114,21 +114,24 @@ module cpu_tb;
       // `include "tests/sub_halt.v"
 
       // Use this if the simulation goes into a "run-away"
-      // #5000 $finish; 
-   
+      // #9000 $finish; 
+
       // Wait for Halt to complete. Waiting on a posedge will
       // conflicts with other waits that occur at the same time,
       // so we wait on the neg-edge.
       @(negedge cpu.halt)
       $display("%d %m: Halt un-triggered", $stime);
- 
+   
       $display("------- Reg File contents ------");
       for(index = 0; index < 8; index = index + 1)
          $display("Reg [%h] = %b <- 0x%h", index, cpu.RegFile.reg_file[index], cpu.RegFile.reg_file[index]);
- 
+
       $display("------- Memory contents ------");
       for(index = 0; index < 15; index = index + 1)
          $display("memory [%h] = %b <- 0x%h", index, cpu.memory.mem[index], cpu.memory.mem[index]);
+
+      $display("------- Output contents ------");
+      $display("Output {%h}", cpu.output_port);
  
       // ------------------------------------
       // Simulation END

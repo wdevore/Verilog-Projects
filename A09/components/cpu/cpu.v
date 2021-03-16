@@ -55,6 +55,8 @@ wire [DataWidth-1:0] absoluteZeroExt;
 wire [DataWidth-1:0] relativeSignedExt;
 wire [DataWidth-1:0] branchAddress;
 wire [DataWidth-1:0] alu_res_to_mux_data;
+wire [DataWidth-1:0] mux_out_to_output;
+wire [DataWidth-1:0] output_port;
 
 // ---------------------------------------------------
 // Control matrix signals
@@ -88,6 +90,9 @@ wire [ALUOpsSize-1:0] alu_op;       // ALU operation: ADD, SUB etc.
 wire flg_ld;
 wire alu_ld;
 wire flg_rst;
+wire output_ld;
+wire [1:0] out_sel;     // 2Bits
+
 // Misc
 wire halt;               // Active High
 
@@ -145,6 +150,8 @@ SequenceControl #(.DataWidth(DataWidth)) ControlMatrix
     .FLG_Ld(flg_ld),
     .ALU_Ld(alu_ld),
     .FLG_Rst(flg_rst),
+    .OUT_Ld(output_ld),
+    .OUT_Sel(out_sel),
     .Halt(halt)
 );
 
@@ -269,6 +276,18 @@ Mux #(
     .DOut(mux_src1_to_reg_src1)
 );
 
+Mux #(
+    .DataWidth(DataWidth),
+    .SelectSize(2)) MUX_OUT
+(
+    .Select(out_sel),
+    .DIn0(mem_to_out),          // Memory
+    .DIn1(source1),             // Reg-File
+    .DIn2({DataWidth{1'b0}}),   // Unused 
+    .DIn3({DataWidth{1'b0}}),   // Unused
+    .DOut(mux_out_to_output)
+);
+
 // ======================================================
 // Registers
 // ======================================================
@@ -313,6 +332,16 @@ Register #(.DataWidth(ALUFlagSize)) ALU_Flags
     .LD(flg_ld),
     .DIn(alu_to_flags),
     .DOut(alu_flgs_to_scm)
+);
+
+// Output register. The output wires are typically connected to FPGA pins.
+Register #(.DataWidth(DataWidth)) OutputR
+(
+    .Clk(Clk),
+    .Reset(Reset),
+    .LD(output_ld),
+    .DIn(mux_out_to_output),       // ALU output
+    .DOut(output_port)
 );
 
 endmodule
