@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sat Mar 13 04:03:27 2021
+[*] Tue Mar 16 23:50:07 2021
 [*]
 [dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.vcd"
-[dumpfile_mtime] "Sat Mar 13 04:02:41 2021"
-[dumpfile_size] 34688
+[dumpfile_mtime] "Tue Mar 16 23:48:27 2021"
+[dumpfile_size] 71419
 [savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.gtkw"
 [timestart] 0
-[size] 2338 886
+[size] 3272 880
 [pos] 0 27
-*-17.427975 941600 1700000 2900000 500000 1100300 3500000 4100000 2300700 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-21.048859 941600 1700000 2900000 500000 1100300 3500000 4100000 2300700 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [markername] ALDI R2
 [markername] BRET
 [markername] CLDI R1
@@ -22,7 +22,7 @@
 [sst_width] 242
 [signals_width] 288
 [sst_expanded] 1
-[sst_vpaned_height] 244
+[sst_vpaned_height] 243
 @28
 [color] 2
 cpu_tb.Clock_TB

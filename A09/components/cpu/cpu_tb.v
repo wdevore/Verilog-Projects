@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
-`define ROM "../../roms/Out_Reg.dat"
+`define ROM "../../roms/Count_Out.dat"
 
 module cpu_tb;
    parameter AddrWidth_TB = 8;      // 8bit Address width
@@ -71,7 +71,7 @@ module cpu_tb;
       // Setup defaults
       Reset_TB = 1'b1;
    end
-  
+   
    always begin
       // Wait for halt to deactivate during Idle state
       @(negedge cpu.halt)
