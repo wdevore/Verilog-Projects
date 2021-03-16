@@ -43,20 +43,25 @@ parameter SignedAddrSize = 10;
 wire [DataWidth-1:0] pc_to_out;
 wire [DataWidth-1:0] mux_pc_to_pc;
 wire [DataWidth-1:0] mem_to_out;
+
 wire [DataWidth-1:0] mux_bra_to_alu2;
 wire [DataWidth-1:0] mux_addr_to_mem_addr;
 wire [DataWidth-1:0] mux_data_to_regfile;
+wire [DataWidth-1:0] mux_out_to_output;
+
 wire [DataWidth-1:0] stk_to_mux_pc;
-wire [ALUFlagSize-1:0] alu_to_flags;
-wire [DataWidth-1:0] alu_to_out;
 wire [DataWidth-1:0] source1;
 wire [DataWidth-1:0] source2;
+
 wire [DataWidth-1:0] absoluteZeroExt;
 wire [DataWidth-1:0] relativeSignedExt;
 wire [DataWidth-1:0] branchAddress;
-wire [DataWidth-1:0] alu_res_to_mux_data;
-wire [DataWidth-1:0] mux_out_to_output;
+
 wire [DataWidth-1:0] output_port;
+
+wire [DataWidth-1:0] alu_res_to_mux_data;
+wire [DataWidth-1:0] alu_to_out;
+wire [ALUFlagSize-1:0] alu_to_flags;
 
 // ---------------------------------------------------
 // Control matrix signals
@@ -90,6 +95,7 @@ wire [ALUOpsSize-1:0] alu_op;       // ALU operation: ADD, SUB etc.
 wire flg_ld;
 wire alu_ld;
 wire flg_rst;
+// Output
 wire output_ld;
 wire [1:0] out_sel;     // 2Bits
 
@@ -105,7 +111,7 @@ wire halt;               // Active High
 // CN = (‘b00), BNE (‘b01), BLT (‘b10), BCS (‘b11)
 `define CN              ir[11:10]       // Branch Condition type
 // A Jump can store the return address (a.k.a Link) which
-// provides for returning using RET 
+// supports the RET instruction
 `define JPLink          ir[11]          // Link=1 or not Link=0
 
 // Zero extend lower absolute address bits from the IR register.
