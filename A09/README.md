@@ -41,7 +41,7 @@ https://www.chipverify.com/verilog/verilog-timing-control
 # Synthization
 
 
-# Build or simulation
+# Build or simulation via APIO
 
 ```
 > apio init --board TinyFPGA-B2
@@ -54,8 +54,49 @@ Or for simulation only:
 > apio sim
 ```
 
+## Raw build
+```
+yosys -p "synth_ice40 -json hardware.json -top top" -q -defer a09_cpu.v sr_latch.v
+
+yosys -p "synth_ice40 -json hardware.json -top top" -q -q -defer -l yo.log a09_cpu.v sr_latch.v
+```
+
+Search for **Warning:** to find any issues, for example:
+```
+../../modules/sequence_control/sequence_control.v:196: Warning: Range select [15:12] out of bounds on signal `\IR': Setting all 4 result bits to undef.
+../../modules/sequence_control/sequence_control.v:250: Warning: Range select out of bounds on signal `\IR': Setting result bit to undef.
+../../modules/sequence_control/sequence_control.v:315: Warning: Range select [11:10] out of bounds on signal `\IR': Setting all 2 result bits to undef.
+../../modules/sequence_control/sequence_control.v:528: Warning: Range select [11:9] out of bounds on signal `\IR': Setting all 3 result bits to undef.
+../../components/cpu/cpu.v:119: Warning: Range [8:0] select out of bounds on signal `\ir': Setting 1 MSB bits to undef.
+../../components/cpu/cpu.v:124: Warning: Range [9:0] select out of bounds on signal `\ir': Setting 2 MSB bits to undef.
+../../components/cpu/cpu.v:124: Warning: Range select out of bounds on signal `\ir': Setting result bit to undef.
+../../components/cpu/cpu.v:202: Warning: Range select [11:9] out of bounds on signal `\ir': Setting all 3 result bits to undef.
+Warning: Wire top.\resetL.Ro_to_Si is used but has no driver.
+Warning: Wire top.\cpu.ALUResults.Clk is used but has no driver.
+```
+
+The **Fix** is to manually update parameters in each module. The ```-defer``` doesn't seem to silence the warnings.
 
 ```
-//Sign extend immediate field
-assign imm_ext = (instr[15] == 1)? {16'hFFFF, instr[15:0]} : {16'h0000, instr[15:0]};
+nextpnr-ice40 --lp8k --package cm81 --json hardware.json --asc hardware.asc --pcf pins.pcf -q
 ```
+
+# Build warnings
+
+## Warning: Range select XXX out of bounds on signal \YY
+https://ask.csdn.net/questions/1800353
+
+See this response below, but it basically says:
+
+When you do ```./yosys -f "verilog -sv" file.v``` you are implicitly doing a ```read_verilog file.v```. What read_verilog does is it both analyses (i.e. builds the AST) and elaborates (i.e. converts into RTLIL) the design. Since there is no concept of hierarchy at this step, it elaborates each module in the design as if it was a top module, using default parameter values. It's this step that causes a warning.
+
+``` 
+$ ./yosys -q -f "verilog -sv" bug2039.v
+bug2039.v:26: Warning: Range select out of bounds on signal `\o_result': Setting result bit to undef.
+```
+If you want to suppress this behaviour, you will need to add the ```-defer``` option and set the **top** explicitly:
+ 
+```
+$ ./yosys -q -f "verilog -sv -defer" bug2039.v -p "synth_ice40 -top ALU_Test_Top"
+```
+What this does is to defer the elaboration step to the hierarchy pass. Since nothing has been elaborated into RTLIL, hierarchy is currently unable to auto-detect the top-level (as it can't currently examine the AST) and so you have to set it manually.

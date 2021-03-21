@@ -30,7 +30,9 @@ reg [DataWidth-1:0] reg_file [(1<<RegisterCnt)-1:0];
 // See: "Digital Systems Design Using Verilog by Charles Roth, Lizy K. John, Byeong Kil Lee 2016 MIPS CPU"
 always @(negedge Clk) begin
     if (REG_WE == 1'b0) begin
-        $display("%d Write Reg File DIn: %h, Reg: ", $stime, DIn, REG_Dst);
+        `ifdef SIMULATE
+            $display("%d Write Reg File DIn: %h, Reg: ", $stime, DIn, REG_Dst);
+        `endif
         reg_file[REG_Dst] <= DIn;        
     end
 end

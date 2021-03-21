@@ -16,26 +16,27 @@
 
 module CPU
 #(
-    parameter DataWidth = 8,        // Data path width
+    parameter DataWidth = 16,        // Data path width
     parameter AddrWidth = 8,        // Address range 2^8 = 256 bytes
     parameter WordSize = 1,         // Word size when Inc PC. 1 = 2bytes
     parameter RegFileSelectSize = 3 // Max register count, 2^3 = 8 regs
 )
 (
     input wire Clk,
-    input wire Reset
+    input wire Reset,
+    output wire [DataWidth-1:0] OutReg
 );
 
-parameter ALUOpsSize = 4;
-parameter ALUFlagSize = 4;
+localparam ALUOpsSize = 4;
+localparam ALUFlagSize = 4;
 
 // AbsoluteAddrSize is the number of bits from the lower portion of the IR
 // register for absolute movement
-parameter AbsoluteAddrSize = 9;
+localparam AbsoluteAddrSize = 9;
 
 // SignedSize is the number of bits from the lower portion of the IR
 // register for signed movement
-parameter SignedAddrSize = 10;
+localparam SignedAddrSize = 10;
 
 // --------------------------------------------------
 // Internal signals (a.k.a. wires) between modules
@@ -126,6 +127,8 @@ assign relativeSignedExt = {{DataWidth-SignedAddrSize{ir[SignedAddrSize-1]}}, `S
 // because the PC has been auto-incremented to the next address which
 // means it isn't at the current address.
 assign branchAddress = mux_bra_to_alu2 + (pc_to_out - WordSize);
+
+assign OutReg = output_port;
 
 // -------- Module ------------------------------------------
 // Sequence control matrix

@@ -19,7 +19,9 @@ always @(negedge Clk) begin
     if (~Reset)
         DOut <= {DataWidth{1'b0}};
     else if (~LD) begin
-        $display("%d Register Load: %h", $stime, DIn);
+        `ifdef SIMULATE
+            $display("%d Register Load: %h", $stime, DIn);
+        `endif
         DOut <= DIn;
     end
     else

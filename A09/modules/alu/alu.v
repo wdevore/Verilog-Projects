@@ -53,32 +53,48 @@ reg cF;
 always @(FuncOp, A, B, IFlags) begin
     case (FuncOp)
         Add_OP: begin
-            $display("%d Add_OP: A: %h, B: %h", $stime, A, B);
+            `ifdef SIMULATE
+                $display("%d Add_OP: A: %h, B: %h", $stime, A, B);
+            `endif
 
             // Carry and sum
             {cF, ORes} = A + B + IFlags[CarryFlag];
-            $display("%d Add_OP: Carry %b, Sum %h", $stime, cF, ORes);
+            `ifdef SIMULATE
+                $display("%d Add_OP: Carry %b, Sum %h", $stime, cF, ORes);
+            `endif
         end
         Sub_OP: begin  // As if the Carry == 0
-            $display("%d Sub_OP: A: %h - B: %h", $stime, A, B);
+            `ifdef SIMULATE
+                $display("%d Sub_OP: A: %h - B: %h", $stime, A, B);
+            `endif
 
             {cF, ORes} = A + ((~B) + 1);
-            $display("%d Sub_OP: Carry %b, Diff %h", $stime, cF, ORes);
+            `ifdef SIMULATE
+                $display("%d Sub_OP: Carry %b, Diff %h", $stime, cF, ORes);
+            `endif
         end
         And_OP: begin
-            $display("%d And_OP: (%d) & (%d)", $stime, A, B);
+            `ifdef SIMULATE
+                $display("%d And_OP: (%d) & (%d)", $stime, A, B);
+            `endif
             {cF, ORes} = {1'b0, A & B};
         end
         Or_OP: begin
-            $display("%d Or_OP: (%d) | (%d)", $stime, A, B);
+            `ifdef SIMULATE
+                $display("%d Or_OP: (%d) | (%d)", $stime, A, B);
+            `endif
             {cF, ORes} = {1'b0, A | B};
         end
         Xor_OP: begin
-            $display("%d Xor_OP: (%d) ^ (%d)", $stime, A, B);
+            `ifdef SIMULATE
+                $display("%d Xor_OP: (%d) ^ (%d)", $stime, A, B);
+            `endif
             {cF, ORes} = {1'b0, A ^ B};
         end
         default: begin
-            $display("%d *** ALU UNKNOWN OP: %04b", $stime, FuncOp);
+            `ifdef SIMULATE
+                $display("%d *** ALU UNKNOWN OP: %04b", $stime, FuncOp);
+            `endif
             ORes = {DataWidth{1'b0}};// {DataWidth{1'bx}};
         end
     endcase

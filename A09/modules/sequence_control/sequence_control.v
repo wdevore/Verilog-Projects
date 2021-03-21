@@ -7,7 +7,7 @@
 
 module SequenceControl
 #(
-    parameter DataWidth = 8
+    parameter DataWidth = 16
 )
 (
     input wire Clk,
@@ -47,7 +47,7 @@ module SequenceControl
 );
 
 // Sequence states
-parameter S_Idle          = 3'b000,
+localparam S_Idle          = 3'b000,
           S_Reset         = 3'b001,
           S_FetchPCtoMEM  = 3'b010,
           S_FetchMEMtoIR  = 3'b011,
@@ -66,13 +66,13 @@ parameter S_Idle          = 3'b000,
 `define IgnoreDest IR[8]    // Used mostly SUB for comparisons
 `define OutSrc IR[11]       // Memory (0) or Register file (1)
 
-parameter BEQ = 2'b00;      // Branch on equal
-parameter BNE = 2'b01;      // Branch on equal
-parameter BLT = 2'b10;      // Branch on equal
-parameter BCS = 2'b11;      // Branch on equal
+localparam BEQ = 2'b00;      // Branch on equal
+localparam BNE = 2'b01;      // Branch on equal
+localparam BLT = 2'b10;      // Branch on equal
+localparam BCS = 2'b11;      // Branch on equal
 reg takeBranch;            
 
-parameter ALUOpSize = 4;
+localparam ALUOpSize = 4;
 `define ZFlag ALU_FlgsIn[0] // Zero results
 `define CFlag ALU_FlgsIn[1] // Carry generated
 `define NFlag ALU_FlgsIn[2] // Negative bit set -- Sign
@@ -113,18 +113,22 @@ end
 // -------------------------------------------------------------
 // Combinational control signals
 // -------------------------------------------------------------
-always @(state) begin
+always @* begin
     case (state)
         // Machine is idling
         S_Idle: begin
-            $display("%d S_Idle", $stime);
+            `ifdef SIMULATE
+                $display("%d S_Idle", $stime);
+            `endif
             // We always know immediately what the next state is
             next_state = S_Idle;
             halt = 1'b0;        // Disable Halt regardless of state
         end
 
         S_Reset: begin
-            $display("%d S_Reset", $stime);
+            `ifdef SIMULATE
+                $display("%d S_Reset", $stime);
+            `endif
             // --- Previous State clean up ---------
             // None
 
@@ -141,7 +145,9 @@ always @(state) begin
 
         // Part 1 of fetch sequence: PC to Mem address input
         S_FetchPCtoMEM: begin
-            $display("%d S_FetchPCtoMEM", $stime);
+            `ifdef SIMULATE
+                $display("%d S_FetchPCtoMEM", $stime);
+            `endif
             // --- Previous State clean up ---------
             pc_rst = 1'b1;      // Disable resetting PC
             pc_ld =  1'b1;      // Disable PC loading
@@ -164,7 +170,9 @@ always @(state) begin
 
         // Part 2 of fetch sequence
         S_FetchMEMtoIR: begin
-            $display("%d S_FetchMEMtoIR", $stime);
+            `ifdef SIMULATE
+                $display("%d S_FetchMEMtoIR", $stime);
+            `endif
             mem_en = 1'b1;      // Disable memory
 
             next_state = S_Decode;
@@ -176,7 +184,9 @@ always @(state) begin
         end
 
         S_Decode: begin
-            $display("%d S_Decode", $stime);
+            `ifdef SIMULATE
+                $display("%d S_Decode", $stime);
+            `endif
             ir_ld = 1'b1;       // Disable loading IR
             pc_inc = 1'b1;      // Disable Increment PC
 
@@ -186,18 +196,24 @@ always @(state) begin
             case (`OPCODE)
                 `NOP: begin // No operation (a.k.a. do nothing)
                     // Simply loop back to fetching the next instruction
-                    $display("%d OPCODE: NOP", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: NOP", $stime);
+                    `endif
                 end
 
                 `HLT: begin // Halt
-                    $display("%d OPCODE: HLT", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: HLT", $stime);
+                    `endif
                     // Signals CPU to stop and idle
                     next_state = S_Idle;
                     halt = 1'b1;
                 end
 
                 `LDI: begin // Load Immediate.
-                    $display("%d OPCODE: LDI", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: LDI", $stime);
+                    `endif
                     // IR[8:0] contains value loaded into Dest register
                     // Value is zero-extended
                     reg_we = 1'b0;      // Enable write to reg file
@@ -205,7 +221,9 @@ always @(state) begin
                 end
 
                 `LD: begin // Load Direct (requires 1 extra cycle, S_Execute)
-                    $display("%d OPCODE: LD", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: LD", $stime);
+                    `endif
                     // IR[8:0] contains an absolute address to load from
                     // Address is zero-extended.
                     next_state = S_Execute;
@@ -215,7 +233,9 @@ always @(state) begin
                 end
 
                 `ST: begin // Store Direct
-                    $display("%d OPCODE: ST", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: ST", $stime);
+                    `endif
                     // IR[11:9] specifies a Src register for the
                     // the data. destination Address is "zero-extended"
                     // and specified IR[8:0]
@@ -228,13 +248,17 @@ always @(state) begin
 
                 `OUT: begin // Copy source to output register
                     if (`OutSrc == 1'b1) begin
-                        $display("%d OPCODE: OUT from Reg-File", $stime);
+                        `ifdef SIMULATE
+                            $display("%d OPCODE: OUT from Reg-File", $stime);
+                        `endif
                         // Source is a Reg-File.
                         out_ld = 1'b0;      // Enable output loading
                         out_sel = 2'b01;    // Reg-File
                     end
                     else begin
-                        $display("%d OPCODE: OUT from Memory", $stime);
+                        `ifdef SIMULATE
+                            $display("%d OPCODE: OUT from Memory", $stime);
+                        `endif
                         // Source is Memory
                         next_state = S_Execute; // needs extra cycle
                         mem_en = 1'b0;      // Enable memory
@@ -244,7 +268,9 @@ always @(state) begin
                 end
 
                 `STX: begin // Store Direct
-                    $display("%d OPCODE: STX", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: STX", $stime);
+                    `endif
                     // IR[2:0] specifies the data to be stored
                     // IR[6:4] specifies the address to write to
 
@@ -256,10 +282,16 @@ always @(state) begin
 
                 // This is also the JMP instruction
                 `JPL: begin // Jump and "Link (JPL) or not Link (JMP)"
-                    if (`JPLink == 1'b1)
-                        $display("%d OPCODE: JMP", $stime);
-                    else
-                        $display("%d OPCODE: JPL", $stime);
+                    if (`JPLink == 1'b1) begin
+                        `ifdef SIMULATE
+                            $display("%d OPCODE: JMP", $stime);
+                        `endif
+                    end
+                    else begin
+                        `ifdef SIMULATE
+                            $display("%d OPCODE: JPL", $stime);
+                        `endif                        
+                    end
                     // IR[11] specifies stack action
 
                     src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
@@ -269,13 +301,17 @@ always @(state) begin
                 end
 
                 `RET: begin // Return from JPL instruction
-                    $display("%d OPCODE: RET", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: RET", $stime);
+                    `endif
                     pc_src = 2'b01;     // Select Return address
                     pc_ld = 1'b0;       // Enable loading PC
                 end
 
                 `BRD: begin // Branch direct
-                    $display("%d OPCODE: BRD: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: BRD: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                    `endif
                     case (`CN)
                         BEQ:
                             takeBranch = `ZFlag == 1'b1; // If Z-flag Set then branch
@@ -293,7 +329,9 @@ always @(state) begin
                     // branch address specified by the lower 10 bits, but
                     // only if a condition is meet.
                     if (takeBranch == 1'b1) begin
-                        $display("%d Taking branch...", $stime);
+                        `ifdef SIMULATE
+                            $display("%d Taking branch...", $stime);
+                        `endif
                         pc_ld = 1'b0;       // Enable PC load
                         bra_src = 1'b1;     // Select Sign extend
                         pc_src = 2'b00;     // Select Branch address source
@@ -303,7 +341,9 @@ always @(state) begin
                 end
 
                 `BRX: begin // Branch Indexed
-                    $display("%d OPCODE: BRX", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: BRX", $stime);
+                    `endif
                     case (`CN)
                         BEQ:
                             takeBranch = `ZFlag == 1'b1; // If Z-flag Set then branch
@@ -329,38 +369,53 @@ always @(state) begin
                 end
 
                 `ADD: begin // ALU add operation
-                    $display("%d OPCODE: ADD", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: ADD", $stime);
+                    `endif
                     alu_instr = 1'b1;
                     alu_op = 4'b0000;
                 end
                 `SUB: begin // ALU subtract operation
-                    if (`IgnoreDest == 1'b0)
-                        $display("%d OPCODE: SUB", $stime);
-                    else
-                        $display("%d OPCODE: CMP", $stime);
-
+                    if (`IgnoreDest == 1'b0) begin
+                        `ifdef SIMULATE
+                            $display("%d OPCODE: SUB", $stime);
+                        `endif
+                    end
+                    else begin
+                        `ifdef SIMULATE
+                            $display("%d OPCODE: CMP", $stime);
+                        `endif
+                    end
                     alu_instr = 1'b1;
                     alu_op = 4'b0001;
                 end
                 `AND: begin // ALU AND operation
-                    $display("%d OPCODE: AND", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: AND", $stime);
+                    `endif
                     alu_instr = 1'b1;
                     alu_op = 4'b0010;
                 end
                 `OR: begin // ALU OR operation
-                    $display("%d OPCODE: OR", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: OR", $stime);
+                    `endif
                     alu_instr = 1'b1;
                     alu_op = 4'b0011;
                 end
                 `XOR: begin // ALU XOR operation
-                    $display("%d OPCODE: XOR", $stime);
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: XOR", $stime);
+                    `endif
                     alu_instr = 1'b1;
                     alu_op = 4'b0100;
                 end
             endcase
 
             if (alu_instr == 1'b1) begin
-                $display("%d S_Decode.alu_instr, IgnoreDest: %b", $stime, `IgnoreDest);
+                `ifdef SIMULATE
+                    $display("%d S_Decode.alu_instr, IgnoreDest: %b", $stime, `IgnoreDest);
+                `endif
                 // If the instruction indicates that the destination
                 // should be stored then we need the extra cycle via S_Execute.
                 // For some instructions, for example CMP, we
@@ -390,7 +445,9 @@ always @(state) begin
 
             case (`OPCODE)
                 `LD: begin
-                    $display("%d S_Execute LD", $stime);
+                    `ifdef SIMULATE
+                        $display("%d S_Execute LD", $stime);
+                    `endif
                     // This cycle completes the instruction by loading
                     // the reg file with the data from memory.
                     // --- Previous State clean up ---------
@@ -401,13 +458,19 @@ always @(state) begin
                     data_src = 2'b01;   // Select memory output source
                 end
                 `OUT: begin
-                    $display("%d S_Execute OUT", $stime);
+                    `ifdef SIMULATE
+                        $display("%d S_Execute OUT", $stime);
+                    `endif
                     out_ld = 1'b0;      // Enable output loading
                 end
                 default: begin
-                    $display("%d S_Execute", $stime);
+                    `ifdef SIMULATE
+                        $display("%d S_Execute", $stime);
+                    `endif
                     if (alu_instr == 1'b1) begin
-                        $display("%d S_Execute.alu_instr", $stime);
+                        `ifdef SIMULATE
+                            $display("%d S_Execute.alu_instr", $stime);
+                        `endif
                         alu_instr = 1'b0;   // Complete ALU instruction
 
                         alu_ld = 1'b1;       // Disable loading ALU output

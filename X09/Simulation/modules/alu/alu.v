@@ -33,13 +33,13 @@ module ALU
         input wire OE                     // Active low,  enables output
     );
 
-    parameter   ZeroFlag   = 0,
+    localparam  ZeroFlag   = 0,
                 CarryFlag  = 1,
                 NegFlag    = 2,
                 OverFlag   = 3;  // aka. V flag
 
     // Allow operation codes
-    parameter   Add_OP  = 4'b0000,
+    localparam   Add_OP  = 4'b0000,
                 Sub_OP  = 4'b0001, // Subtract
                 Subc_OP = 4'b0010, // Subtract with carry(borrow)
                 And_OP  = 4'b0011,
@@ -55,12 +55,12 @@ module ALU
                 // Xnor_OP = 4'b0111;
     
     // Local Vars
-    parameter RDelay = 1;
+    localparam RDelay = 1;
     reg [N-1:0] ORes;
     wire oF, nF, zF;
     reg cF;
 
-    always @(*)
+    always @*
         case (FuncOp)
             Add_OP: begin
                 $display("Add_OP: %d + %d", A, B);

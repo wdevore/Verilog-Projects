@@ -1,0 +1,7 @@
+apio.ini
+*.out
+*.vcd
+*.dblite
+*.gtkw
+hardware.json
+*.log
