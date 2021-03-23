@@ -1,5 +1,7 @@
 `default_nettype none
 
+// `define SIMULATE 1
+
 // --------------------------------------------------------------------------
 // A09 CPU module
 // --------------------------------------------------------------------------
@@ -24,6 +26,7 @@ module CPU
 (
     input wire Clk,
     input wire Reset,
+    output wire Ready,
     output wire [DataWidth-1:0] OutReg
 );
 
@@ -161,6 +164,7 @@ SequenceControl #(.DataWidth(DataWidth)) ControlMatrix
     .FLG_Rst(flg_rst),
     .OUT_Ld(output_ld),
     .OUT_Sel(out_sel),
+    .Ready(Ready),
     .Halt(halt)
 );
 

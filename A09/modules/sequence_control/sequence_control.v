@@ -3,7 +3,6 @@
 // --------------------------------------------------------------------------
 // Sequence control matrix
 // --------------------------------------------------------------------------
-// `include "constants.v"
 
 module SequenceControl
 #(
@@ -40,19 +39,22 @@ module SequenceControl
     output wire ALU_Ld,
     output wire FLG_Ld,
     output wire FLG_Rst,
+    // Output
     output wire OUT_Ld,
-    output wire [1:0] OUT_Sel,     // 2Bits
+    output wire [1:0] OUT_Sel,      // 2Bits
     // Misc
-    output wire Halt                // Active High
+    output wire Ready,              // Active high
+    output wire Halt                // Active high
 );
 
 // Sequence states
-localparam S_Idle          = 3'b000,
-          S_Reset         = 3'b001,
-          S_FetchPCtoMEM  = 3'b010,
-          S_FetchMEMtoIR  = 3'b011,
-          S_Decode        = 3'b100,
-          S_Execute       = 3'b101;
+localparam S_Idle         = 3'b000,
+           S_Reset        = 3'b001,
+           S_FetchPCtoMEM = 3'b010,
+           S_FetchMEMtoIR = 3'b011,
+           S_Decode       = 3'b100,
+           S_Execute      = 3'b101,
+           S_Ready        = 3'b110;
 
 // Instruction Field
 `define OPCODE IR[15:12]    // op-code field
@@ -83,37 +85,80 @@ reg [2:0] state;        // 3Bits for state
 reg [2:0] next_state;   // 3Bits for next state
 
 // Datapath Controls
+reg halt;
+
 reg pc_rst;             // PC reset
 reg pc_inc;             // PC increment
-reg [1:0] pc_src;       // MUX_PC selector
-reg ir_ld;
-reg mem_wr;
-reg mem_en;
-reg [1:0] addr_src;     // MUX_ADDR selector
-reg halt;
-reg [1:0] data_src;
-reg reg_we;
 reg pc_ld;
-reg stk_ld;
+reg [1:0] pc_src;       // MUX_PC selector
 reg bra_src;
-reg flg_ld;
-reg flg_rst;
-reg src1_sel;
-reg alu_ld;
-reg [ALUOpSize-1:0] alu_op;
-reg alu_instr;
+
+reg stk_ld;
+reg ir_ld;
+
 reg out_ld;
 reg [1:0] out_sel;
 
+reg flg_ld;
+reg flg_rst;
+reg alu_ld;
+reg [ALUOpSize-1:0] alu_op;
+reg alu_instr;
+
+reg mem_en;
+reg mem_wr;
+reg [1:0] addr_src;     // MUX_ADDR selector
+
+reg reg_we;
+reg src1_sel;
+reg [1:0] data_src;
+
+reg ready;              // (Active High) when CPU has completed reset activities.
+
 // Simulation
 initial begin
-    next_state = S_Idle;
+    state = S_Idle;
 end
 
 // -------------------------------------------------------------
 // Combinational control signals
 // -------------------------------------------------------------
 always @* begin
+    // Initial conditions
+    next_state = S_Idle;
+    halt = 1'b0;        // Disable Halt regardless of state
+
+    // PC
+    pc_rst = 1'b1;      // Disable resetting PC
+    pc_inc = 1'b1;      // Disable Increment PC
+    pc_ld =  1'b1;      // Disable PC loading
+    pc_src = 2'b00;     // Select PC
+    bra_src = 1'b1;     // Select Sign extend
+
+    // Misc: Stack, Output
+    stk_ld = 1'b1;      // Disable Stack loading
+    ir_ld = 1'b1;       // Disable IR loading
+
+    // Output 
+    out_ld = 1'b1;      // Disable output loading
+    out_sel = 2'b01;    // Reg-File
+
+    // ALU and Flags
+    flg_rst = 1'b1;     // Disbled ALU flags reset
+    flg_ld = 1'b1;      // Disable Flag state loading
+    alu_ld = 1'b1;      // Disable loading ALU output
+    alu_op = 4'b1000;   // Unknown ALU operation
+
+    // Memory
+    mem_en = 1'b1;      // Disable memory
+    mem_wr = 1'b1;      // Disable Write (active low) i.e. Enable Read (Active high)
+    addr_src = 2'b00;   // Select PC as source
+
+    // Reg-File
+    reg_we = 1'b1;      // Disable writing to reg file
+    src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
+    data_src = 2'b00;   // Select Zero extended source
+
     case (state)
         // Machine is idling
         S_Idle: begin
@@ -122,25 +167,25 @@ always @* begin
             `endif
             // We always know immediately what the next state is
             next_state = S_Idle;
-            halt = 1'b0;        // Disable Halt regardless of state
+            ready = 1'b0;       // CPU not ready
         end
 
         S_Reset: begin
             `ifdef SIMULATE
                 $display("%d S_Reset", $stime);
             `endif
-            // --- Previous State clean up ---------
-            // None
-
-            next_state = S_FetchPCtoMEM;
+            next_state = S_Ready;
 
             // --- Next state setup -------------
-            ir_ld = 1'b1;       // Disable IR loading
-            pc_inc = 1'b1;      // Disable PC Inc
             pc_rst = 1'b0;      // Enable resetting PC (active low)
-            mem_wr = 1'b1;      // Enable memory read
-            mem_en = 1'b1;      // Disable memory
-            halt = 1'b0;        // Disable Halt regardless of state
+        end
+
+        S_Ready: begin
+            `ifdef SIMULATE
+                $display("%d S_Ready", $stime);
+            `endif
+            next_state = S_FetchPCtoMEM;
+            ready = 1'b1;
         end
 
         // Part 1 of fetch sequence: PC to Mem address input
@@ -148,24 +193,12 @@ always @* begin
             `ifdef SIMULATE
                 $display("%d S_FetchPCtoMEM", $stime);
             `endif
-            // --- Previous State clean up ---------
-            pc_rst = 1'b1;      // Disable resetting PC
-            pc_ld =  1'b1;      // Disable PC loading
-            stk_ld = 1'b1;      // Disable Stack loading
-            flg_ld = 1'b1;      // Disable Flag state loading
-            alu_ld = 1'b1;      // Disable loading ALU output
-            out_ld = 1'b1;      // Disable output loading
-            flg_rst = 1'b1;     // Disbled ALU flags reset
-            reg_we = 1'b1;      // Disable writing to reg file
-            src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
 
             // Next state
             next_state = S_FetchMEMtoIR;
 
             // --- Next state setup -------------
-            mem_wr = 1'b1;      // Enable Read (active high)
             mem_en = 1'b0;      // Enable memory
-            addr_src = 2'b00;   // Select PC as source
         end
 
         // Part 2 of fetch sequence
@@ -173,7 +206,6 @@ always @* begin
             `ifdef SIMULATE
                 $display("%d S_FetchMEMtoIR", $stime);
             `endif
-            mem_en = 1'b1;      // Disable memory
 
             next_state = S_Decode;
 
@@ -187,8 +219,6 @@ always @* begin
             `ifdef SIMULATE
                 $display("%d S_Decode", $stime);
             `endif
-            ir_ld = 1'b1;       // Disable loading IR
-            pc_inc = 1'b1;      // Disable Increment PC
 
             // --- Next state setup -------------
             next_state = S_FetchPCtoMEM;
@@ -208,6 +238,7 @@ always @* begin
                     // Signals CPU to stop and idle
                     next_state = S_Idle;
                     halt = 1'b1;
+                    ready = 1'b0;
                 end
 
                 `LDI: begin // Load Immediate.
@@ -261,6 +292,7 @@ always @* begin
                         `endif
                         // Source is Memory
                         next_state = S_Execute; // needs extra cycle
+
                         mem_en = 1'b0;      // Enable memory
                         addr_src = 2'b10;   // Select zero-extend
                         out_sel = 2'b00;    // Memory
@@ -309,20 +341,33 @@ always @* begin
                 end
 
                 `BRD: begin // Branch direct
-                    `ifdef SIMULATE
-                        $display("%d OPCODE: BRD: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
-                    `endif
                     case (`CN)
-                        BEQ:
+                        BEQ: begin
+                            `ifdef SIMULATE
+                                $display("%d OPCODE: BRD-BEQ: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                            `endif
                             takeBranch = `ZFlag == 1'b1; // If Z-flag Set then branch
-                        BNE:
+                        end
+                        BNE: begin
+                            `ifdef SIMULATE
+                                $display("%d OPCODE: BRD-BNE: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                            `endif
                             takeBranch = `ZFlag == 1'b0; // If Z-flag NOT Set then branch
-                        BLT:
+                        end
+                        BLT: begin
+                            `ifdef SIMULATE
+                                $display("%d OPCODE: BRD-BLT: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                            `endif
                             // Computer Architecture Tutorial Using an FPGA: ARM and Verilog Introduction
                             // Chp 11 "Status Register" pg 213-214
                             takeBranch = `NFlag != `VFlag; // If Sign Flag != Overfloat Flag
-                        BCS:
+                        end
+                        BCS: begin
+                            `ifdef SIMULATE
+                                $display("%d OPCODE: BRD-BCS: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                            `endif
                             takeBranch = `CFlag == 1'b1; // If Carry set then branch
+                        end
                     endcase
 
                     // Determine if the PC should be loaded with a
@@ -330,7 +375,7 @@ always @* begin
                     // only if a condition is meet.
                     if (takeBranch == 1'b1) begin
                         `ifdef SIMULATE
-                            $display("%d Taking branch...", $stime);
+                            $display("%d --- Taking branch ---", $stime);
                         `endif
                         pc_ld = 1'b0;       // Enable PC load
                         bra_src = 1'b1;     // Select Sign extend
@@ -341,18 +386,31 @@ always @* begin
                 end
 
                 `BRX: begin // Branch Indexed
-                    `ifdef SIMULATE
-                        $display("%d OPCODE: BRX", $stime);
-                    `endif
                     case (`CN)
-                        BEQ:
+                        BEQ: begin
+                            `ifdef SIMULATE
+                                $display("%d OPCODE: BRX-BEQ", $stime);
+                            `endif
                             takeBranch = `ZFlag == 1'b1; // If Z-flag Set then branch
-                        BNE:
+                        end
+                        BNE: begin
+                            `ifdef SIMULATE
+                                $display("%d OPCODE: BRX-BNE", $stime);
+                            `endif
                             takeBranch = `ZFlag == 1'b0; // If Z-flag NOT Set then branch
-                        BLT:
+                        end
+                        BLT: begin
+                            `ifdef SIMULATE
+                                $display("%d OPCODE: BRX-BLT", $stime);
+                            `endif
                             takeBranch = `NFlag != `VFlag; // If Sign Flag != Overfloat Flag
-                        BCS:
+                        end
+                        BCS: begin
+                            `ifdef SIMULATE
+                                $display("%d OPCODE: BRX-BCS", $stime);
+                            `endif
                             takeBranch = `CFlag == 1'b1; // If Carry set then branch
+                        end
                     endcase
 
                     // Determine if the PC should be loaded with a
@@ -414,13 +472,16 @@ always @* begin
 
             if (alu_instr == 1'b1) begin
                 `ifdef SIMULATE
-                    $display("%d S_Decode.alu_instr, IgnoreDest: %b", $stime, `IgnoreDest);
+                    $display("%d S_Decode::alu_instr, IgnoreDest: %b", $stime, `IgnoreDest);
                 `endif
                 // If the instruction indicates that the destination
                 // should be stored then we need the extra cycle via S_Execute.
                 // For some instructions, for example CMP, we
                 // don't care about a destination.
                 if (`IgnoreDest == 1'b0) begin
+                    `ifdef SIMULATE
+                        $display("%d S_Decode:: Destination required.", $stime);
+                    `endif
                     // The destination is required so an Execute cycle is needed.
                     next_state = S_Execute;
 
@@ -428,6 +489,9 @@ always @* begin
                     alu_ld = 1'b0;      // Enable loading ALU output
                 end
                 else begin
+                    `ifdef SIMULATE
+                        $display("%d S_Decode:: Destination ignored.", $stime);
+                    `endif
                     // We don't need the alu_instr flag Set anymore because
                     // we are skipping the S_Execute cycle which depended
                     // on it.
@@ -457,28 +521,29 @@ always @* begin
                     reg_we = 1'b0;      // Enable writing to reg file
                     data_src = 2'b01;   // Select memory output source
                 end
+                
                 `OUT: begin
                     `ifdef SIMULATE
                         $display("%d S_Execute OUT", $stime);
                     `endif
                     out_ld = 1'b0;      // Enable output loading
                 end
+
                 default: begin
                     `ifdef SIMULATE
-                        $display("%d S_Execute", $stime);
+                        $display("%d S_Execute ALU Part 2", $stime);
                     `endif
                     if (alu_instr == 1'b1) begin
                         `ifdef SIMULATE
                             $display("%d S_Execute.alu_instr", $stime);
                         `endif
-                        alu_instr = 1'b0;   // Complete ALU instruction
-
-                        alu_ld = 1'b1;       // Disable loading ALU output
                         data_src = 2'b10;    // Select ALU output
                         reg_we = 1'b0;       // Enable write to Reg File
                     end                    
                 end
             endcase
+
+            alu_instr = 1'b0;    // Complete ALU instruction
         end
 
         // Avoiding latches
@@ -489,7 +554,7 @@ always @* begin
 end
 
 // -------------------------------------------------------------
-// Sequence control (clocked). Move to the next state on the
+// Sequence control (sync). Move to the next state on the
 // rising edge of the next clock.
 // -------------------------------------------------------------
 always @(posedge Clk) begin
@@ -528,5 +593,6 @@ assign REG_Src2 = `REG_SRC2;
 assign REG_Dest = `REG_DEST;
 assign OUT_Ld = out_ld;
 assign OUT_Sel = out_sel;
+assign Ready = ready;
 
 endmodule

@@ -55,10 +55,20 @@ Or for simulation only:
 ```
 
 ## Raw build
-```
-yosys -p "synth_ice40 -json hardware.json -top top" -q -defer a09_cpu.v sr_latch.v
 
-yosys -p "synth_ice40 -json hardware.json -top top" -q -q -defer -l yo.log a09_cpu.v sr_latch.v
+Run the following scripts in this order:
+- run.sh
+
+OR
+- build.sh
+- route.sh
+- upload.sh
+
+### Synth
+```
+yosys -p "synth_ice40 -json hardware.json -top top" -q -defer a09_cpu.v
+
+yosys -p "synth_ice40 -json hardware.json -top top" -q -q -defer -l yo.log a09_cpu.v
 ```
 
 Search for **Warning:** to find any issues, for example:
@@ -77,8 +87,26 @@ Warning: Wire top.\cpu.ALUResults.Clk is used but has no driver.
 
 The **Fix** is to manually update parameters in each module. The ```-defer``` doesn't seem to silence the warnings.
 
+### Route
+```
+~/.apio/packages/toolchain-ice40/bin/nextpnr-ice40 --lp8k --package cm81 --json hardware.json --asc hardware.asc --pcf pins.pcf -l next.log -f --ignore-loops -q
+```
+
+### Pack
+```
+~/.apio/packages/toolchain-ice40/bin/icepack hardware.asc hardware.bin
+```
+
+Typical call if there are no combinatorial loops
 ```
 nextpnr-ice40 --lp8k --package cm81 --json hardware.json --asc hardware.asc --pcf pins.pcf -q
+```
+
+### Upload
+```
+.local/bin/tinyfpgab/
+
+tinyfpgab -c /dev/ttyACM0 --program hardware.bin
 ```
 
 # Build warnings
@@ -100,3 +128,10 @@ If you want to suppress this behaviour, you will need to add the ```-defer``` op
 $ ./yosys -q -f "verilog -sv -defer" bug2039.v -p "synth_ice40 -top ALU_Test_Top"
 ```
 What this does is to defer the elaboration step to the hierarchy pass. Since nothing has been elaborated into RTLIL, hierarchy is currently unable to auto-detect the top-level (as it can't currently examine the AST) and so you have to set it manually.
+
+# Test curcuit
+74LS02 using a resister divider network
+
+https://electronics.stackexchange.com/questions/231616/can-i-use-a-voltage-divider-for-shifing-logic-levels
+
+Picking R1 = 10kOhm and R2 = 20kOhm

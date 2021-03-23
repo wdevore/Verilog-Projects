@@ -1,7 +1,9 @@
+`default_nettype none
+
 // A09 CPU targeted for an FPGA
 
-// `define SIMULATE 1
- 
+`undef SIMULATE
+
 `include "../../components/cpu/cpu.v"
 
 module top
@@ -19,10 +21,9 @@ module top
     output pin9,
     output pin10,   
     output pin11,       // MSB
-    input pin12,        // Clock via an SR latch - Set
-    input pin13,        // Clock - Reset
-    input pin14_sdo,        // CPU Set
-    input pin15_sdi         // CPU Reset
+    output pin14_sdo,
+    // input pin12,        // Clock
+    input pin13         // Reset
 );
 
 localparam AddrWidth = 8;      // 8bit Address width
@@ -37,49 +38,33 @@ wire [DataWidth-1:0] OutReg;
 // ----------------------------------------------------------
 // Clock unused
 // ----------------------------------------------------------
-// reg [22:0] clk_1hz_counter = 23'b0;  // Hz clock generation counter
-// reg        clk_cyc = 1'b0;           // Hz clock
-// localparam FREQUENCY = 23'd10;  // 10Hz
+reg [22:0] clk_1hz_counter = 23'b0;  // Hz clock generation counter
+reg        clk_cyc = 1'b0;           // Hz clock
+localparam FREQUENCY = 23'd1;  // 1Hz
   
-// // Clock divder and generator
-// always @(posedge pin3_clk_16mhz) begin
-//     if (clk_1hz_counter < 23'd7_999_999)
-//         clk_1hz_counter <= clk_1hz_counter + FREQUENCY;
-//     else begin
-//         clk_1hz_counter <= 23'b0;
-//         clk_cyc <= ~clk_cyc;
-//     end
-// end
+// Clock divder and generator
+always @(posedge pin3_clk_16mhz) begin
+    if (clk_1hz_counter < 23'd7_999_999)
+        clk_1hz_counter <= clk_1hz_counter + FREQUENCY;
+    else begin
+        clk_1hz_counter <= 23'b0;
+        clk_cyc <= ~clk_cyc;
+    end
+end
  
 // ----------------------------------------------------------
 // Modules
 // ----------------------------------------------------------
 
-// SR Latch for Clock
-SRLatch clockL
-(
-    .S(pin12),
-    .R(pin13),
-    .Q(clk_latch_to_cpu_clk)
-);
-  
-// SR Latch for Reset
-SRLatch resetL
-(
-    .S(pin14_sdo),
-    .R(pin15_sdi),
-    .Q(reset_latch_to_cpu_reset)
-);
-
-CPU #(
-    .DataWidth(DataWidth),
-    .AddrWidth(AddrWidth),
-    .WordSize(WordSize)) cpu
-(
-    .Clk(clk_latch_to_cpu_clk),
-    .Reset(reset_latch_to_cpu_reset),
-    .OutReg(OutReg)
-);
+// CPU #(
+//     .DataWidth(DataWidth),
+//     .AddrWidth(AddrWidth),
+//     .WordSize(WordSize)) cpu
+// (
+//     .Clk(clk_cyc),
+//     .Reset(pin13),
+//     .OutReg(OutReg)
+// );
 
 // ----------------------------------------------------------
 // IO routing
@@ -94,6 +79,8 @@ assign
     pin9 = OutReg[5],
     pin10 = OutReg[6],
     pin11 = OutReg[7];
+
+assign pin14_sdo = clk_cyc;
 
 // TinyFPGA standard pull pins defaults
 assign

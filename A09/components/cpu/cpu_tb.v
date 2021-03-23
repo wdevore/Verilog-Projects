@@ -1,3 +1,5 @@
+`default_nettype none
+
 // --------------------------------------------------------------------------
 // Test bench for a fetch cycle
 // --------------------------------------------------------------------------
@@ -15,6 +17,8 @@ module cpu_tb;
    // Inputs
    reg Clock_TB;
    reg Reset_TB;
+   wire CPU_Ready_TB;
+   wire [DataWidth_TB-1:0] OutReg_TB;
 
    // Debugging
    integer index;
@@ -29,9 +33,11 @@ module cpu_tb;
       .WordSize(WordSize_TB)) cpu
    (
       .Clk(Clock_TB),
-      .Reset(Reset_TB)
+      .Reset(Reset_TB),
+      .Ready(CPU_Ready_TB),
+      .OutReg(OutReg_TB)
    );
-
+ 
    // -------------------------------------------
    // Test bench clock
    // -------------------------------------------
@@ -44,7 +50,7 @@ module cpu_tb;
    always begin
       #100 Clock_TB = ~Clock_TB;
    end
- 
+
    // -------------------------------------------
    // Configure starting sim states
    // -------------------------------------------
@@ -73,55 +79,48 @@ module cpu_tb;
    end
    
    always begin
-      // Wait for halt to deactivate during Idle state
-      @(negedge cpu.halt)
-
+      $display("%d <-- Reset", $stime);
       // ------------------------------------
       // Reset CPU
       // ------------------------------------
-      Reset_TB = 1'b0;  // Enable reset
+      #50 Reset_TB = 1'b0;  // Enable reset
 
-      // Wait for Reset to start
-      wait(cpu.ControlMatrix.state === cpu.ControlMatrix.S_Reset);
- 
-      $display("%d <-- Marker S_Reset", $stime);
-   
-      if (cpu.ControlMatrix.state !== cpu.ControlMatrix.S_Reset) begin
-         $display("%d %m: ERROR - Reset state incorrect (%b)", $stime, cpu.ControlMatrix.state);
-         $finish;
-      end
+      #300 Reset_TB = 1'b1;  // Disable reset
+
+      wait(cpu.ControlMatrix.state === cpu.ControlMatrix.S_Ready);
+
+      $display("%d <-- CPU ready", $stime);
   
-      Reset_TB = 1'b1;  // Disable reset
- 
       // ---------------------------------------------------
       // Wait for the beginning of an instruction.
       // ---------------------------------------------------
       // This can be detected by checking both the current state and next-state
-      wait(cpu.ControlMatrix.state === cpu.ControlMatrix.S_FetchPCtoMEM && cpu.ControlMatrix.next_state === cpu.ControlMatrix.S_FetchMEMtoIR);
-      $display("%d <-- Instruction (%d) at", $stime, cycleCnt);
-      cycleCnt++;
+      // wait(cpu.ControlMatrix.state === cpu.ControlMatrix.S_FetchPCtoMEM && cpu.ControlMatrix.next_state === cpu.ControlMatrix.S_FetchMEMtoIR);
+      // $display("%d <-- Instruction (%d) at", $stime, cycleCnt);
+      // cycleCnt++;
   
       // Sync on PC incrementing
-      wait(cpu.pc_inc === 1'b0);
+      // wait(cpu.pc_inc === 1'b0);
    
       // Now wait for the neg-edge when the PC is incremented
-      @(negedge Clock_TB);
-   
+      // @(negedge Clock_TB);
+    
       // If should have changed from 0x0000 to 0x0001
-      wait(cpu.pc_to_out === 16'h0001);
- 
+      // wait(cpu.pc_to_out === 16'h0001);
+   
       // `include "tests/add_halt.v"
       // `include "tests/sub_halt.v"
-
+ 
       // Use this if the simulation goes into a "run-away"
-      // #9000 $finish; 
+      // (i.e. Halt is never reached)
+      // #10000 $finish; 
 
       // Wait for Halt to complete. Waiting on a posedge will
       // conflicts with other waits that occur at the same time,
       // so we wait on the neg-edge.
       @(negedge cpu.halt)
       $display("%d %m: Halt un-triggered", $stime);
-   
+      
       $display("------- Reg File contents ------");
       for(index = 0; index < 8; index = index + 1)
          $display("Reg [%h] = %b <- 0x%h", index, cpu.RegFile.reg_file[index], cpu.RegFile.reg_file[index]);

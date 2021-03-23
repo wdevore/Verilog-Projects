@@ -1,3 +1,5 @@
+`default_nettype none
+
 // --------------------------------------------------------------------------
 // ALU (subset of 74181)
 // Operations:
@@ -33,24 +35,28 @@ module ALU
     output wire [FlagBits-1:0] OFlags   // Flag result
 );
 
-parameter ZeroFlag   = 0,
-          CarryFlag  = 1,
-          NegFlag    = 2,
-          OverFlag   = 3;  // aka. V flag
+localparam ZeroFlag   = 0,
+           CarryFlag  = 1,
+           NegFlag    = 2,
+           OverFlag   = 3;  // aka. V flag
 
 // Allow operation codes
-parameter Add_OP  = 4'b0000,
-          Sub_OP  = 4'b0001,
-          And_OP  = 4'b0010,
-          Or_OP   = 4'b0011,
-          Xor_OP  = 4'b0100;
+localparam Add_OP  = 4'b0000,
+           Sub_OP  = 4'b0001,
+           And_OP  = 4'b0010,
+           Or_OP   = 4'b0011,
+           Xor_OP  = 4'b0100;
 
 // Local Vars
 reg [DataWidth-1:0] ORes;
 // wire oF, nF, zF;
 reg cF;
 
-always @(FuncOp, A, B, IFlags) begin
+always @* begin
+    // Initial conditions
+    ORes = {DataWidth{1'b0}};// {DataWidth{1'bx}};
+    cF = 1'b0;
+
     case (FuncOp)
         Add_OP: begin
             `ifdef SIMULATE

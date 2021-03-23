@@ -1,28 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Tue Mar 16 23:50:07 2021
+[*] Mon Mar 22 01:19:09 2021
 [*]
 [dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.vcd"
-[dumpfile_mtime] "Tue Mar 16 23:48:27 2021"
-[dumpfile_size] 71419
+[dumpfile_mtime] "Mon Mar 22 01:01:44 2021"
+[dumpfile_size] 76023
 [savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.gtkw"
-[timestart] 0
-[size] 3272 880
+[timestart] 950000
+[size] 3433 933
 [pos] 0 27
-*-21.048859 941600 1700000 2900000 500000 1100300 3500000 4100000 2300700 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-[markername] ALDI R2
-[markername] BRET
-[markername] CLDI R1
-[markername] DJPL
-[markername] ENOP 1
-[markername] FHLT
-[markername] GNOP
+*-18.042019 3202000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
 [sst_width] 242
-[signals_width] 288
+[signals_width] 323
 [sst_expanded] 1
-[sst_vpaned_height] 243
+[sst_vpaned_height] 261
 @28
 [color] 2
 cpu_tb.Clock_TB
@@ -30,6 +23,8 @@ cpu_tb.Clock_TB
 cpu_tb.cpu.Reset
 [color] 1
 cpu_tb.cpu.halt
+[color] 3
+cpu_tb.CPU_Ready_TB
 cpu_tb.cpu.ControlMatrix.state[2:0]
 cpu_tb.cpu.ControlMatrix.next_state[2:0]
 @c00022
@@ -76,6 +71,7 @@ cpu_tb.cpu.ir[15:0]
 cpu_tb.cpu.pc_inc
 cpu_tb.cpu.pc_ld
 cpu_tb.cpu.pc_src[1:0]
+cpu_tb.cpu.pc_rst
 @22
 [color] 7
 cpu_tb.cpu.pc_to_out[15:0]
@@ -86,11 +82,10 @@ cpu_tb.cpu.ControlMatrix.REG_Src1[2:0]
 cpu_tb.cpu.ControlMatrix.REG_Src2[2:0]
 cpu_tb.cpu.ControlMatrix.REG_Dest[2:0]
 cpu_tb.cpu.data_src[1:0]
+cpu_tb.cpu.src1_sel
 @22
 cpu_tb.cpu.source1[15:0]
-@23
 cpu_tb.cpu.source2[15:0]
-@22
 cpu_tb.cpu.mux_data_to_regfile[15:0]
 cpu_tb.cpu.RegFile.DIn[15:0]
 @28
@@ -107,8 +102,10 @@ cpu_tb.cpu.flg_ld
 cpu_tb.cpu.flg_rst
 @22
 cpu_tb.cpu.alu_flgs_to_scm[3:0]
+@23
 [color] 5
 cpu_tb.cpu.alu_to_out[15:0]
+@22
 cpu_tb.cpu.alu_res_to_mux_data[15:0]
 @200
 -
