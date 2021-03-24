@@ -4,7 +4,7 @@
 
 `undef SIMULATE
 
-`include "../../components/cpu/cpu.v"
+`include "../../modules/program_counter/pc.v"
 
 module top
 (
@@ -21,27 +21,48 @@ module top
     output pin9,
     output pin10,   
     output pin11,       // MSB
+    output pin12,
+    output pin13,
     output pin14_sdo,
-    // input pin12,        // Clock
-    // input pin13         // Reset
+    output pin15_sdi,
+    output pin16_sck,
+    output pin17_ss,
+    output pin18,
+    output pin19,
+    output pin20,
+    input pin21,
+    input pin22,
+    output pin23,       // Reset
+    output pin24        // Clock out
 );
 
 localparam AddrWidth = 8;      // 8bit Address width
 localparam DataWidth = 16;     // 16bit Data width
 localparam WordSize = 1;       // Instructions a 1 = 2bytes in size
 
-wire clk_latch_to_cpu_clk;
-wire reset_latch_to_cpu_reset;
-
 wire [DataWidth-1:0] OutReg;
+
+reg PC_rst;
+reg PC_ld;
+reg PC_inc;
+reg [DataWidth-1:0] PC_in = 16'b0;
+wire [DataWidth-1:0] PC_out;
 
 // ----------------------------------------------------------
 // Clock unused
 // ----------------------------------------------------------
 reg [22:0] clk_1hz_counter = 23'b0;  // Hz clock generation counter
 reg        clk_cyc = 1'b0;           // Hz clock
-localparam FREQUENCY = 23'd1;  // 1Hz
-  
+localparam FREQUENCY = 23'd10;  // 10Hz
+
+// or AndO(pin23, pin21, pin22);
+
+always @* begin
+    PC_rst <= 1'b1;
+    PC_ld <= 1'b1;
+    PC_inc <= 1'b0;
+end
+
 // Clock divder and generator
 always @(posedge pin3_clk_16mhz) begin
     if (clk_1hz_counter < 23'd7_999_999)
@@ -56,14 +77,16 @@ end
 // Modules
 // ----------------------------------------------------------
 
-CPU #(
+ProgramCounter #(
     .DataWidth(DataWidth),
-    .AddrWidth(AddrWidth),
-    .WordSize(WordSize)) cpu
+    .WordByteSize(WordSize)) PC
 (
     .Clk(clk_cyc),
-    .Reset(1'b0),
-    .OutReg(OutReg)
+    .Reset(pin21),      // Active low
+    .LD(PC_ld),
+    .Inc(PC_inc),
+    .DIn(PC_in),
+    .DOut(PC_out)
 );
 
 // ----------------------------------------------------------
@@ -71,16 +94,32 @@ CPU #(
 // ----------------------------------------------------------
 // Route Output wires to pins
 assign
-    pin4 = OutReg[0],
-    pin5 = OutReg[1],
-    pin6 = OutReg[2],
-    pin7 = OutReg[3],
-    pin8 = OutReg[4],
-    pin9 = OutReg[5],
-    pin10 = OutReg[6],
-    pin11 = OutReg[7];
+    pin4 = PC_out[0],
+    pin5 = PC_out[1],
+    pin6 = PC_out[2],
+    pin7 = PC_out[3],
+    pin8 = PC_out[4],
+    pin9 = PC_out[5],
+    pin10 = PC_out[6],
+    pin11 = PC_out[7];
 
-assign pin14_sdo = clk_cyc;
+assign
+    pin12 = PC_out[8],
+    pin13 = PC_out[9],
+    pin14_sdo = PC_out[10],
+    pin15_sdi = PC_out[11],
+    pin16_sck = 1'b0,
+    pin17_ss = 1'b0,
+    pin18 = 1'b0,
+    pin19 = 1'b0,
+    pin20 = 1'b0;
+    // pin21 = 1'b0,
+    // pin22 = 1'b0;
+
+assign pin23 = 1'b0;
+
+// assign PC_rst = pin21;
+assign pin24 = clk_cyc;
 
 // TinyFPGA standard pull pins defaults
 assign
