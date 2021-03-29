@@ -10,7 +10,7 @@
 // Otherwise it is relative to the TB.
 `timescale 1ns/1ps
 
-// `define ROM_CONTENTS "../../roms/Sub_Halt.dat"
+`define ROM_CONTENTS "../../roms/ROM_Count.dat"
 
 module Memory
     #(
@@ -32,21 +32,24 @@ module Memory
     // Debugging
     integer index;
     
-    // initial begin
-    //     // I explicitly specify the start/end address in order to avoid the
-    //     // warning: "WARNING: memory.v:23: $readmemh: Standard inconsistency, following 1364-2005."
-    //     $readmemh (`ROM_CONTENTS, mem, 'h00, 'h04);
+    `ifndef SIMULATE
+        initial begin
+        //     // I explicitly specify the start/end address in order to avoid the
+        //     // warning: "WARNING: memory.v:23: $readmemh: Standard inconsistency, following 1364-2005."
+        //     $readmemh (`ROM_CONTENTS, mem, 'h00, 'h04);
+            $readmemh (`ROM_CONTENTS, mem, 0, 6);
 
-    //     // Example of clearing remaining memory
-    //     // for(index = 5; index < 20; index = index + 1)
-    //     //     mem[index] = 16'h0000;
+        //     // Example of clearing remaining memory
+        //     // for(index = 5; index < 20; index = index + 1)
+        //     //     mem[index] = 16'h0000;
 
-    //     // Example of displaying contents
-    //     // $display("------- ROM contents ------");
-    //     // for(index = 0; index < 10; index = index + 1)
-    //     //     $display("memory[%d] = %b <- 0x%h", index[4:0], mem[index], mem[index]);
-    // end
-    
+        //     // Example of displaying contents
+        //     // $display("------- ROM contents ------");
+        //     // for(index = 0; index < 10; index = index + 1)
+        //     //     $display("memory[%d] = %b <- 0x%h", index[4:0], mem[index], mem[index]);
+        end
+    `endif
+
     // --------------------------------
     // Write to memory
     // --------------------------------

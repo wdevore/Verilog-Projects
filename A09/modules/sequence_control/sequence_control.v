@@ -125,6 +125,8 @@ end
 // -------------------------------------------------------------
 always @* begin
     // Initial conditions
+    ready = 1'b1;       // CPU is ready
+
     next_state = S_Idle;
     halt = 1'b0;        // Disable Halt regardless of state
 
@@ -178,6 +180,7 @@ always @* begin
 
             // --- Next state setup -------------
             pc_rst = 1'b0;      // Enable resetting PC (active low)
+            ready = 1'b0;       // CPU not ready
         end
 
         S_Ready: begin
@@ -185,7 +188,6 @@ always @* begin
                 $display("%d S_Ready", $stime);
             `endif
             next_state = S_FetchPCtoMEM;
-            ready = 1'b1;
         end
 
         // Part 1 of fetch sequence: PC to Mem address input
@@ -546,7 +548,6 @@ always @* begin
             alu_instr = 1'b0;    // Complete ALU instruction
         end
 
-        // Avoiding latches
         default:
             next_state = S_Idle;
 
@@ -558,13 +559,10 @@ end
 // rising edge of the next clock.
 // -------------------------------------------------------------
 always @(posedge Clk) begin
-    if (Reset == 1'b0) begin
+    if (Reset == 1'b0)
         state <= S_Reset;
-    end
-    else begin
-        // Potential state change
+    else
         state <= next_state;        
-    end
 end
 
 // -------------------------------------------------------------
