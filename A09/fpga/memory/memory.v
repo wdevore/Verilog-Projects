@@ -27,12 +27,12 @@ module top
     output pin15_sdi,   // Upper bit
     output pin16_sck,
     output pin17_ss,
-    output pin18,
-    output pin19,
-    output pin20,
+    input pin18,        // PC Inc (Active low)
+    input pin19,        // Select 'b0 
+    input pin20,        // Select 'b1
     input pin21,        // Manual clock
     input pin22,        // Reset 
-    output pin23,       
+    output pin23,       // 
     output pin24        // Clock out
 );
 
@@ -42,9 +42,7 @@ localparam WordSize = 1;       // Instructions a 1 = 2bytes in size
 
 wire [DataWidth-1:0] OutReg;
 
-reg PC_rst;
 reg PC_ld;
-reg PC_inc;
 reg [DataWidth-1:0] PC_in = 16'b0;
 wire [DataWidth-1:0] PC_out;
 wire [DataWidth-1:0] mux_addr_to_mem_addr;
@@ -58,9 +56,7 @@ reg        clk_cyc = 1'b0;           // Hz clock
 localparam FREQUENCY = 23'd10;  // 10Hz
 
 always @* begin
-    PC_rst <= 1'b1;
     PC_ld <= 1'b1;
-    PC_inc <= 1'b0;  // Active low
 end
 
 // Clock divder and generator
@@ -84,7 +80,7 @@ ProgramCounter #(
     .Clk(pin21),
     .Reset(pin22),      // Active low
     .LD(PC_ld),
-    .Inc(PC_inc),       // Automatically inc PC
+    .Inc(pin18),       // Automatically inc PC
     .DIn(PC_in),
     .DOut(PC_out)
 );
@@ -93,11 +89,11 @@ Mux #(
     .DataWidth(DataWidth),
     .SelectSize(2)) MUX_ADDR
 (
-    .Select(2'b00),
+    .Select({pin20, pin19}),
     .DIn0(PC_out),          // PC source
-    .DIn1({DataWidth{1'b0}}),
-    .DIn2({DataWidth{1'b0}}),
-    .DIn3({DataWidth{1'b0}}),
+    .DIn1(16'h0002),
+    .DIn2(16'h0001),
+    .DIn3(16'h0004),
     .DOut(mux_addr_to_mem_addr)
 );
 
@@ -137,10 +133,7 @@ assign
     pin14_sdo = mem_to_out[10],
     pin15_sdi = mem_to_out[11],
     pin16_sck = 1'b0,
-    pin17_ss = 1'b0,
-    pin18 = 1'b0,
-    pin19 = 1'b0,
-    pin20 = 1'b0;
+    pin17_ss = 1'b0;
 
 assign pin23 = 1'b0;
 
