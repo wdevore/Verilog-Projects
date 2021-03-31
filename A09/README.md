@@ -130,8 +130,12 @@ $ ./yosys -q -f "verilog -sv -defer" bug2039.v -p "synth_ice40 -top ALU_Test_Top
 What this does is to defer the elaboration step to the hierarchy pass. Since nothing has been elaborated into RTLIL, hierarchy is currently unable to auto-detect the top-level (as it can't currently examine the AST) and so you have to set it manually.
 
 # Test curcuit
+## Using a R2R network
 74LS02 using a resister divider network
 
 https://electronics.stackexchange.com/questions/231616/can-i-use-a-voltage-divider-for-shifing-logic-levels
 
 Picking R1 = 10kOhm and R2 = 20kOhm
+
+## Using a TTGO microcontroller
+See TTGO-Espressif-Projects/Verilog-Projects/A09 : https://github.com/wdevore/TTGO-Espressif-Projects/tree/main/a09_control
