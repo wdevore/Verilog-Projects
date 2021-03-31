@@ -21,19 +21,17 @@ module top
     output pin9,
     output pin10,   
     output pin11,       // MSB
-    output pin14_sdo,
-    // input pin12,        // Clock
-    // input pin13         // Reset
+    input pin22,        // Clock
+    input pin23,        // Reset
+    output pin24        // ClockCyl
 );
 
 localparam AddrWidth = 8;      // 8bit Address width
 localparam DataWidth = 16;     // 16bit Data width
 localparam WordSize = 1;       // Instructions a 1 = 2bytes in size
 
-wire clk_latch_to_cpu_clk;
-wire reset_latch_to_cpu_reset;
-
 wire [DataWidth-1:0] OutReg;
+reg ready;
 
 // ----------------------------------------------------------
 // Clock unused
@@ -61,8 +59,9 @@ CPU #(
     .AddrWidth(AddrWidth),
     .WordSize(WordSize)) cpu
 (
-    .Clk(clk_cyc),
-    .Reset(1'b0),
+    .Clk(pin23),
+    .Reset(pin24),
+    .Ready(ready),
     .OutReg(OutReg)
 );
 
@@ -80,7 +79,7 @@ assign
     pin10 = OutReg[6],
     pin11 = OutReg[7];
 
-assign pin14_sdo = clk_cyc;
+assign pin24 = clk_cyc;
 
 // TinyFPGA standard pull pins defaults
 assign
