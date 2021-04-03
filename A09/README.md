@@ -129,6 +129,85 @@ $ ./yosys -q -f "verilog -sv -defer" bug2039.v -p "synth_ice40 -top ALU_Test_Top
 ```
 What this does is to defer the elaboration step to the hierarchy pass. Since nothing has been elaborated into RTLIL, hierarchy is currently unable to auto-detect the top-level (as it can't currently examine the AST) and so you have to set it manually.
 
+# Build Errors
+
+## (Combinational loops)
+```
+Info: Annotating ports with timing budgets for target frequency 12.00 MHz
+Info:    remaining fanin includes O (net ControlMatrix.alu_instr)        <-----                         <--- This is the issue
+Info:         driver = $abc$2502$auto$blifparse.cc:492:parse_blif$2513_LC.O    |
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2511_LC.I3      |    <------------------------
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2513_LC.I1                                   |
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2526_LC.I1                                   |  Keep traveling upward
+Info:    remaining fanin includes O (net $abc$2502$techmap\ControlMatrix.$auto$rt...                        |
+Info:         driver = $abc$2502$auto$blifparse.cc:492:parse_blif$2511_LC.O <--.----->----------------------|
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2509_LC.I1      |        
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2523_LC.I3   --> <----------------------------
+Info:    remaining fanin includes O (net $abc$2502$techmap$techmap\ControlMatrix...                         |
+Info:         driver = $abc$2502$auto$blifparse.cc:492:parse_blif$2526_LC.O                                 |
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2525_LC.I1                                   |
+Info:    remaining fanin includes O (net pin8$SB_IO_OUT)                                                    |
+Info:         driver = $abc$2502$auto$blifparse.cc:492:parse_blif$2525_LC.O                                 |
+Info:         user: pin8$sb_io.D_OUT_0                                                                      |   Travel upwards
+Info:    remaining fanin includes O (net pin17_ss$SB_IO_OUT)                                                |
+Info:         driver = $abc$2502$auto$blifparse.cc:492:parse_blif$2509_LC.O                                 |
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2513_LC.I2                                   |
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2521_LC.I0                                   |
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2524_LC.I2                                   |
+Info:         user: pin17_ss$sb_io.D_OUT_0                                                                  |
+Info:    remaining fanin includes O (net $abc$2502$techmap\ControlMatrix.$4\next_state[2:0][1]_new_inv_)    |
+Info:         driver = $abc$2502$auto$blifparse.cc:492:parse_blif$2523_LC.O          >-----------------------   Start here "A"
+Info:         user: $abc$2502$auto$blifparse.cc:492:parse_blif$2522_LC.I0
+ERROR: timing analysis failed due to presence of combinatorial loops, incomplete specification of timing ports, etc.
+0 warnings, 1 error
+```
+
+When *nextpnr* detects a loop it stops immediately with an **ERROR**. Generally the last *fanin* being processed is hierarchically related to the actual cause.
+
+In the case above we start searching based on the last *fanin*'s **driver** (aka 2523_LC.O). Searching on *2523_LC.O* yields a *user* higher up the hierarchy *2523_LC.I3*. Searching on this user's driver leeds to *2511_LC.I3* which leads to the top-most driver that is associated with the top-most *fanin*: ```net ControlMatrix.alu_instr```. This is caused by the fact that there is a **path** that results in *no* value being assigned to the **alu_instr** signal. The fix is to make sure all signals within behavioural blocks have assignments. Below the fix is to add the missing assignment just before the ```case(...)``` statement:
+
+From this:
+```
+always @* begin
+    ...
+    src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
+    data_src = 2'b00;   // Select Zero extended source
+    ...
+    case (state)
+    ...
+    endcase
+```
+To:
+```
+always @* begin
+    ...
+    src1_sel = 1'b1;    // Route Src1-IR to Reg-file Src1
+    data_src = 2'b00;   // Select Zero extended source
+    alu_instr = 1'b0;   // Default Complete ALU instruction      <-- This was missing!!!
+    ...
+    case (state)
+    ...
+    endcase
+```
+
+Thus Combination-loops are most often caused when left-hand signals are not being *Set* within a behavioural block. For example:
+
+```
+always @*
+    case (s[3:1])
+        3'b001: late = 1'b1;
+        3'b100: early = 1'b1;
+        default: begin
+            early = 1'b0;
+            late = 1'b0;
+        end
+    endcase
+```
+When **s[3:1]** is *3'b001* or *3'b100*, either **late** or **early** is set but **NOT** the other, the other value remains at its previous value. This will result in an **inferred latch**. As the iCE40 doesn't have latch primitives, Yosys has to implement this as a combinational loop--which is an error.
+
+### References
+- https://github.com/YosysHQ/nextpnr/issues/224
+
 # Test curcuit
 ## Using a R2R network
 74LS02 using a resister divider network

@@ -137,13 +137,14 @@ always @* begin
     pc_src = 2'b00;     // Select PC
     bra_src = 1'b1;     // Select Sign extend
 
+    // Memory
+    mem_en = 1'b1;      // Disable memory
+    mem_wr = 1'b1;      // Disable Write (active low) i.e. Enable Read (Active high)
+    addr_src = 2'b00;   // Select PC as source
+
     // Misc: Stack, Output
     stk_ld = 1'b1;      // Disable Stack loading
     ir_ld = 1'b1;       // Disable IR loading
-
-    // Output 
-    out_ld = 1'b1;      // Disable output loading
-    out_sel = 2'b01;    // Reg-File
 
     // ALU and Flags
     flg_rst = 1'b1;     // Disbled ALU flags reset
@@ -152,10 +153,9 @@ always @* begin
     alu_op = 4'b1000;   // Unknown ALU operation
     alu_instr = 1'b0;   // Default Complete ALU instruction
 
-    // Memory
-    mem_en = 1'b1;      // Disable memory
-    mem_wr = 1'b1;      // Disable Write (active low) i.e. Enable Read (Active high)
-    addr_src = 2'b00;   // Select PC as source
+    // Output 
+    out_ld = 1'b1;      // Disable output loading
+    out_sel = 2'b01;    // Reg-File
 
     // Reg-File
     reg_we = 1'b1;      // Disable writing to reg file
@@ -191,7 +191,6 @@ always @* begin
             next_state = S_FetchPCtoMEM;
         end
 
-        // Part 1 of fetch sequence: PC to Mem address input
         S_FetchPCtoMEM: begin
             `ifdef SIMULATE
                 $display("%d S_FetchPCtoMEM", $stime);
@@ -204,7 +203,6 @@ always @* begin
             mem_en = 1'b0;      // Enable memory
         end
 
-        // Part 2 of fetch sequence
         S_FetchMEMtoIR: begin
             `ifdef SIMULATE
                 $display("%d S_FetchMEMtoIR", $stime);
@@ -225,7 +223,6 @@ always @* begin
 
             // --- Next state setup -------------
             next_state = S_FetchPCtoMEM;
-
             case (`OPCODE)
                 `NOP: begin // No operation (a.k.a. do nothing)
                     // Simply loop back to fetching the next instruction
@@ -471,6 +468,7 @@ always @* begin
                     alu_instr = 1'b1;
                     alu_op = 4'b0100;
                 end
+
             endcase
 
             if (alu_instr == 1'b1) begin
@@ -504,6 +502,7 @@ always @* begin
                 // We always need the ALU status bits
                 flg_ld = 1'b0;      // Enable loading ALU flags
             end
+
         end
 
         S_Execute: begin
