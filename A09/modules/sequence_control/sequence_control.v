@@ -48,13 +48,15 @@ module SequenceControl
 );
 
 // Sequence states
-localparam S_Idle         = 3'b000,
-           S_Reset        = 3'b001,
-           S_FetchPCtoMEM = 3'b010,
-           S_FetchMEMtoIR = 3'b011,
-           S_Decode       = 3'b100,
-           S_Execute      = 3'b101,
-           S_Ready        = 3'b110;
+localparam S_Idle         = 4'b0000,
+           S_Reset        = 4'b0001,
+           S_FetchPCtoMEM = 4'b0010,
+           S_FetchMEMtoIR = 4'b0011,
+           S_Decode       = 4'b0100,
+           S_Execute      = 4'b0101,
+           S_Ready        = 4'b0110,
+           S_ALU_EXECUTE  = 4'b0111, // Extra cycle for ALU instructions
+           S_HALT         = 4'b1000;
 
 // Instruction Field
 `define OPCODE IR[15:12]    // op-code field
@@ -81,8 +83,9 @@ localparam ALUOpSize = 4;
 `define VFlag ALU_FlgsIn[3] // Overflow occured
 
 // Internal state signals
-reg [2:0] state;        // 3Bits for state
-reg [2:0] next_state;   // 3Bits for next state
+localparam StateSize = 4;
+reg [StateSize-1:0] state;        // 3Bits for state
+reg [StateSize-1:0] next_state;   // 3Bits for next state
 
 // Datapath Controls
 reg halt;
@@ -123,7 +126,7 @@ end
 // -------------------------------------------------------------
 // Combinational control signals
 // -------------------------------------------------------------
-always @* begin
+always @(state) begin
     // Initial conditions
     ready = 1'b1;       // CPU is ready
 
@@ -150,8 +153,9 @@ always @* begin
     flg_ld = 1'b1;      // Disable Flag state loading
     alu_ld = 1'b1;      // Disable loading ALU output
     alu_op = 4'b1000;   // Unknown ALU operation
-    alu_instr = 1'b0;   // Default Complete ALU instruction
 
+    alu_instr = 1'b0;
+    
     // Memory
     mem_en = 1'b1;      // Disable memory
     mem_wr = 1'b1;      // Disable Write (active low) i.e. Enable Read (Active high)
@@ -184,6 +188,16 @@ always @* begin
             ready = 1'b0;       // CPU not ready
         end
 
+        S_HALT: begin
+            `ifdef SIMULATE
+                $display("%d S_HALT", $stime);
+            `endif
+            // We can only exit this state on a reset.
+            next_state = S_HALT;
+            halt = 1'b1;
+            ready = 1'b0;
+        end
+
         S_Ready: begin
             `ifdef SIMULATE
                 $display("%d S_Ready", $stime);
@@ -202,6 +216,7 @@ always @* begin
 
             // --- Next state setup -------------
             mem_en = 1'b0;      // Enable memory
+            // By default memory read is enabled.
         end
 
         // Part 2 of fetch sequence
@@ -239,7 +254,7 @@ always @* begin
                         $display("%d OPCODE: HLT", $stime);
                     `endif
                     // Signals CPU to stop and idle
-                    next_state = S_Idle;
+                    next_state = S_HALT; //S_Idle;
                     halt = 1'b1;
                     ready = 1'b0;
                 end
@@ -248,6 +263,7 @@ always @* begin
                     `ifdef SIMULATE
                         $display("%d OPCODE: LDI", $stime);
                     `endif
+                    
                     // IR[8:0] contains value loaded into Dest register
                     // Value is zero-extended
                     reg_we = 1'b0;      // Enable write to reg file
@@ -258,7 +274,7 @@ always @* begin
                     `ifdef SIMULATE
                         $display("%d OPCODE: LD", $stime);
                     `endif
-                    // IR[8:0] contains an absolute address to load from
+                    // IR[8:0] contains an absolute address to load from.
                     // Address is zero-extended.
                     next_state = S_Execute;
 
@@ -287,18 +303,17 @@ always @* begin
                         `endif
                         // Source is a Reg-File.
                         out_ld = 1'b0;      // Enable output loading
-                        out_sel = 2'b01;    // Reg-File
+                        out_sel = 2'b01;    // Select Reg-File source
                     end
                     else begin
                         `ifdef SIMULATE
                             $display("%d OPCODE: OUT from Memory", $stime);
                         `endif
-                        // Source is Memory
-                        next_state = S_Execute; // needs extra cycle
+                        // Source is Memory so we need an extra cycle
+                        next_state = S_Execute;
 
                         mem_en = 1'b0;      // Enable memory
                         addr_src = 2'b10;   // Select zero-extend
-                        out_sel = 2'b00;    // Memory
                     end
                 end
 
@@ -375,11 +390,12 @@ always @* begin
 
                     // Determine if the PC should be loaded with a
                     // branch address specified by the lower 10 bits, but
-                    // only if a condition is meet.
+                    // only if a ALU flag condition is meet.
                     if (takeBranch == 1'b1) begin
                         `ifdef SIMULATE
                             $display("%d --- Taking branch ---", $stime);
                         `endif
+
                         pc_ld = 1'b0;       // Enable PC load
                         bra_src = 1'b1;     // Select Sign extend
                         pc_src = 2'b00;     // Select Branch address source
@@ -447,7 +463,8 @@ always @* begin
                             $display("%d OPCODE: CMP", $stime);
                         `endif
                     end
-                    alu_instr = 1'b1;
+
+                    alu_instr = 1'b1;   // See just below
                     alu_op = 4'b0001;
                 end
                 `AND: begin // ALU AND operation
@@ -475,35 +492,45 @@ always @* begin
 
             if (alu_instr == 1'b1) begin
                 `ifdef SIMULATE
-                    $display("%d S_Decode::alu_instr, IgnoreDest: %b", $stime, `IgnoreDest);
+                    $display("%d S_Decode::alu_instr", $stime);
                 `endif
                 // If the instruction indicates that the destination
-                // should be stored then we need the extra cycle via S_Execute.
-                // For some instructions, for example CMP, we
-                // don't care about a destination.
+                // should be stored then we need the extra cycle via S_ALU_EXECUTE.
                 if (`IgnoreDest == 1'b0) begin
                     `ifdef SIMULATE
                         $display("%d S_Decode:: Destination required.", $stime);
                     `endif
-                    // The destination is required so an Execute cycle is needed.
-                    next_state = S_Execute;
+                    // The destination is required so an cycle is needed.
+                    next_state = S_ALU_EXECUTE;
 
                     src1_sel = 1'b1;    // Select Src1-IR to Reg-file Src1
                     alu_ld = 1'b0;      // Enable loading ALU output
                 end
                 else begin
+                    // For some instructions, for example CMP,
+                    // we don't care about a destination just the ALU flags.
                     `ifdef SIMULATE
                         $display("%d S_Decode:: Destination ignored.", $stime);
                     `endif
-                    // We don't need the alu_instr flag Set anymore because
-                    // we are skipping the S_Execute cycle which depended
-                    // on it.
-                    alu_instr = 1'b0;                    
                 end
 
                 // We always need the ALU status bits
                 flg_ld = 1'b0;      // Enable loading ALU flags
             end
+        end
+
+        // A clock edge occurs  <-----
+
+        S_ALU_EXECUTE: begin
+            `ifdef SIMULATE
+                $display("%d S_ALU_EXECUTE ALU Part 2", $stime);
+            `endif
+
+            // The next state is alway fetch
+            next_state = S_FetchPCtoMEM;
+
+            data_src = 2'b10;    // Select ALU output
+            reg_we = 1'b0;       // Enable write to Reg File
         end
 
         S_Execute: begin
@@ -517,36 +544,22 @@ always @* begin
                     `endif
                     // This cycle completes the instruction by loading
                     // the reg file with the data from memory.
-                    // --- Previous State clean up ---------
                     mem_en = 1'b1;      // Disable memory
 
                     // --- Next state setup -------------
                     reg_we = 1'b0;      // Enable writing to reg file
-                    data_src = 2'b01;   // Select memory output source
+                    data_src = 2'b01;   // Select Memory output source
                 end
                 
                 `OUT: begin
                     `ifdef SIMULATE
                         $display("%d S_Execute OUT", $stime);
                     `endif
+                    
                     out_ld = 1'b0;      // Enable output loading
-                end
-
-                default: begin
-                    `ifdef SIMULATE
-                        $display("%d S_Execute ALU Part 2", $stime);
-                    `endif
-                    if (alu_instr == 1'b1) begin
-                        `ifdef SIMULATE
-                            $display("%d S_Execute.alu_instr", $stime);
-                        `endif
-                        data_src = 2'b10;    // Select ALU output
-                        reg_we = 1'b0;       // Enable write to Reg File
-                    end                    
+                    out_sel = 2'b00;    // Select Memory source
                 end
             endcase
-
-            alu_instr = 1'b0;    // Complete ALU instruction
         end
 
         default:

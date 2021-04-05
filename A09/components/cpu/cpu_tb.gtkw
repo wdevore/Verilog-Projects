@@ -1,32 +1,34 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Mon Mar 22 01:19:09 2021
+[*] Sun Apr  4 03:44:34 2021
 [*]
 [dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.vcd"
-[dumpfile_mtime] "Mon Mar 22 01:01:44 2021"
-[dumpfile_size] 76023
+[dumpfile_mtime] "Sun Apr  4 03:43:27 2021"
+[dumpfile_size] 36557
 [savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/components/cpu/cpu_tb.gtkw"
-[timestart] 950000
-[size] 3433 933
-[pos] 0 27
-*-18.042019 3202000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 0
+[size] 3433 1120
+[pos] 0 28
+*-18.042019 419000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
 [sst_width] 242
 [signals_width] 323
 [sst_expanded] 1
-[sst_vpaned_height] 261
+[sst_vpaned_height] 324
 @28
 [color] 2
 cpu_tb.Clock_TB
 [color] 1
 cpu_tb.cpu.Reset
-[color] 1
-cpu_tb.cpu.halt
 [color] 3
 cpu_tb.CPU_Ready_TB
-cpu_tb.cpu.ControlMatrix.state[2:0]
-cpu_tb.cpu.ControlMatrix.next_state[2:0]
+[color] 1
+cpu_tb.CPU_Halt_TB
+@23
+cpu_tb.cpu.ControlMatrix.state[3:0]
+@22
+cpu_tb.cpu.ControlMatrix.next_state[3:0]
 @c00022
 [color] 3
 cpu_tb.cpu.ir[15:0]
@@ -65,6 +67,8 @@ cpu_tb.cpu.ir[15:0]
 (15)cpu_tb.cpu.ir[15:0]
 @1401200
 -group_end
+@28
+cpu_tb.cpu.IR_Ld
 @200
 -
 @28
@@ -89,12 +93,22 @@ cpu_tb.cpu.source2[15:0]
 cpu_tb.cpu.mux_data_to_regfile[15:0]
 cpu_tb.cpu.RegFile.DIn[15:0]
 @28
-cpu_tb.cpu.mem_en
 cpu_tb.cpu.reg_we
+cpu_tb.cpu.addr_src[1:0]
+@200
+-
+@28
+cpu_tb.cpu.mem_wr
+cpu_tb.cpu.Mem_En
+@22
+cpu_tb.cpu.mem_to_out[15:0]
 @200
 -
 @22
 cpu_tb.cpu.alu_op[3:0]
+@28
+cpu_tb.cpu.ControlMatrix.alu_instr
+@22
 cpu_tb.cpu.alu_to_flags[3:0]
 @28
 cpu_tb.cpu.alu_ld
@@ -102,10 +116,8 @@ cpu_tb.cpu.flg_ld
 cpu_tb.cpu.flg_rst
 @22
 cpu_tb.cpu.alu_flgs_to_scm[3:0]
-@23
 [color] 5
 cpu_tb.cpu.alu_to_out[15:0]
-@22
 cpu_tb.cpu.alu_res_to_mux_data[15:0]
 @200
 -
@@ -119,5 +131,12 @@ cpu_tb.cpu.relativeSignedExt[15:0]
 cpu_tb.cpu.stk_ld
 @22
 cpu_tb.cpu.stk_to_mux_pc[15:0]
+@200
+-
+@22
+cpu_tb.cpu.OutReg[15:0]
+@28
+cpu_tb.cpu.out_sel[1:0]
+cpu_tb.cpu.Output_Ld
 [pattern_trace] 1
 [pattern_trace] 0

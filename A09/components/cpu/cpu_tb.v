@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
-`define ROM "../../roms/Count_Out.dat"
+// `define ROM "../../roms/Count_Out.dat"
 
 module cpu_tb;
    parameter AddrWidth_TB = 8;      // 8bit Address width
@@ -17,6 +17,7 @@ module cpu_tb;
    // Inputs
    reg Clock_TB;
    reg Reset_TB;
+   wire CPU_Halt_TB;
    wire CPU_Ready_TB;
    wire [DataWidth_TB-1:0] OutReg_TB;
 
@@ -35,6 +36,7 @@ module cpu_tb;
       .Clk(Clock_TB),
       .Reset(Reset_TB),
       .Ready(CPU_Ready_TB),
+      .Halt(CPU_Halt_TB),
       .OutReg(OutReg_TB)
    );
  
@@ -60,20 +62,6 @@ module cpu_tb;
        
       $display("%d %m: Starting testbench simulation...", $stime);
 
-      // I can specify the start/end address in order to avoid the
-      // warning: "WARNING: memory.v:23: $readmemh: Standard inconsistency, following 1364-2005."
-      // $readmemh (`ROM, cpu.memory.mem, 'h00, 'h04);
-      $readmemh (`ROM, cpu.memory.mem);
-
-      // Example of clearing remaining memory
-      // for(index = 5; index < 20; index = index + 1)
-      //     mem[index] = 16'h0000;
-
-      // Example of displaying contents
-      $display("------- Memory contents ------");
-      for(index = 0; index < 15; index = index + 1)
-         $display("memory[%d] = %b <- 0x%h", index[3:0], cpu.memory.mem[index], cpu.memory.mem[index]);
-  
       // Setup defaults
       Reset_TB = 1'b1;
    end
@@ -88,9 +76,15 @@ module cpu_tb;
       #300 Reset_TB = 1'b1;  // Disable reset
 
       wait(cpu.ControlMatrix.state === cpu.ControlMatrix.S_Ready);
-
+ 
       $display("%d <-- CPU ready", $stime);
   
+      // Check memory was loaded
+      if (cpu.memory.mem[0] === 16'h0 || cpu.memory.mem[0] === {DataWidth_TB{1'bx}}) begin
+         $display("%d %m: ###ERROR### - Memory doesn't appear to be loaded", $time);
+         $finish;
+      end
+
       // ---------------------------------------------------
       // Wait for the beginning of an instruction.
       // ---------------------------------------------------
@@ -98,40 +92,33 @@ module cpu_tb;
       // wait(cpu.ControlMatrix.state === cpu.ControlMatrix.S_FetchPCtoMEM && cpu.ControlMatrix.next_state === cpu.ControlMatrix.S_FetchMEMtoIR);
       // $display("%d <-- Instruction (%d) at", $stime, cycleCnt);
       // cycleCnt++;
-  
-      // Sync on PC incrementing
-      // wait(cpu.pc_inc === 1'b0);
-   
-      // Now wait for the neg-edge when the PC is incremented
-      // @(negedge Clock_TB);
     
-      // If should have changed from 0x0000 to 0x0001
-      // wait(cpu.pc_to_out === 16'h0001);
-   
       // `include "tests/add_halt.v"
       // `include "tests/sub_halt.v"
- 
-      // Use this if the simulation goes into a "run-away"
-      // (i.e. Halt is never reached)
-      // #10000 $finish; 
 
       // Wait for Halt to complete. Waiting on a posedge will
       // conflicts with other waits that occur at the same time,
       // so we wait on the neg-edge.
-      @(negedge cpu.halt)
+      @(negedge CPU_Halt_TB)
       $display("%d %m: Halt un-triggered", $stime);
-      
+     
+      // Use this if the simulation goes into a "run-away"
+      // (i.e. Halt is never reached)
+      #10000;
+   
       $display("------- Reg File contents ------");
       for(index = 0; index < 8; index = index + 1)
          $display("Reg [%h] = %b <- 0x%h", index, cpu.RegFile.reg_file[index], cpu.RegFile.reg_file[index]);
-
+  
       $display("------- Memory contents ------");
       for(index = 0; index < 15; index = index + 1)
          $display("memory [%h] = %b <- 0x%h", index, cpu.memory.mem[index], cpu.memory.mem[index]);
 
       $display("------- Output contents ------");
       $display("Output {%h}", cpu.output_port);
- 
+      
+      //  #10000 $finish; 
+   
       // ------------------------------------
       // Simulation END
       // ------------------------------------

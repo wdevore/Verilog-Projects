@@ -1,6 +1,6 @@
 `default_nettype none
 
-// `define SIMULATE 1
+`define SIMULATE 1
 
 // --------------------------------------------------------------------------
 // A09 CPU module
@@ -27,6 +27,11 @@ module CPU
     input wire Clk,
     input wire Reset,
     output wire Ready,
+    output wire Halt,
+    output wire IR_Ld,
+    output wire Mem_En,
+    output wire Output_Ld,
+    output wire [DataWidth-1:0] IR_Out,
     output wire [DataWidth-1:0] OutReg
 );
 
@@ -74,7 +79,7 @@ wire [ALUFlagSize-1:0] alu_to_flags;
 wire stk_ld;
 wire bra_src;
 // IR
-wire ir_ld;
+// wire ir_ld;
 wire [DataWidth-1:0] ir;
 // PC
 wire pc_ld;
@@ -83,7 +88,7 @@ wire pc_inc;
 wire [1:0] pc_src;       // 2Bits
 // Memory
 wire mem_wr;
-wire mem_en;
+// wire mem_en;
 wire [1:0] addr_src;     // 2Bits
 // Regster File
 wire reg_we;
@@ -100,11 +105,8 @@ wire flg_ld;
 wire alu_ld;
 wire flg_rst;
 // Output
-wire output_ld;
+// wire output_ld;
 wire [1:0] out_sel;     // 2Bits
-
-// Misc
-wire halt;               // Active High
 
 // IR bit fields
 `define DestReg         ir[11:9]
@@ -133,6 +135,8 @@ assign branchAddress = mux_bra_to_alu2 + (pc_to_out - WordSize);
 
 assign OutReg = output_port;
 
+assign IR_Out = ir;
+
 // -------- Module ------------------------------------------
 // Sequence control matrix
 // ----------------------------------------------------------
@@ -143,13 +147,13 @@ SequenceControl #(.DataWidth(DataWidth)) ControlMatrix
     .IR(ir),
     .STK_Ld(stk_ld),
     .BRA_Src(bra_src),
-    .IR_Ld(ir_ld),
+    .IR_Ld(IR_Ld),
     .PC_Ld(pc_ld),
     .PC_Rst(pc_rst),
     .PC_Inc(pc_inc),
     .PC_Src(pc_src),
     .MEM_Wr(mem_wr),
-    .MEM_En(mem_en),
+    .MEM_En(Mem_En),
     .ADDR_Src(addr_src),
     .REG_WE(reg_we),
     .DATA_Src(data_src),
@@ -162,10 +166,10 @@ SequenceControl #(.DataWidth(DataWidth)) ControlMatrix
     .FLG_Ld(flg_ld),
     .ALU_Ld(alu_ld),
     .FLG_Rst(flg_rst),
-    .OUT_Ld(output_ld),
+    .OUT_Ld(Output_Ld),
     .OUT_Sel(out_sel),
     .Ready(Ready),
-    .Halt(halt)
+    .Halt(Halt)
 );
 
 // -------- Module ------------------------------------------
@@ -191,7 +195,7 @@ Memory #(.AddrWidth(AddrWidth)) memory(
     .DIn(source1),              // Register file src 1
     .Address(mux_addr_to_mem_addr[AddrWidth-1:0]),
     .Write_EN(mem_wr),
-    .Mem_En(mem_en),
+    .Mem_En(Mem_En),
     .DOut(mem_to_out)
 );
 
@@ -312,7 +316,7 @@ Register #(.DataWidth(DataWidth)) IR
 (
     .Clk(Clk),
     .Reset(Reset),
-    .LD(ir_ld),
+    .LD(IR_Ld),
     .DIn(mem_to_out),
     .DOut(ir)
 );
@@ -352,7 +356,7 @@ Register #(.DataWidth(DataWidth)) OutputR
 (
     .Clk(Clk),
     .Reset(Reset),
-    .LD(output_ld),
+    .LD(Output_Ld),
     .DIn(mux_out_to_output),       // ALU output
     .DOut(output_port)
 );

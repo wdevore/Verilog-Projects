@@ -209,6 +209,9 @@ When **s[3:1]** is *3'b001* or *3'b100*, either **late** or **early** is set but
 - https://github.com/YosysHQ/nextpnr/issues/224
 
 # Test curcuit
+## Common ground
+It appears that connecting the ground of the TTGO to the FPGA causes trouble loading the FPGA. Just leave them separate.
+
 ## Using a R2R network
 74LS02 using a resister divider network
 
