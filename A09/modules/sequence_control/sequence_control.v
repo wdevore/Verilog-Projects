@@ -296,33 +296,12 @@ always @(state) begin
                     src1_sel = 1'b0;    // Route Dest-IR to Reg-file Src1
                 end
 
-                `OUT: begin // Copy source to output register
-                    if (`OutSrc == 1'b1) begin
-                        `ifdef SIMULATE
-                            $display("%d OPCODE: OUT from Reg-File", $stime);
-                        `endif
-                        // Source is a Reg-File.
-                        out_ld = 1'b0;      // Enable output loading
-                        out_sel = 2'b01;    // Select Reg-File source
-                    end
-                    else begin
-                        `ifdef SIMULATE
-                            $display("%d OPCODE: OUT from Memory", $stime);
-                        `endif
-                        // Source is Memory so we need an extra cycle
-                        next_state = S_Execute;
-
-                        mem_en = 1'b0;      // Enable memory
-                        addr_src = 2'b10;   // Select zero-extend
-                    end
-                end
-
                 `STX: begin // Store Direct
                     `ifdef SIMULATE
                         $display("%d OPCODE: STX", $stime);
                     `endif
-                    // IR[2:0] specifies the data to be stored
-                    // IR[6:4] specifies the address to write to
+                    // Src1 = IR[2:0] specifies the data to be stored
+                    // Src2 = IR[6:4] specifies the address to write to
 
                     mem_wr = 1'b0;      // Enable writing to memory
                     mem_en = 1'b0;      // Enable memory
@@ -348,6 +327,27 @@ always @(state) begin
                     pc_src = 2'b10;     // Select Reg-File Source 1
                     pc_ld = 1'b0;       // Enable loading PC
                     stk_ld = `JPLink;   // loading Stack reg. JPL = 0
+                end
+
+                `OUT: begin // Copy source to output register
+                    if (`OutSrc == 1'b1) begin
+                        `ifdef SIMULATE
+                            $display("%d OPCODE: OUT from Reg-File", $stime);
+                        `endif
+                        // Source is a Reg-File.
+                        out_ld = 1'b0;      // Enable output loading
+                        out_sel = 2'b01;    // Select Reg-File source
+                    end
+                    else begin
+                        `ifdef SIMULATE
+                            $display("%d OPCODE: OUT from Memory", $stime);
+                        `endif
+                        // Source is Memory so we need an extra cycle
+                        next_state = S_Execute;
+
+                        mem_en = 1'b0;      // Enable memory
+                        addr_src = 2'b10;   // Select zero-extend
+                    end
                 end
 
                 `RET: begin // Return from JPL instruction
@@ -556,6 +556,15 @@ always @(state) begin
                         $display("%d S_Execute OUT", $stime);
                     `endif
                     
+                    // ##### NOTE ######
+                    // We need to maintain active addr_sr because we
+                    // don't want the next instruction to appear while
+                    // we are clocking the output reg.
+                    // We also need to maintain mem_en.
+                    // ####################
+                    addr_src = 2'b10;   // Select zero-extend
+                    mem_en = 1'b0;      // Enable memory
+
                     out_ld = 1'b0;      // Enable output loading
                     out_sel = 2'b00;    // Select Memory source
                 end

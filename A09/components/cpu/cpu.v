@@ -1,6 +1,6 @@
 `default_nettype none
 
-`define SIMULATE 1
+// `define SIMULATE 1
 
 // --------------------------------------------------------------------------
 // A09 CPU module

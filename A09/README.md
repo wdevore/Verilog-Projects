@@ -109,6 +109,31 @@ nextpnr-ice40 --lp8k --package cm81 --json hardware.json --asc hardware.asc --pc
 tinyfpgab -c /dev/ttyACM0 --program hardware.bin
 ```
 
+# Build Notes:
+The first issue is yosys doesn't seem to "**compile**" all files, dirty or not. the "``` `include ...```" statements are not seen as *dependencies* so you MUST manually touch key files.
+
+The ```run.sh``` script seems to be consistent as long as you touch many key files, for example, *memory.v*, *cpu.v* and *sequence_control.v*.
+
+If you don't *watch* these files you could end up **upload**ing a bitstream that is incomplete. This means the FPGA isn't configured correctly and the CPU will not function properly. Just remember to *touch* the 3 key files and you should be good.
+
+Note use ```touch``` in a script to always timestamp every file just to be safe.
+
+## ROM initialization
+The ROM portion of memory needs to initialized **in** the *memory.v* initial block, for example:
+
+```
+`define ROM_CONTENTS "../../roms/Count_Out.dat"
+...
+    // memory.v
+    initial begin
+        $readmemh (`ROM_CONTENTS, mem);  // , 0, 6
+        ...
+    end
+...
+```
+
+You can initialize memory *outside* of *memory.v* only in simulation mode. Synthization requires initialization only within the memory module.
+
 # Build warnings
 
 ## Warning: Range select XXX out of bounds on signal \YY
