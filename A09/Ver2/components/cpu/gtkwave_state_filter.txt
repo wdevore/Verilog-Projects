@@ -1,0 +1,9 @@
+0 Idle
+1 Reset
+2 FetchPCtoMEM
+3 FetchMEMtoIR
+4 Decode
+5 Execute
+6 Ready
+7 ALU_Execute
+8 Halt

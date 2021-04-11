@@ -1,0 +1,165 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sun Apr 11 16:04:06 2021
+[*]
+[dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/cpu_tb.vcd"
+[dumpfile_mtime] "Sun Apr 11 16:02:02 2021"
+[dumpfile_size] 39241
+[savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/cpu_tb.gtkw"
+[timestart] 0
+[size] 3433 1152
+[pos] 24 27
+*-19.547928 3579000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] cpu_tb.
+[treeopen] cpu_tb.cpu.
+[sst_width] 242
+[signals_width] 323
+[sst_expanded] 1
+[sst_vpaned_height] 334
+@28
+[color] 2
+cpu_tb.Clock_TB
+[color] 1
+cpu_tb.cpu.Reset
+[color] 3
+cpu_tb.CPU_Ready_TB
+[color] 1
+cpu_tb.CPU_Halt_TB
+@c02022
+^1 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/gtkwave_state_filter.txt
+cpu_tb.cpu.ControlMatrix.state[3:0]
+@28
+(0)cpu_tb.cpu.ControlMatrix.state[3:0]
+(1)cpu_tb.cpu.ControlMatrix.state[3:0]
+(2)cpu_tb.cpu.ControlMatrix.state[3:0]
+(3)cpu_tb.cpu.ControlMatrix.state[3:0]
+@1401200
+-group_end
+@2022
+^1 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/gtkwave_state_filter.txt
+cpu_tb.cpu.ControlMatrix.next_state[3:0]
+@c00022
+[color] 3
+cpu_tb.cpu.ir[15:0]
+@28
+[color] 3
+(0)cpu_tb.cpu.ir[15:0]
+[color] 3
+(1)cpu_tb.cpu.ir[15:0]
+[color] 3
+(2)cpu_tb.cpu.ir[15:0]
+[color] 3
+(3)cpu_tb.cpu.ir[15:0]
+[color] 3
+(4)cpu_tb.cpu.ir[15:0]
+[color] 3
+(5)cpu_tb.cpu.ir[15:0]
+[color] 3
+(6)cpu_tb.cpu.ir[15:0]
+[color] 3
+(7)cpu_tb.cpu.ir[15:0]
+[color] 3
+(8)cpu_tb.cpu.ir[15:0]
+[color] 3
+(9)cpu_tb.cpu.ir[15:0]
+[color] 3
+(10)cpu_tb.cpu.ir[15:0]
+[color] 3
+(11)cpu_tb.cpu.ir[15:0]
+[color] 3
+(12)cpu_tb.cpu.ir[15:0]
+[color] 3
+(13)cpu_tb.cpu.ir[15:0]
+[color] 3
+(14)cpu_tb.cpu.ir[15:0]
+[color] 3
+(15)cpu_tb.cpu.ir[15:0]
+@1401200
+-group_end
+@2024
+^2 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/gtkwave_opcode_filter.txt
+cpu_tb.cpu.ControlMatrix.opCode[15:11]
+@28
+cpu_tb.cpu.IR_Ld
+@200
+-
+@28
+cpu_tb.cpu.pc_inc
+cpu_tb.cpu.pc_ld
+cpu_tb.cpu.pc_src[1:0]
+cpu_tb.cpu.pc_rst
+@22
+[color] 7
+cpu_tb.cpu.pc_to_out[15:0]
+@200
+-
+@24
+cpu_tb.cpu.ControlMatrix.REG_Src1[2:0]
+cpu_tb.cpu.ControlMatrix.REG_Src2[2:0]
+cpu_tb.cpu.ControlMatrix.REG_Dest[2:0]
+@28
+cpu_tb.cpu.data_src[1:0]
+cpu_tb.cpu.src1_sel
+@22
+cpu_tb.cpu.source1[15:0]
+cpu_tb.cpu.source2[15:0]
+cpu_tb.cpu.mux_data_to_regfile[15:0]
+cpu_tb.cpu.RegFile.DIn[15:0]
+@28
+cpu_tb.cpu.reg_we
+cpu_tb.cpu.addr_src[1:0]
+@200
+-
+@28
+cpu_tb.cpu.mem_wr
+cpu_tb.cpu.Mem_En
+@22
+cpu_tb.cpu.mem_to_out[15:0]
+@200
+-
+@28
+cpu_tb.cpu.ControlMatrix.alu_instr
+@c02025
+^3 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/gtkwave_aluop_filter.txt
+cpu_tb.cpu.ControlMatrix.alu_op[3:0]
+@28
+(0)cpu_tb.cpu.ControlMatrix.alu_op[3:0]
+(1)cpu_tb.cpu.ControlMatrix.alu_op[3:0]
+(2)cpu_tb.cpu.ControlMatrix.alu_op[3:0]
+(3)cpu_tb.cpu.ControlMatrix.alu_op[3:0]
+@1401201
+-group_end
+@22
+cpu_tb.cpu.alu_to_flags[3:0]
+@28
+cpu_tb.cpu.alu_ld
+cpu_tb.cpu.flg_ld
+cpu_tb.cpu.flg_rst
+@2022
+^4 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/gtkwave_aluflags_filter.txt
+cpu_tb.cpu.alu_flgs_to_scm[3:0]
+@22
+[color] 5
+cpu_tb.cpu.alu_to_out[15:0]
+cpu_tb.cpu.alu_res_to_mux_data[15:0]
+@200
+-
+@28
+cpu_tb.cpu.bra_src
+@22
+cpu_tb.cpu.branchAddress[15:0]
+cpu_tb.cpu.mux_bra_to_alu2[15:0]
+cpu_tb.cpu.relativeSignedExt[15:0]
+@28
+cpu_tb.cpu.stk_ld
+@22
+cpu_tb.cpu.stk_to_mux_pc[15:0]
+@200
+-
+@22
+cpu_tb.cpu.OutReg[15:0]
+@28
+cpu_tb.cpu.out_sel[1:0]
+cpu_tb.cpu.Output_Ld
+[pattern_trace] 1
+[pattern_trace] 0

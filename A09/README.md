@@ -1,28 +1,6 @@
 # A09
 A09 is the precursor the X09 CPU. A09 is a simplified 16bit CPU for learning purposes.
 
-[Yosys](https://github.com/YosysHQ/yosys) reports that it takes **774** cells, which isn't *too* bad ;-)
-
-```
-=== top ===
-   Number of wires:                530
-   Number of wire bits:           1831
-   Number of public wires:         165
-   Number of public wire bits:    1338
-   Number of memories:               0
-   Number of memory bits:            0
-   Number of processes:              0
-   Number of cells:                774
-     SB_CARRY                       87
-     SB_DFFE                         1
-     SB_DFFESR                       1
-     SB_DFFNE                       72
-     SB_DFFNESR                    116
-     SB_DFFSR                       25
-     SB_DFFSS                        1
-     SB_LUT4                       470
-     SB_RAM40_4KNRNW                 1
-```
 
 A [GTKWave Output](A09_Count_Up_GTKWave.png) of counting to 10 using the following program below:
 
@@ -38,26 +16,6 @@ A [GTKWave Output](A09_Count_Up_GTKWave.png) of counting to 10 using the followi
 ```
 
 [CPU Layout diagram](A09_CPU.png) made using app.diagrams.net
-
-# Simulation
-Memory map
-```
-0x00      'b00000000
-|
-|                        ROM (aka Upper BRAM)
-|
-0x3F      'b01111111     ---------
-0x40      'b10000000
-|
-|                        RAM
-|
-0xFF      'b11111111
-```
-
-## The simulation initialization
-- Clear registers (PC, Stack, ALU flags)
-- Load ROM
-- Sequence state = 'b00
 
 https://www.chipverify.com/verilog/verilog-timing-control
 
