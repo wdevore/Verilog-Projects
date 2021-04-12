@@ -1,7 +1,7 @@
 `default_nettype none
 
 // --------------------------------------------------------------------------
-// 256x8 BRAM memory
+// 256x16 BRAM memory
 // Single-Port
 // --------------------------------------------------------------------------
 // The path to the data file is relative to the test bench (TB).
@@ -10,7 +10,7 @@
 // Otherwise it is relative to the TB.
 `timescale 1ns/1ps
 
-`define ROM_CONTENTS "../../../roms/STX_Halt.dat"
+`define ROM_CONTENTS "../../../roms/Not_Halt.dat"
 
 module Memory
 #(

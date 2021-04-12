@@ -47,12 +47,12 @@ module cpu_tb;
       Clock_TB <= 1'b0;
       cycleCnt = 0;
    end
-  
+    
    // The clock runs until the sim finishes. #100 = 200ns clock cycle
    always begin
       #100 Clock_TB = ~Clock_TB;
    end
-
+ 
    // -------------------------------------------
    // Configure starting sim states
    // -------------------------------------------
@@ -65,7 +65,7 @@ module cpu_tb;
       // Setup defaults
       Reset_TB = 1'b1;
    end
-    
+   
    always begin
       $display("%d <-- Reset", $stime);
       // ------------------------------------
@@ -84,7 +84,7 @@ module cpu_tb;
          $display("%d %m: ###ERROR### - Memory doesn't appear to be loaded", $time);
          // $finish;
       end
- 
+
       // ---------------------------------------------------
       // Wait for the beginning of an instruction.
       // ---------------------------------------------------
@@ -95,7 +95,7 @@ module cpu_tb;
       
       // `include "tests/add_halt.v"
       // `include "tests/sub_halt.v"
-    
+     
       // Wait for Halt to complete. Waiting on a posedge will
       // conflicts with other waits that occur at the same time,
       // so we wait on the neg-edge.
@@ -104,19 +104,19 @@ module cpu_tb;
 
       // Use this if the simulation goes into a "run-away"
       // (i.e. Halt is never reached)
-      #10000;
-  
+      #50000;
+      
       $display("------- Reg File contents ------");
       for(index = 0; index < 8; index = index + 1)
          $display("Reg [%h] = %b <- 0x%h", index, cpu.RegFile.reg_file[index], cpu.RegFile.reg_file[index]);
-   
+       
       $display("------- Memory contents ------");
       for(index = 0; index < 15; index = index + 1)
          $display("memory [%h] = %b <- 0x%h", index, cpu.memory.mem[index], cpu.memory.mem[index]);
    
       $display("------- Output contents ------");
       $display("Output {%h}", cpu.output_port);
-   
+    
       //  #10000 $finish; 
    
       // ------------------------------------

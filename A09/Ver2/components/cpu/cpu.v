@@ -122,8 +122,6 @@ assign absoluteZeroExtH = {{DataWidth-AddrSize{1'b0}}, `AddrH};
 assign absoluteZeroExtL = {{DataWidth-AddrSize{1'b0}}, `AddrL};
 
 // Sign extend the lower signed address bit from the IR register.
-// assign relativeSignedExt = (ir[SignedAddrSize] == 1) ? {{DataWidth-SignedAddrSize{1'b1}}, `SignedAddr} : {{DataWidth-SignedAddrSize{1'b0}}, `SignedAddr};
-// OR
 assign relativeSignedExt = {{DataWidth-AddrSize{ir[AddrSize-1]}}, `AddrL};
 
 // To generate the branch address we need to subtract 1 from the PC

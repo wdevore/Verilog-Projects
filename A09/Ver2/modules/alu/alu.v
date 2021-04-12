@@ -41,11 +41,11 @@ localparam ZeroFlag   = 0,
            OverFlag   = 3;  // aka. V flag
 
 // Allow operation codes
-localparam Add_OP  = 4'b0000,
-           Sub_OP  = 4'b0001,
-           And_OP  = 4'b0010,
-           Or_OP   = 4'b0011,
-           Xor_OP  = 4'b0100;
+// localparam Add_OP  = 4'b0000,
+//            Sub_OP  = 4'b0001,
+//            And_OP  = 4'b0010,
+//            Or_OP   = 4'b0011,
+//            Xor_OP  = 4'b0100;
 
 // Local Vars
 reg [DataWidth-1:0] ORes;
@@ -58,7 +58,7 @@ always @* begin
     cF = 1'b0;
 
     case (FuncOp)
-        Add_OP: begin
+        `AddOp: begin
             `ifdef SIMULATE
                 $display("%d Add_OP: A: %h, B: %h", $stime, A, B);
             `endif
@@ -69,7 +69,7 @@ always @* begin
                 $display("%d Add_OP: Carry %b, Sum %h", $stime, cF, ORes);
             `endif
         end
-        Sub_OP: begin  // As if the Carry == 0
+        `SubOp: begin  // As if the Carry == 0
             `ifdef SIMULATE
                 $display("%d Sub_OP: A: %h - B: %h", $stime, A, B);
             `endif
@@ -79,23 +79,43 @@ always @* begin
                 $display("%d Sub_OP: Carry %b, Diff %h", $stime, cF, ORes);
             `endif
         end
-        And_OP: begin
+        `AndOp: begin
             `ifdef SIMULATE
                 $display("%d And_OP: (%d) & (%d)", $stime, A, B);
             `endif
             {cF, ORes} = {1'b0, A & B};
         end
-        Or_OP: begin
+        `OrOp: begin
             `ifdef SIMULATE
                 $display("%d Or_OP: (%d) | (%d)", $stime, A, B);
             `endif
             {cF, ORes} = {1'b0, A | B};
         end
-        Xor_OP: begin
+        `NotOp: begin
+            `ifdef SIMULATE
+                $display("%d Not_OP: !(%d)", $stime, A);
+            `endif
+            {cF, ORes} = {1'b0, ~A};
+        end
+        `XorOp: begin
             `ifdef SIMULATE
                 $display("%d Xor_OP: (%d) ^ (%d)", $stime, A, B);
             `endif
             {cF, ORes} = {1'b0, A ^ B};
+        end
+        `ShlOp: begin
+            `ifdef SIMULATE
+                $display("%d Shl_OP: (%d) << (%d)", $stime, A, B);
+            `endif
+            // The left hand side contains the variable to shift,
+            // the right hand side contains the number of shifts to perform
+            {cF, ORes} = {A[DataWidth-1], A << B};
+        end
+        `ShrOp: begin
+            `ifdef SIMULATE
+                $display("%d Shr_OP: (%d) >> (%d)", $stime, A, B);
+            `endif
+            {cF, ORes} = {A[0], A >> B};
         end
         default: begin
             `ifdef SIMULATE

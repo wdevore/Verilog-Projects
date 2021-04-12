@@ -37,3 +37,13 @@
 `define OTM 5'b11011
 
 `define HLT 5'b11111
+
+// ALU
+`define AddOp 4'b0000
+`define SubOp 4'b0001
+`define AndOp 4'b0010
+`define  OrOp 4'b0011
+`define XorOp 4'b0100
+`define NotOp 4'b0101
+`define ShlOp 4'b0110
+`define ShrOp 4'b0111

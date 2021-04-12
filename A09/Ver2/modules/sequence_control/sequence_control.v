@@ -368,6 +368,16 @@ always @(state) begin
                     addr_src = 2'b01;   // Select Source2 as Address
                 end
 
+                `MOV: begin // Move
+                    // Move the contents of Source1-reg to Dest-reg.
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: MOV", $stime);
+                    `endif
+
+                    reg_we = 1'b0;      // Enable write to reg file
+                    data_src = 2'b11;   // Select reg-file source 1
+                end
+
                 // ---------------------------------------------------
                 // Branch Directs
                 // ---------------------------------------------------
@@ -446,7 +456,7 @@ always @(state) begin
                         $display("%d OPCODE: ADD", $stime);
                     `endif
                     alu_instr = 1'b1;
-                    alu_op = 4'b0000;
+                    alu_op = `AddOp;
                 end
                 `SUB: begin // ALU subtract operation
                     if (`IgnoreDest == 1'b0) begin
@@ -461,49 +471,49 @@ always @(state) begin
                     end
 
                     alu_instr = 1'b1;   // See just below
-                    alu_op = 4'b0001;
+                    alu_op = `SubOp;
                 end
                 `AND: begin // ALU AND operation
                     `ifdef SIMULATE
                         $display("%d OPCODE: AND", $stime);
                     `endif
                     alu_instr = 1'b1;
-                    alu_op = 4'b0010;
+                    alu_op = `AndOp;
                 end
                 `OR: begin // ALU OR operation
                     `ifdef SIMULATE
                         $display("%d OPCODE: OR", $stime);
                     `endif
                     alu_instr = 1'b1;
-                    alu_op = 4'b0011;
+                    alu_op = `OrOp;
                 end
                 `XOR: begin // ALU XOR operation
                     `ifdef SIMULATE
                         $display("%d OPCODE: XOR", $stime);
                     `endif
                     alu_instr = 1'b1;
-                    alu_op = 4'b0100;
+                    alu_op = `XorOp;
                 end
                 `NOT: begin // ALU XOR operation
                     `ifdef SIMULATE
                         $display("%d OPCODE: NOT", $stime);
                     `endif
                     alu_instr = 1'b1;
-                    alu_op = 4'b0101;
+                    alu_op = `NotOp;
                 end
                 `SHL: begin // ALU XOR operation
                     `ifdef SIMULATE
                         $display("%d OPCODE: SHL", $stime);
                     `endif
                     alu_instr = 1'b1;
-                    alu_op = 4'b0110;
+                    alu_op = `ShlOp;
                 end
                 `SHR: begin // ALU XOR operation
                     `ifdef SIMULATE
                         $display("%d OPCODE: SHR", $stime);
                     `endif
                     alu_instr = 1'b1;
-                    alu_op = 4'b0111;
+                    alu_op = `ShrOp;
                 end
             endcase
 
