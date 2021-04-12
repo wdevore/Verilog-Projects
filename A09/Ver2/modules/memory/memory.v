@@ -10,7 +10,7 @@
 // Otherwise it is relative to the TB.
 `timescale 1ns/1ps
 
-`define ROM_CONTENTS "../../../roms/BRD_Halt.dat"
+`define ROM_CONTENTS "../../../roms/STX_Halt.dat"
 
 module Memory
 #(

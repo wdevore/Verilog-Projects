@@ -105,18 +105,18 @@ module cpu_tb;
       // Use this if the simulation goes into a "run-away"
       // (i.e. Halt is never reached)
       #10000;
-
+  
       $display("------- Reg File contents ------");
       for(index = 0; index < 8; index = index + 1)
          $display("Reg [%h] = %b <- 0x%h", index, cpu.RegFile.reg_file[index], cpu.RegFile.reg_file[index]);
-
+   
       $display("------- Memory contents ------");
       for(index = 0; index < 15; index = index + 1)
          $display("memory [%h] = %b <- 0x%h", index, cpu.memory.mem[index], cpu.memory.mem[index]);
-  
+   
       $display("------- Output contents ------");
       $display("Output {%h}", cpu.output_port);
-
+   
       //  #10000 $finish; 
    
       // ------------------------------------

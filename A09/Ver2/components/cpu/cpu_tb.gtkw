@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sun Apr 11 16:04:06 2021
+[*] Mon Apr 12 03:17:28 2021
 [*]
 [dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/cpu_tb.vcd"
-[dumpfile_mtime] "Sun Apr 11 16:02:02 2021"
-[dumpfile_size] 39241
+[dumpfile_mtime] "Mon Apr 12 03:16:08 2021"
+[dumpfile_size] 39114
 [savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/cpu_tb.gtkw"
 [timestart] 0
-[size] 3433 1152
+[size] 3433 1179
 [pos] 24 27
-*-19.547928 3579000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-19.547928 1387000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
 [sst_width] 242
 [signals_width] 323
 [sst_expanded] 1
-[sst_vpaned_height] 334
+[sst_vpaned_height] 345
 @28
 [color] 2
 cpu_tb.Clock_TB
@@ -119,7 +119,7 @@ cpu_tb.cpu.mem_to_out[15:0]
 -
 @28
 cpu_tb.cpu.ControlMatrix.alu_instr
-@c02025
+@c02024
 ^3 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver2/components/cpu/gtkwave_aluop_filter.txt
 cpu_tb.cpu.ControlMatrix.alu_op[3:0]
 @28
@@ -127,7 +127,7 @@ cpu_tb.cpu.ControlMatrix.alu_op[3:0]
 (1)cpu_tb.cpu.ControlMatrix.alu_op[3:0]
 (2)cpu_tb.cpu.ControlMatrix.alu_op[3:0]
 (3)cpu_tb.cpu.ControlMatrix.alu_op[3:0]
-@1401201
+@1401200
 -group_end
 @22
 cpu_tb.cpu.alu_to_flags[3:0]
@@ -149,6 +149,10 @@ cpu_tb.cpu.bra_src
 @22
 cpu_tb.cpu.branchAddress[15:0]
 cpu_tb.cpu.mux_bra_to_alu2[15:0]
+cpu_tb.cpu.absoluteZeroExtH[15:0]
+@23
+cpu_tb.cpu.absoluteZeroExtL[15:0]
+@22
 cpu_tb.cpu.relativeSignedExt[15:0]
 @28
 cpu_tb.cpu.stk_ld
