@@ -19,7 +19,7 @@
 // Add/Subtract references used for the ALU
 // https://en.wikipedia.org/wiki/Carry_flag#
 // http://teaching.idallen.com/dat2343/10f/notes/040_overflow.txt
-
+ 
 module ALU
 #(
     parameter DataWidth = 8, // Bitwidth, Default to 8 bits
@@ -39,13 +39,6 @@ localparam ZeroFlag   = 0,
            CarryFlag  = 1,
            NegFlag    = 2,
            OverFlag   = 3;  // aka. V flag
-
-// Allow operation codes
-// localparam Add_OP  = 4'b0000,
-//            Sub_OP  = 4'b0001,
-//            And_OP  = 4'b0010,
-//            Or_OP   = 4'b0011,
-//            Xor_OP  = 4'b0100;
 
 // Local Vars
 reg [DataWidth-1:0] ORes;

@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------------
 // Sequence control matrix
 // --------------------------------------------------------------------------
-
+ 
 module SequenceControl
 #(
     parameter DataWidth = 16
@@ -63,7 +63,7 @@ localparam S_Idle         = 4'b0000,
 
 `define REG_SRC1 IR[2:0]
 `define REG_SRC2 IR[6:4]
-`define REG_DEST IR[11:9]     // Dest reg file or Src 1
+`define REG_DEST IR[10:8]     // Dest reg file or Src 1
 
 `define IgnoreDest IR[10]    // Used mostly SUB for comparisons
 
@@ -231,7 +231,7 @@ always @(state) begin
 
             next_state = S_Decode;
 
-            // --- Next state setup -------------
+            // mem_en = 1'b0;      // Enable memory
             ir_ld = 1'b0;       // Enable loading IR
             // Take advantage of the next clock to bump the PC
             pc_inc = 1'b0;      // Enable Increment PC
@@ -383,21 +383,21 @@ always @(state) begin
                 // ---------------------------------------------------
                 `BDQ: begin
                     `ifdef SIMULATE
-                        $display("%d OPCODE: BDQ: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                        $display("%d OPCODE: BDQ [V:%0b,N:%0b,C:%0b,Z:%0b]", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
                     `endif
                     takeBranch = `ZFlag == 1'b1; // If Z-flag Set then branch
                 end
 
                 `BDE: begin
                     `ifdef SIMULATE
-                        $display("%d OPCODE: BDE: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                        $display("%d OPCODE: BDE [V:%0b,N:%0b,C:%0b,Z:%0b]", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
                     `endif
                     takeBranch = `ZFlag == 1'b0; // If Z-flag NOT Set then branch
                 end
 
                 `BDT: begin
                     `ifdef SIMULATE
-                        $display("%d OPCODE: BDT: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                        $display("%d OPCODE: BDT [V:%0b,N:%0b,C:%0b,Z:%0b]", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
                     `endif
                     // Computer Architecture Tutorial Using an FPGA: ARM and Verilog Introduction
                     // Chp 11 "Status Register" pg 213-214
@@ -406,7 +406,7 @@ always @(state) begin
 
                 `BDS: begin
                     `ifdef SIMULATE
-                        $display("%d OPCODE: BDS: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                        $display("%d OPCODE: BDS [V:%0b,N:%0b,C:%0b,Z:%0b]", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
                     `endif
                     takeBranch = `CFlag == 1'b1; // If Carry set then branch
                 end
@@ -416,7 +416,7 @@ always @(state) begin
                 // ---------------------------------------------------
                 `BXQ: begin
                     `ifdef SIMULATE
-                        $display("%d OPCODE: BXQ: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                        $display("%d OPCODE: BXQ [V:%0b,N:%0b,C:%0b,Z:%0b]", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
                     `endif
                     takeBranch = `ZFlag == 1'b1; // If Z-flag Set then branch
                     branchType = 1'b0;
@@ -424,7 +424,7 @@ always @(state) begin
 
                 `BXE: begin
                     `ifdef SIMULATE
-                        $display("%d OPCODE: BXE: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                        $display("%d OPCODE: BXE [V:%0b,N:%0b,C:%0b,Z:%0b]", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
                     `endif
                     takeBranch = `ZFlag == 1'b0; // If Z-flag NOT Set then branch
                     branchType = 1'b0;
@@ -432,7 +432,7 @@ always @(state) begin
 
                 `BXT: begin
                     `ifdef SIMULATE
-                        $display("%d OPCODE: BXT: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                        $display("%d OPCODE: BXT [V:%0b,N:%0b,C:%0b,Z:%0b]", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
                     `endif
                     // Computer Architecture Tutorial Using an FPGA: ARM and Verilog Introduction
                     // Chp 11 "Status Register" pg 213-214
@@ -442,7 +442,7 @@ always @(state) begin
 
                 `BXS: begin
                     `ifdef SIMULATE
-                        $display("%d OPCODE: BXS: flags: V:%0b,N:%0b,C:%0b,Z:%0b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
+                        $display("%d OPCODE: BXS [V:%0b,N:%0b,C:%0b,Z:%0b]", $stime, `VFlag, `NFlag, `CFlag, `ZFlag);
                     `endif
                     takeBranch = `CFlag == 1'b1; // If Carry set then branch
                     branchType = 1'b0;

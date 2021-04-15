@@ -25,13 +25,14 @@ module top
     output pin13,       // Halt
     output pin14_sdo,   // IR Load
     output pin15_sdi,   // Mem_En
-    output pin16_sck,   // Output_Ld
-    output pin17_ss,    // IR[15]
-    output pin18,       // IR[14]
-    output pin19,       // IR[13]
-    output pin20,       // IR[12]
-    input pin22,        // Clock
-    input pin23,        // Reset
+    output pin16_sck,   // IR[15]
+    output pin17_ss,    // IR[14]
+    output pin18,       // IR[13]
+    output pin19,       // IR[12]
+    output pin20,       // IR[11]
+    input pin21,        // Clock
+    input pin22,        // Reset
+    output pin23,       // Output Load
     output pin24        // ClockCyl
 );
 
@@ -73,8 +74,8 @@ CPU #(
     .AddrWidth(AddrWidth),
     .WordSize(WordSize)) cpu
 (
-    .Clk(pin22),
-    .Reset(pin23),
+    .Clk(pin21),
+    .Reset(pin22),
     .Ready(ready),
     .Halt(halt),
     .IR_Ld(ir_ld),
@@ -102,13 +103,15 @@ assign pin12 = ready;
 assign pin13 = halt;
 assign pin14_sdo = ir_ld;
 assign pin15_sdi = mem_en;
-assign pin16_sck = output_ld;
+// assign pin16_sck = output_ld;
 
-assign pin17_ss = ir[15],
-       pin18    = ir[14],
-       pin19    = ir[13],
-       pin20    = ir[12];
+assign pin16_sck = ir[11],
+       pin17_ss  = ir[12],
+       pin18     = ir[13],
+       pin19     = ir[14],
+       pin20     = ir[15];
 
+assign pin23 = output_ld;
 assign pin24 = clk_cyc;
 
 // TinyFPGA standard pull pins defaults

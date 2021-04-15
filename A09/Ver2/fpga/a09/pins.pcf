@@ -21,7 +21,7 @@ set_io --warn-no-port pin17_ss F7
 set_io --warn-no-port pin18 D9
 set_io --warn-no-port pin19 C9
 set_io --warn-no-port pin20 E8
-### set_io --warn-no-port pin21 A9
+set_io --warn-no-port pin21 A9
 set_io --warn-no-port pin22 A8
 set_io --warn-no-port pin23 A7
 set_io --warn-no-port pin24 A6
