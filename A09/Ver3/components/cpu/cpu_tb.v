@@ -77,7 +77,7 @@ module cpu_tb;
 
       wait(cpu.ControlMatrix.state === cpu.ControlMatrix.S_Ready);
       $display("%d <-- CPU is ready", $stime);
-   
+    
       // Check memory was loaded
       // if (cpu.memory.mem[0] === 16'h0 || cpu.memory.mem[0] === {DataWidth_TB{1'bx}}) begin
       //    $display("%d %m: ###ERROR### - Memory doesn't appear to be loaded", $time);
@@ -86,9 +86,9 @@ module cpu_tb;
 
       // `include "tests/add_halt.v"
       // `include "tests/sub_halt.v"
- 
-      #15000;
-       
+   
+      #30000;
+
       $display("------- Reg File contents ------");
       for(index = 0; index < 8; index = index + 1)
          $display("Reg [%h] = %b <- 0x%h", index, cpu.RegFile.reg_file[index], cpu.RegFile.reg_file[index]);

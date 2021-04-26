@@ -10,7 +10,7 @@
 // Otherwise it is relative to the TB.
 `timescale 1ns/1ps
 
-`define ROM_CONTENTS "../../roms/JMP_Halt.dat"
+`define ROM_CONTENTS "../../roms/Cylon.dat"
 
 module Memory
 #(

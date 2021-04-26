@@ -66,7 +66,7 @@ localparam  S_Vector1       = 2'b00,
 `define REG_SRC2 IR[5:3]
 `define REG_DEST IR[8:6]    // For LDI it is different
 
-`define IgnoreDest IR[10]    // Used mostly SUB for comparisons
+`define IgnoreDest IR[10]    // Used mostly CMP for comparisons
 
 reg takeBranch;
 reg branchType;

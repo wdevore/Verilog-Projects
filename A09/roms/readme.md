@@ -277,7 +277,7 @@ Adr Hex     Binary                  Assembly
 @01 AA01    1010_1010_0000_0001     LDI R2, 0x01  <-- Shift by 1
 @02 AB08    1010_1011_0000_1000     LDI R3, 0x08  <-- Left limit
 @03 AC01    1010_1100_0000_0001     LDI R4, 0x01  <-- Right limit
-@04 AD06    1010_1101_0000_0110     LDI R5, 0x06  <-- Jump address
+@04 AD06    1010_1101_0000_0110     LDI R5, 0x06  <-- Jump address to SHL
 @05 D001    1101_0000_0000_0001     OTR R1
 @06 4051    0100_0000_0101_0001     SHL R1, R1, R2  <------.
 @07 D001    1101_0000_0000_0001     OTR R1                 |
