@@ -151,6 +151,7 @@ always @(state, vector_state) begin
 
     next_state = S_Reset;
     next_vector_state = S_Vector1;
+    
     halt = 1'b0;        // Disable Halt regardless of state
 
     // PC
@@ -210,6 +211,7 @@ always @(state, vector_state) begin
                     `endif
                     pc_src = 3'b010;    // Select Reset vector constant
                     pc_ld = 1'b0;       // Enable loading PC
+
                     next_vector_state = S_Vector2;
                 end
                 S_Vector2: begin
@@ -218,6 +220,7 @@ always @(state, vector_state) begin
                     `endif
                     // PC is loaded and asserted to Memory.
                     mem_en = 1'b0;      // Enable memory, Read is the default behaviour
+
                     next_vector_state = S_Vector3;
                 end
                 S_Vector3: begin
@@ -226,6 +229,7 @@ always @(state, vector_state) begin
                     `endif
                     // Memory data out is ready and asserted to IR
                     ir_ld = 1'b0;      // Enable IR loading
+
                     next_vector_state = S_Vector4;
                 end
                 S_Vector4: begin
