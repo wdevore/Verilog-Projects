@@ -237,7 +237,7 @@ always @(state, vector_state) begin
                     pc_ld = 1'b0;           // Enable loading PC
                     resetComplete = 1'b1;   // Reset completed
 
-                    // Reset completes  by the next negedge clock
+                    // Reset completes by the next negedge clock
                     // Transition to the Ready state now that the PC is loaded
                     // with the address of the first instruction.
                     next_state = S_Ready;
@@ -249,8 +249,6 @@ always @(state, vector_state) begin
                     next_vector_state = S_Vector1;
                 end
             endcase
-
-            // pc_rst = 1'b0;      // Enable resetting PC (active low)
         end
 
         S_Ready: begin
@@ -498,7 +496,7 @@ end
 always @(posedge Clk) begin
     if (Reset == 1'b0) begin
         state <= S_Reset;
-        vector_state <= next_vector_state;
+        vector_state <= S_Vector1;
     end
     else
         if (resetComplete == 1'b1)

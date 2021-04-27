@@ -30,7 +30,7 @@ Adr Hex     Binary                  Assembly
 @FF 0005                            Reset Vector
 ```
 
-# Out_Reg_Nop.dat -- Working, Extended mem_en 1 clock
+# Out_Reg_Nop.dat
 ```
 Adr Hex     Binary                  Assembly
 @05 91A5    1001_0001_1010_0101     LDI R1, 0xA5

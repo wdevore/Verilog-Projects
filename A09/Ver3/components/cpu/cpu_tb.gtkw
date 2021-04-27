@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Mon Apr 26 12:59:43 2021
+[*] Tue Apr 27 02:17:57 2021
 [*]
 [dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/cpu_tb.vcd"
-[dumpfile_mtime] "Mon Apr 26 12:54:54 2021"
-[dumpfile_size] 46877
+[dumpfile_mtime] "Tue Apr 27 02:17:52 2021"
+[dumpfile_size] 73060
 [savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/cpu_tb.gtkw"
-[timestart] 1977000
+[timestart] 0
 [size] 3433 1148
 [pos] 24 27
-*-19.096821 5203000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-19.096821 403000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
 [sst_width] 242
@@ -23,12 +23,12 @@ cpu_tb.Clock_TB
 cpu_tb.cpu.Reset
 cpu_tb.cpu.ControlMatrix.resetComplete
 @2024
-^2 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_vector_state_filter.txt
+^1 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_vector_state_filter.txt
 cpu_tb.cpu.ControlMatrix.vector_state[1:0]
-^2 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_vector_state_filter.txt
+^1 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_vector_state_filter.txt
 cpu_tb.cpu.ControlMatrix.next_vector_state[1:0]
 @c02022
-^3 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_state_filter.txt
+^2 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_state_filter.txt
 cpu_tb.cpu.ControlMatrix.state[3:0]
 @28
 (0)cpu_tb.cpu.ControlMatrix.state[3:0]
@@ -38,7 +38,7 @@ cpu_tb.cpu.ControlMatrix.state[3:0]
 @1401200
 -group_end
 @2022
-^3 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_state_filter.txt
+^2 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_state_filter.txt
 cpu_tb.cpu.ControlMatrix.next_state[3:0]
 @28
 [color] 3
@@ -46,7 +46,7 @@ cpu_tb.CPU_Ready_TB
 [color] 1
 cpu_tb.CPU_Halt_TB
 @2024
-^1 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_opcode_filter.txt
+^3 /media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Ver3/components/cpu/gtkwave_opcode_filter.txt
 cpu_tb.cpu.ControlMatrix.opCode[15:12]
 @c00022
 [color] 3
@@ -109,11 +109,11 @@ cpu_tb.cpu.data_src[1:0]
 -group_end
 @c00025
 cpu_tb.cpu.destReg[2:0]
-@28
+@29
 (0)cpu_tb.cpu.destReg[2:0]
 (1)cpu_tb.cpu.destReg[2:0]
 (2)cpu_tb.cpu.destReg[2:0]
-@1401205
+@1401201
 -group_end
 @22
 cpu_tb.cpu.source1[15:0]

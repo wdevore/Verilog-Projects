@@ -28,9 +28,10 @@ module CPU
     input wire Reset,
     output wire Ready,
     output wire Halt,
-    output wire IR_Ld,
-    output wire Mem_En,
-    output wire Output_Ld,
+    output wire IR_Ld,      // Visual debug
+    output wire Mem_En,     // Visual debug
+    output wire Output_Ld,  // Visual debug
+    output wire ALU_Ld,     // Visual debug
     output wire [DataWidth-1:0] IR_Out,
     output wire [DataWidth-1:0] OutReg
 );
@@ -76,7 +77,6 @@ wire [ALUFlagSize-1:0] alu_to_flags;
 wire stk_ld;
 wire bra_src;
 // IR
-// wire ir_ld;
 wire [DataWidth-1:0] ir;
 // PC
 wire pc_ld;
@@ -85,7 +85,6 @@ wire pc_inc;
 wire [PCSelectSize-1:0] pc_src;
 // Memory
 wire mem_wr;
-// wire mem_en;
 wire [1:0] addr_src;     // 2Bits
 // Regster File
 wire reg_we;
@@ -125,9 +124,10 @@ assign relativeSignedExt = {{DataWidth-AddrSize{ir[AddrSize-1]}}, `AddrL};
 // means it isn't at the current address.
 assign branchAddress = mux_bra_to_alu2 + (pc_to_out - WordSize);
 
-assign OutReg = output_port;
-
+// Visual debugging. Routes internal signals to cpu output
 assign IR_Out = ir;
+assign ALU_Ld = alu_ld;
+assign OutReg = output_port;
 
 // MUX_DST
 wire [2:0] destReg;

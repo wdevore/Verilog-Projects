@@ -71,19 +71,20 @@ module cpu_tb;
       // ------------------------------------
       // Reset CPU
       // ------------------------------------
-      // #50 Reset_TB = 1'b0;  // Enable reset
-
-      // #300 Reset_TB = 1'b1;  // Disable reset
+      Reset_TB = 1'b0;  // Enable reset
+      #200 Reset_TB = 1'b1;
+      // #2000 Reset_TB = 1'b0;
+      // #200 Reset_TB = 1'b1;
 
       wait(cpu.ControlMatrix.state === cpu.ControlMatrix.S_Ready);
       $display("%d <-- CPU is ready", $stime);
-    
+     
       // Check memory was loaded
       // if (cpu.memory.mem[0] === 16'h0 || cpu.memory.mem[0] === {DataWidth_TB{1'bx}}) begin
       //    $display("%d %m: ###ERROR### - Memory doesn't appear to be loaded", $time);
       //    // $finish;
       // end
-
+  
       // `include "tests/add_halt.v"
       // `include "tests/sub_halt.v"
    

@@ -25,11 +25,11 @@ module top
     output pin13,       // Halt
     output pin14_sdo,   // IR Load
     output pin15_sdi,   // Mem_En
-    output pin16_sck,   // IR[15]
-    output pin17_ss,    // IR[14]
-    output pin18,       // IR[13]
-    output pin19,       // IR[12]
-    output pin20,       // IR[11]
+    output pin16_sck,   // IR[12]
+    output pin17_ss,    // IR[13]
+    output pin18,       // IR[14]
+    output pin19,       // IR[15]
+    output pin20,       // ALU load
     input pin21,        // Clock
     input pin22,        // Reset
     output pin23,       // Output Load
@@ -46,6 +46,7 @@ reg halt;
 reg ir_ld;
 reg mem_en;
 reg output_ld;
+reg alu_ld;
 reg [DataWidth-1:0] ir;
  
 // ----------------------------------------------------------
@@ -81,6 +82,7 @@ CPU #(
     .IR_Ld(ir_ld),
     .Mem_En(mem_en),
     .Output_Ld(output_ld),
+    .ALU_Ld(alu_ld),
     .IR_Out(ir),
     .OutReg(OutReg)
 );
@@ -90,26 +92,25 @@ CPU #(
 // ----------------------------------------------------------
 // Route Output wires to pins
 assign
-    pin4 = OutReg[0],
-    pin5 = OutReg[1],
-    pin6 = OutReg[2],
-    pin7 = OutReg[3],
-    pin8 = OutReg[4],
-    pin9 = OutReg[5],
-    pin10 = OutReg[6],
-    pin11 = OutReg[7];
+    pin4 = OutReg[0],   // white
+    pin5 = OutReg[1],   // white
+    pin6 = OutReg[2],   // white
+    pin7 = OutReg[3],   // white
+    pin8 = OutReg[4],   // white
+    pin9 = OutReg[5],   // white
+    pin10 = OutReg[6],  // white
+    pin11 = OutReg[7];  // white
   
-assign pin12 = ready;
-assign pin13 = halt;
-assign pin14_sdo = ir_ld;
-assign pin15_sdi = mem_en;
-// assign pin16_sck = output_ld;
+assign pin12 = ready;   // green
+assign pin13 = halt;    // red
+assign pin14_sdo = ir_ld;   // yellow
+assign pin15_sdi = mem_en;  // yellow
 
-assign pin16_sck = ir[11],
-       pin17_ss  = ir[12],
-       pin18     = ir[13],
-       pin19     = ir[14],
-       pin20     = ir[15];
+assign pin16_sck = ir[12],   // blue
+       pin17_ss  = ir[13],   // blue
+       pin18     = ir[14],   // blue
+       pin19     = ir[15],   // blue
+       pin20     = alu_ld;   // yellow
 
 assign pin23 = output_ld;
 assign pin24 = clk_cyc;
