@@ -112,8 +112,8 @@ assign pin16_sck = ir[12],   // blue
        pin19     = ir[15],   // blue
        pin20     = alu_ld;   // yellow
 
-assign pin23 = output_ld;
-assign pin24 = clk_cyc;
+assign pin23 = output_ld;   // orange
+assign pin24 = clk_cyc;     // green
 
 // TinyFPGA standard pull pins defaults
 assign
