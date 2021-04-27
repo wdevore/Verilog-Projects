@@ -4,7 +4,7 @@ A09 is the precursor the X09 CPU. A09 is a simplified 16bit CPU for learning pur
 
 A [GTKWave Output of Ver1](Ver1/images/Count_Up.png) of counting to 10
 
-[CPU Layout diagram](A09_CPU V3.png) made using app.diagrams.net
+[CPU Layout diagram](A09_CPU_V3.png) made using app.diagrams.net
 
 [A video of the Cylon.dat program running](A09_CPU_Ver2b.gif)
 
