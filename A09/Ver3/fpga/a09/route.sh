@@ -1,1 +1,0 @@
-~/.apio/packages/toolchain-ice40/bin/nextpnr-ice40 --lp8k --package cm81 --json hardware.json --asc hardware.asc --pcf pins.pcf -l next.log -q
