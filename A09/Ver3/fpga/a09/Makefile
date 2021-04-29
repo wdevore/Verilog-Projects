@@ -16,7 +16,7 @@ BUILD_BIN = /media/RAMDisk
 YOSYS_COMMAND = "synth_ice40 -json ${BUILD_BIN}/hardware.json -top top"
 PINS_CONSTRAINTS = pins.pcf
 
-.PHONY: all build route upload clean
+.PHONY: all
 
 all: build route upload
 
@@ -40,9 +40,9 @@ route: ${BUILD_BIN}/hardware.json
 	--asc ${BUILD_BIN}/hardware.asc
 
 upload: ${BUILD_BIN}/hardware.asc
-	@echo "Packing..."
+	@echo "##### Packing..."
 	${TOOLCHAIN}/icepack ${BUILD_BIN}/hardware.asc ${BUILD_BIN}/hardware.bin
-	@echo "Uploading..."
+	@echo "##### Uploading..."
 	tinyfpgab -c ${TARGET_DEVICE} --program ${BUILD_BIN}/hardware.bin
 
 clean:
