@@ -6,12 +6,15 @@
 `timescale 1ns/1ps
 
 // `define ROM "../../roms/Count_Out.dat"
+`define VCD_OUTPUT "/media/RAMDisk/cpu_tb.vcd"
 
 module cpu_tb;
    parameter AddrWidth_TB = 8;      // 8bit Address width
    parameter DataWidth_TB = 16;     // 16bit Data width
    parameter WordSize_TB = 1;       // Instructions a 1 = 2bytes in size
-   
+
+   parameter V_OUTPUT = "/media/RAMDisk/cpu_tb.vcd";
+
    // Test bench Signals
  
    // Inputs
@@ -39,7 +42,7 @@ module cpu_tb;
       .Halt(CPU_Halt_TB),
       .OutReg(OutReg_TB)
    );
-  
+    
    // -------------------------------------------
    // Test bench clock
    // -------------------------------------------
@@ -57,15 +60,15 @@ module cpu_tb;
    // Configure starting sim states
    // -------------------------------------------
    initial begin
-      $dumpfile("cpu_tb.vcd");  // waveforms file needs to be the same name as the tb file.
+      $dumpfile(`VCD_OUTPUT);  // waveforms file needs to be the same name as the tb file.
       $dumpvars;  // Save waveforms to vcd file
-       
+      
       $display("%d %m: Starting testbench simulation...", $stime);
 
       // Setup defaults
       Reset_TB = 1'b1;
    end
-    
+     
    always begin
       // $display("%d <-- Reset", $stime);
       // ------------------------------------

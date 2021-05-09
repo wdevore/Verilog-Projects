@@ -1,0 +1,31 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Fri Feb 26 22:32:29 2021
+[*]
+[dumpfile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/modules/alu/alu_tb.vcd"
+[dumpfile_mtime] "Fri Feb 26 22:31:51 2021"
+[dumpfile_size] 26175
+[savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/modules/alu/alu_tb.gtkw"
+[timestart] 0
+[size] 1762 807
+[pos] -1 -1
+*-13.513406 34510 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] alu_tb.
+[sst_width] 221
+[signals_width] 174
+[sst_expanded] 1
+[sst_vpaned_height] 212
+@28
+[color] 2
+alu_tb.Clock_TB
+@22
+[color] 6
+alu_tb.FuncOp_TB[3:0]
+@28
+alu_tb.OFlags_TB[3:0]
+[color] 5
+alu_tb.IFlags_TB[3:0]
+@23
+alu_tb.OY_TB[15:0]
+[pattern_trace] 1
+[pattern_trace] 0

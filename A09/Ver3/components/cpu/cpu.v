@@ -1,7 +1,5 @@
 `default_nettype none
 
-// `define SIMULATE
- 
 // --------------------------------------------------------------------------
 // A09 CPU module
 // --------------------------------------------------------------------------
@@ -133,6 +131,9 @@ assign OutReg = output_port;
 wire [2:0] destReg;
 assign destReg = `Instr == `LDI ? `DestRegLDI : `DestReg;
 
+// Reset vector fetched from the bottom of memory
+localparam ResetVector = 16'hFF;
+
 // -------- Module ------------------------------------------
 // Sequence control matrix
 // ----------------------------------------------------------
@@ -242,7 +243,7 @@ Mux8 #(
     .Select(pc_src),
     .DIn0(branchAddress),       // Branch address
     .DIn1(stk_to_mux_pc),       // Return address
-    .DIn2(16'hFF),              // Reset Vector
+    .DIn2(ResetVector),         // Reset Vector
     .DIn3(source1),             // Reg-file src 1 (address)
     .DIn4(absoluteZeroExtL),    // Zero-extend-L
     .DIn5({DataWidth{1'b0}}),   // Unused

@@ -1,6 +1,6 @@
 initial begin
     IFlags_TB = 4'b0000;        // All flags cleared
-    FuncOp_TB = dut.Sub_OP;  // Select Add with no carry operation
+    FuncOp_TB = `SUB;  // Select Add with no carry operation
 
     // -------------------------------------------------------
     // Difference of two unsigned values

@@ -1,7 +1,7 @@
 initial begin
     IFlags_TB = 4'b0000;        // All flags cleared
 
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
+    FuncOp_TB = `ADD;  // Select Add with no carry operation
 
     // -------------------------------------------------------
     // Sum of two unsigned values
@@ -33,7 +33,7 @@ initial begin
     // Flags set: 0,0,0,0
     // -------------------------------------------------------
     IFlags_TB = 4'b0000;        // All flags cleared
-    FuncOp_TB = dut.Add_OP;  // Select Add with no carry operation
+    FuncOp_TB = `ADD;  // Select Add with no carry operation
     IA_TB = 'h02;           // Load A
     IB_TB = 'h02;           // Load B
     $display("%d Checking : %h, %h", $time, IA_TB, IB_TB);

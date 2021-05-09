@@ -5,6 +5,9 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/10ps
 
+`include "../../modules/sequence_control/constants.v"
+`define VCD_OUTPUT "/media/RAMDisk/alu_tb.vcd"
+
 module alu_tb;
    parameter WIDTH = 16;                 // data width
    
@@ -45,7 +48,7 @@ module alu_tb;
    // Configure starting sim states
    // -------------------------------------------
    initial begin
-      $dumpfile("alu_tb.vcd");  // waveforms file needs to be the same name as the tb file.
+      $dumpfile(`VCD_OUTPUT);  // waveforms file needs to be the same name as the tb file.
       $dumpvars;  // Save waveforms to vcd file
       
       $display("%d %m: Starting testbench simulation...", $stime);
@@ -53,9 +56,6 @@ module alu_tb;
    end
 
    // `include "tests/add_op.v"
-   // `include "tests/sub_op.v"
-   // `include "tests/and_op.v"
-   // `include "tests/or_op.v"
-   `include "tests/xor_op.v"
+   `include "tests/sub_op.v"
 
 endmodule
