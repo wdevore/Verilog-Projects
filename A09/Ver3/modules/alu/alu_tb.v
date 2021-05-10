@@ -48,7 +48,7 @@ module alu_tb;
    // Configure starting sim states
    // -------------------------------------------
    initial begin
-      $dumpfile(`VCD_OUTPUT);  // waveforms file needs to be the same name as the tb file.
+      $dumpfile(`VCD_OUTPUT);
       $dumpvars;  // Save waveforms to vcd file
       
       $display("%d %m: Starting testbench simulation...", $stime);

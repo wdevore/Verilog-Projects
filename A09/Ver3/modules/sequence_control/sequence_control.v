@@ -131,6 +131,7 @@ initial begin
     vector_state = S_Vector1;
 end
 
+// Used for FPGA debugging
 `ifdef SIMULATE
     reg [15:12] opCode;
     always @* begin

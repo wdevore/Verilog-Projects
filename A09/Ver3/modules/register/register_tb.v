@@ -3,6 +3,8 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
+`define VCD_OUTPUT "/media/RAMDisk/register_tb.vcd"
+
 module register_tb;
    parameter Data_WIDTH = 16;                 // data width
    
@@ -45,7 +47,7 @@ module register_tb;
    // Configure starting sim states
    // -------------------------------------------
    initial begin
-      $dumpfile("register_tb.vcd");  // waveforms file needs to be the same name as the tb file.
+      $dumpfile(`VCD_OUTPUT);
       $dumpvars;  // Save waveforms to vcd file
       
       $display("%d %m: Starting testbench simulation...", $stime);
@@ -59,14 +61,14 @@ module register_tb;
       // ------------------------------------
       // Reset first
       // ------------------------------------
-      #50; // Pause for a bit
+      @(posedge Clock_TB);
 
       Reset_TB = 1'b0;  // Enable reset
       DIn_TB = {Data_WIDTH{1'b0}};  // DIn can any value
       LD_TB = 1'b1;     // Disable load
 
-      #150; // Wait for clock edge to pass
-      #10
+      @(negedge Clock_TB);
+      #10  // Wait for data
       $display("%d <-- Marker", $stime);
 
       if (DOut_TB !== 16'h0000) begin
@@ -77,11 +79,13 @@ module register_tb;
       // ------------------------------------
       // Load
       // ------------------------------------
+      @(posedge Clock_TB);
       Reset_TB = 1'b1;  // Disable reset
       DIn_TB = 16'h00A0;  // Set Address to 0x00A0
       LD_TB = 1'b0;     // Enable load
 
-      #300; // Wait for clock edge
+      @(negedge Clock_TB);
+      #10  // Wait for data
 
       if (DOut_TB !== 16'h00A0) begin
          $display("%d %m: ERROR - (1) PC output incorrect (%h).", $stime, DOut_TB);
@@ -91,9 +95,12 @@ module register_tb;
       // ------------------------------------
       // Reset
       // ------------------------------------
+      @(posedge Clock_TB);
       Reset_TB = 1'b0;  // Enable reset
       LD_TB = 1'b1;     // Disable load
-      #300; // Wait for clock edge
+
+      @(negedge Clock_TB);
+      #10  // Wait for data
 
       if (DOut_TB !== 16'h0000) begin
          $display("%d %m: ERROR - (2) PC output incorrect (%h).", $stime, DOut_TB);

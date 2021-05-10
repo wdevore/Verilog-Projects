@@ -6,8 +6,10 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
-`include "../../modules/program_counter/pc.v"
+`define VCD_OUTPUT "/media/RAMDisk/sequence_control_tb.vcd"
 
+`include "../../modules/sequence_control/constants.v"
+`include "../../modules/program_counter/pc.v"
 
 module sequence_control_tb;
    parameter Data_WIDTH = 16;                 // data width
@@ -29,7 +31,7 @@ module sequence_control_tb;
    wire PC_Ld_TB;
    wire PC_Rst_TB;
    wire PC_Inc_TB;
-   wire [1:0] PC_Src_TB;       // 2Bits
+   wire [2:0] PC_Src_TB;       // 3 Bits
    // Memory
    wire MEM_Wr_TB;
    wire MEM_En_TB;
@@ -65,7 +67,7 @@ module sequence_control_tb;
    (
       .Clk(Clock_TB),
       .IR(IR_TB),
-      .ALU_Flgs(ALU_Flgs_TB),
+      .ALU_FlgsIn(ALU_Flgs_TB),
       .Reset(Reset_TB),
       .STK_Ld(STK_Ld_TB),
       .BRA_Src(BRA_Src_TB),
@@ -79,10 +81,6 @@ module sequence_control_tb;
       .ADDR_Src(ADDR_Src_TB),
       .REG_WE(REG_WE_TB),
       .DATA_Src(DATA_Src_TB),
-      .REG_Dest(REG_Dest_TB),
-      .REG_Src1(REG_Src1_TB),
-      .REG_Src2(REG_Src2_TB),
-      .Src1_Sel(Src1_Sel_TB),
       .ALU_Op(ALU_Op_TB),
       .FLG_Ld(FLG_Ld_TB),
       .ALU_Ld(ALU_Ld_TB),
@@ -118,162 +116,177 @@ module sequence_control_tb;
    // Configure starting sim states
    // -------------------------------------------
    initial begin
-      $dumpfile("sequence_control_tb.vcd");  // waveforms file needs to be the same name as the tb file.
+      $dumpfile(`VCD_OUTPUT);
       $dumpvars;  // Save waveforms to vcd file
       
       $display("%d %m: Starting testbench simulation...", $stime);
    end
 
    always begin
-      #50; // Pause for a bit
-
-      // Controller should be ready to start idling
-      $display("%d <-- ControlMatrix.next_state at", $stime);
-      if (ControlMatrix.next_state !== 3'b110) begin
-         $display("%d ERROR - Ready: ControlMatrix.next_state (%h).", $stime, ControlMatrix.next_state);
-         $finish;
-      end
-
-      #200;
-      // Controller should be idling
-      $display("%d <-- 1 ControlMatrix.state at", $stime);
-      if (ControlMatrix.state !== 3'b110) begin
-         $display("%d ERROR - ControlMatrix.state (%h).", $stime, ControlMatrix.state);
-         $finish;
-      end
-
       // ------------------------------------
-      // Allow Seq controller to Idle for a few clocks
+      // Reset Vector sequence
+      // As long as Reset is Active (aka low) then the processor
+      // remains in the reset state.
       // ------------------------------------
-      #300;
-
-      // ------------------------------------
-      // Reset controller
-      // ------------------------------------
+      $display("%d: Beginning reset", $stime);
+      @(posedge Clock_TB);
       Reset_TB = 1'b0;        // Enable reset
-      $display("%d <-- Resetting at", $stime);
-      // Allow a clock cycle to pass
-      #200;
-      Reset_TB = 1'b1;        // Disable reset
 
-      // ======== State transition ===========
-      $display("%d <-- State transition at", $stime);
+      // "state" should remain at S_Reset
+      // "vector_state" should remain at S_Vector1
+      @(negedge Clock_TB);
+      #10  // Wait for data
 
-      // Controller should have transitioned to "Reset"
-      $display("%d <-- S_Reset ControlMatrix.state at", $stime);
-      if (ControlMatrix.state !== 3'b000) begin
+      if (ControlMatrix.state !== ControlMatrix.S_Reset) begin
          $display("%d ERROR - S_Reset ControlMatrix.state (%h).", $stime, ControlMatrix.state);
          $finish;
       end
 
-      // And also set the next state to "PC to Mem"
-      $display("%d <-- S_FetchPCtoMEM ControlMatrix.next_state at", $stime);
-      if (ControlMatrix.next_state !== 3'b001) begin
-         $display("%d ERROR - S_Reset ControlMatrix.next_state (%h).", $stime, ControlMatrix.next_state);
+      if (ControlMatrix.vector_state !== ControlMatrix.S_Vector1) begin
+         $display("%d ERROR - S_Vector1 ControlMatrix.vector_state (%h).", $stime, ControlMatrix.vector_state);
          $finish;
       end
 
-      $display("%d <-- PC_Rst_TB == 0 at", $stime);
-      if (PC_Rst_TB !== 1'b0) begin
-         $display("%d ERROR - PC_Rst (%h).", $stime, PC_Rst_TB);
+      // Sustaining reset state
+      $display("%d: Waiting one extra cycle", $stime);
+      // We will wait just one more cycle
+      @(posedge Clock_TB);
+      @(negedge Clock_TB);
+      #10  // Wait for data
+
+      if (ControlMatrix.state !== ControlMatrix.S_Reset) begin
+         $display("%d ERROR - S_Reset 2 ControlMatrix.state (%h).", $stime, ControlMatrix.state);
          $finish;
       end
 
-      #50; // Wait a bit and sample PC_DOut
-
-      // It should be in an indeterminate state
-      $display("%d <-- PC_DOut_TB prior reset at", $stime);
-      if (PC_DOut_TB !== 16'hxxxx) begin
-         $display("%d ERROR - xxxx PC_DOut_TB (%h).", $stime, PC_DOut_TB);
+      if (ControlMatrix.vector_state !== ControlMatrix.S_Vector1) begin
+         $display("%d ERROR - S_Vector1 2 ControlMatrix.vector_state (%h).", $stime, ControlMatrix.vector_state);
          $finish;
       end
 
-      #50; // Now wait for negedge of clock where
+      // ------------------------------------
+      // Exit reset state by deactivating reset
+      // ------------------------------------
+      $display("%d: Exiting reset", $stime);
+      @(posedge Clock_TB);
+      Reset_TB = 1'b1;        // Disable reset
 
-      // PC actually resets to 0
-      $display("%d <-- PC_DOut_TB reset at", $stime); // 850ns
-      if (PC_DOut_TB !== 16'h0000) begin
-         $display("%d ERROR - PC_DOut_TB (%h).", $stime, PC_DOut_TB);
+      // On the neg-edge we should have transitioned from vector1 to 2
+      @(negedge Clock_TB);    // Now next vector_state should be S_Vector2
+      #10  // Wait for data
+
+      if (ControlMatrix.state !== ControlMatrix.S_Reset) begin
+         $display("%d ERROR - S_Reset 3 ControlMatrix.state (%h).", $stime, ControlMatrix.state);
          $finish;
       end
 
-      // On the next posedge (900ns) the controller's state
-      // should change to 3'b001 = "Fetch PC to MEM"
-      #50; // Put us at 900ns
-      #10;  // Wait for Delays
-      
-      // ======== State transition ===========
-      $display("%d <-- State transition at", $stime);
-
-      // Controller should have transitioned to "S_FetchPCtoMEM"
-      $display("%d <-- S_FetchPCtoMEM ControlMatrix.state at", $stime);
-      if (ControlMatrix.state !== 3'b001) begin
-         $display("%d ERROR - S_FetchPCtoMEM ControlMatrix.state (%h).", $stime, ControlMatrix.state);
-         // $finish;
+      if (ControlMatrix.vector_state !== ControlMatrix.S_Vector2) begin
+         $display("%d ERROR - S_Vector2 ControlMatrix.vector_state (%h).", $stime, ControlMatrix.vector_state);
+         $finish;
       end
 
-      // And also set the next state to "PC to Mem"
-      $display("%d <-- S_FetchMEMtoIR ControlMatrix.next_state at", $stime);
-      if (ControlMatrix.next_state !== 3'b010) begin
+      // Vector state 3
+      @(posedge Clock_TB);
+      Reset_TB = 1'b1;        // Disable reset
+
+      @(negedge Clock_TB); 
+      #10  // Wait for data
+
+      if (ControlMatrix.state !== ControlMatrix.S_Reset) begin
+         $display("%d ERROR - S_Reset 4 ControlMatrix.state (%h).", $stime, ControlMatrix.state);
+         $finish;
+      end
+
+      if (ControlMatrix.vector_state !== ControlMatrix.S_Vector3) begin
+         $display("%d ERROR - S_Vector3 ControlMatrix.vector_state (%h).", $stime, ControlMatrix.vector_state);
+         $finish;
+      end
+
+      // Finally Vector state 4
+      @(posedge Clock_TB);
+      Reset_TB = 1'b1;        // Disable reset
+
+      @(negedge Clock_TB);
+      #10  // Wait for data
+
+      if (ControlMatrix.state !== ControlMatrix.S_Reset) begin
+         $display("%d ERROR - S_Reset 5 ControlMatrix.state (%h).", $stime, ControlMatrix.state);
+         $finish;
+      end
+
+      if (ControlMatrix.vector_state !== ControlMatrix.S_Vector4) begin
+         $display("%d ERROR - S_Vector4 ControlMatrix.vector_state (%h).", $stime, ControlMatrix.vector_state);
+         $finish;
+      end
+
+      // ------------------------------------
+      // The cpu should now be ready
+      // ------------------------------------
+      @(posedge Clock_TB);
+      Reset_TB = 1'b1;        // Disable reset
+
+      @(negedge Clock_TB);
+      #10  // Wait for data
+
+      if (ControlMatrix.state !== ControlMatrix.S_Ready) begin
+         $display("%d ERROR - S_Reset 6 ControlMatrix.state (%h).", $stime, ControlMatrix.state);
+         $finish;
+      end
+
+      // Now we are ready to start the Fetch IR sequence
+      if (ControlMatrix.next_state !== ControlMatrix.S_FetchPCtoMEM) begin
+         $display("%d ERROR - S_FetchPCtoMEM ControlMatrix.next_state (%h).", $stime, ControlMatrix.next_state);
+         $finish;
+      end
+
+      // ------------------------------------
+      // Now that memory has been presented with the PC address
+      // The matrix transitions to: moving the memory output
+      // to the instruction register
+      // ------------------------------------
+      @(posedge Clock_TB);
+
+      @(negedge Clock_TB);
+      #10  // Wait for data
+
+      if (ControlMatrix.state !== ControlMatrix.S_FetchPCtoMEM) begin
+         $display("%d ERROR - S_Reset 7 ControlMatrix.state (%h).", $stime, ControlMatrix.state);
+         $finish;
+      end
+
+      // Now we are ready to start the Fetch IR sequence
+      if (ControlMatrix.next_state !== ControlMatrix.S_FetchMEMtoIR) begin
          $display("%d ERROR - S_FetchMEMtoIR ControlMatrix.next_state (%h).", $stime, ControlMatrix.next_state);
-         // $finish;
+         $finish;
       end
 
-      // In the new sequence state the following signals be active
-      $display("%d <-- PC_Rst_TB == 1 at", $stime);
-      if (PC_Rst_TB !== 1'b1) begin
-         $display("%d ERROR - PC_Rst_TB (%h).", $stime, PC_Rst_TB);
-         // $finish;
+      // ------------------------------------
+      // Decode instruction using injection.
+      // ------------------------------------
+      @(posedge Clock_TB);
+      // However, we don't actually have any other components in this
+      // test bench so we will need to "inject" an instruction
+      // as if it came from memory.
+      IR_TB = 16'h9101;    // LDI R1, 0x01
+
+      @(negedge Clock_TB);
+      #10  // Wait for data
+
+      if (ControlMatrix.state !== ControlMatrix.S_FetchMEMtoIR) begin
+         $display("%d ERROR - S_Reset 8 ControlMatrix.state (%h).", $stime, ControlMatrix.state);
+         $finish;
       end
 
-      $display("%d <-- MEM_Wr_TB at", $stime);
-      if (MEM_Wr_TB !== 1'b1) begin
-         $display("%d ERROR - MEM_Wr_TB (%h).", $stime, MEM_Wr_TB);
-         // $finish;
-      end
-
-      $display("%d <-- MEM_En_TB at", $stime);
-      if (MEM_En_TB !== 1'b0) begin
-         $display("%d ERROR - MEM_En_TB (%h).", $stime, MEM_En_TB);
-         // $finish;
-      end
-
-      $display("%d <-- ADDR_Src_TB at", $stime);
-      if (ADDR_Src_TB !== 2'b00) begin
-         $display("%d ERROR - ADDR_Src_TB (%h).", $stime, ADDR_Src_TB);
-         // $finish;
-      end
-
-      #100; // Put us just past the 1000ns negedge
-      // This means the target component (aka memory) 
-      // has reacted to the neg-edge
-      $display("%d <-- Neg-edge at", $stime);
-      // Memory should have output the first instruction
-
-      // ======== State transition ===========
-      #100; // Put us just past 1100ns posedge
-      $display("%d <-- State transition at", $stime);
-
-      // Controller should have transitioned to "S_FetchMEMtoIR"
-      $display("%d <-- S_FetchMEMtoIR ControlMatrix.state at", $stime);
-      if (ControlMatrix.state !== 3'b010) begin
-         $display("%d ERROR - S_FetchMEMtoIR ControlMatrix.state (%h).", $stime, ControlMatrix.state);
-         // $finish;
-      end
-
-      $display("%d <-- S_Decode ControlMatrix.next_state at", $stime);
-      if (ControlMatrix.next_state !== 3'b011) begin
+      // Decoding
+      if (ControlMatrix.next_state !== ControlMatrix.S_Decode) begin
          $display("%d ERROR - S_Decode ControlMatrix.next_state (%h).", $stime, ControlMatrix.next_state);
-         // $finish;
+         $finish;
       end
-
-      #500;
-
 
       // ------------------------------------
       // Simulation duration
       // ------------------------------------
-      #200 $display("%d %m: Testbench simulation FINISHED.", $stime);
+      #500 $display("%d %m: Testbench simulation FINISHED.", $stime);
       $finish;
    end
 endmodule

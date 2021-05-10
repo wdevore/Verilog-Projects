@@ -3,6 +3,8 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
+`define VCD_OUTPUT "/media/RAMDisk/pc_tb.vcd"
+
 module pc_tb;
    parameter Data_WIDTH = 16;                 // data width
    parameter WordByte_Size = 2;
@@ -48,7 +50,7 @@ module pc_tb;
    // Configure starting sim states
    // -------------------------------------------
    initial begin
-      $dumpfile("pc_tb.vcd");  // waveforms file needs to be the same name as the tb file.
+      $dumpfile(`VCD_OUTPUT);
       $dumpvars;  // Save waveforms to vcd file
       
       $display("%d %m: Starting testbench simulation...", $stime);
@@ -63,12 +65,12 @@ module pc_tb;
       // ------------------------------------
       // Reset first
       // ------------------------------------
-      #50; // Pause for a bit
+      @(posedge Clock_TB);
       Reset_TB = 1'b0;  // Enable reset
-      DIn_TB = {Data_WIDTH{1'b0}};  // DIn can any value
+      DIn_TB = {Data_WIDTH{1'b0}};  // DIn can be any value
       LD_TB = 1'b1;     // Disable load
 
-      #150; // Wait for clock edge to pass
+      @(negedge Clock_TB);
       #10;
       $display("%d <-- Marker", $stime);
 
@@ -80,11 +82,13 @@ module pc_tb;
       // ------------------------------------
       // Load
       // ------------------------------------
+      @(posedge Clock_TB);
       Reset_TB = 1'b1;  // Disable reset
       DIn_TB = 16'h00A0;  // Set Address to 0x00A0
       LD_TB = 1'b0;     // Enable load
 
-      #300; // Wait for clock edge
+      @(negedge Clock_TB);
+      #10  // Wait for data
 
       if (DOut_TB !== 16'h00A0) begin
          $display("%d %m: ERROR - (1) PC output incorrect (%h).", $stime, DOut_TB);
@@ -94,9 +98,12 @@ module pc_tb;
       // ------------------------------------
       // Reset
       // ------------------------------------
+      @(posedge Clock_TB);
       Reset_TB = 1'b0;  // Enable reset
       LD_TB = 1'b1;     // Disable load
-      #300; // Wait for clock edge
+
+      @(negedge Clock_TB);
+      #10  // Wait for data
 
       if (DOut_TB !== 16'h0000) begin
          $display("%d %m: ERROR - (2) PC output incorrect (%h).", $stime, DOut_TB);
@@ -106,11 +113,13 @@ module pc_tb;
       // ------------------------------------
       // Increment
       // ------------------------------------
+      @(posedge Clock_TB);
       Reset_TB = 1'b1;  // Disable reset
       LD_TB = 1'b1;     // Disable load
       Inc_TB = 1'b0;    // Enable counting
 
-      #300; // Wait for clock edge
+      @(negedge Clock_TB);
+      #10  // Wait for data
 
       if (DOut_TB !== 16'h0002) begin
          $display("%d %m: ERROR - (3) PC output incorrect (%h).", $stime, DOut_TB);
@@ -120,7 +129,8 @@ module pc_tb;
       // ------------------------------------
       // Increment
       // ------------------------------------
-      #200; // Wait for clock edge
+      @(negedge Clock_TB);
+      #10  // Wait for data
 
       if (DOut_TB !== 16'h0004) begin
          $display("%d %m: ERROR - (4) PC output incorrect (%h).", $stime, DOut_TB);
@@ -130,7 +140,8 @@ module pc_tb;
       // ------------------------------------
       // Increment
       // ------------------------------------
-      #200; // Wait for clock edge
+      @(negedge Clock_TB);
+      #10  // Wait for data
 
       if (DOut_TB !== 16'h0006) begin
          $display("%d %m: ERROR - (5) PC output incorrect (%h).", $stime, DOut_TB);

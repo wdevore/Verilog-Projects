@@ -3,6 +3,8 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
+`define VCD_OUTPUT "/media/RAMDisk/mux_tb.vcd"
+
 module mux_tb;
    parameter Data_WIDTH = 16;                 // data width
    parameter Select_Size = 2;
@@ -23,7 +25,7 @@ module mux_tb;
    // -------------------------------------------
    // Device under test
    // -------------------------------------------
-   Mux #(.DataWidth(Data_WIDTH), .SelectSize(Select_Size)) dut
+   Mux4 #(.DataWidth(Data_WIDTH), .SelectSize(Select_Size)) dut
    (
       .Select(Select_TB),
       .DIn0(DIn0_TB),
@@ -49,7 +51,7 @@ module mux_tb;
    // Configure starting sim states
    // -------------------------------------------
    initial begin
-      $dumpfile("mux_tb.vcd");  // waveforms file needs to be the same name as the tb file.
+      $dumpfile(`VCD_OUTPUT);
       $dumpvars;  // Save waveforms to vcd file
       
       $display("%d %m: Starting testbench simulation...", $stime);

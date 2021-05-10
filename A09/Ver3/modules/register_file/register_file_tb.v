@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
-// Test the sequence control matrix
+`define VCD_OUTPUT "/media/RAMDisk/register_file_tb.vcd"
 
 module register_file_tb;
    parameter Data_WIDTH = 16;                 // data width
@@ -56,7 +56,7 @@ module register_file_tb;
    // Configure starting sim states
    // -------------------------------------------
    initial begin
-      $dumpfile("register_file_tb.vcd");  // waveforms file needs to be the same name as the tb file.
+      $dumpfile(`VCD_OUTPUT);
       $dumpvars;  // Save waveforms to vcd file
       
       $display("%d %m: Starting testbench simulation...", $stime);
@@ -69,18 +69,17 @@ module register_file_tb;
    end
 
    always begin
-      #50; // Pause for a bit
-
       // ------------------------------------
       // Load Reg 0 <- 0x00A0
       // ------------------------------------
+      @(posedge Clock_TB);
       REG_WE_TB = 1'b0;  // Enable writing
       DIn_TB = 16'h00A0;  // Write 0x00A0
       REG_Dst_TB = 3'b000;    // Select Reg 0 as destination
       REG_Src1_TB = 3'b000;   // Reg 0 as Src #1 for reading
 
-      #150; // Wait for clock edge to pass
-      #10;
+      @(negedge Clock_TB);
+      #10  // Wait for data
       $display("%d <-- Marker", $stime);
 
       if (SRC1_TB !== 16'h00A0) begin
@@ -88,19 +87,21 @@ module register_file_tb;
          $finish;
       end
 
+      @(posedge Clock_TB);
       REG_WE_TB = 1'b1;  // Disable writing
-      #50 // Wait a bit
+      @(negedge Clock_TB);
 
       // ------------------------------------
       // Load Reg 1 <- 0x000A
       // ------------------------------------
+      @(posedge Clock_TB);
       REG_WE_TB = 1'b0;  // Enable writing
       DIn_TB = 16'h000A;  // Write 0x000A
       REG_Dst_TB = 3'b001;    // Select Reg 1 as destination
       REG_Src1_TB = 3'b001;   // reg 1 as Src #1
 
-      #150; // Wait for clock edge to pass
-      #10;
+      @(negedge Clock_TB);
+      #10  // Wait for data
       $display("%d <-- Marker", $stime);
 
       if (SRC1_TB !== 16'h000A) begin
@@ -108,15 +109,18 @@ module register_file_tb;
          $finish;
       end
 
+      @(posedge Clock_TB);
       REG_WE_TB = 1'b1;  // Disable writing
-      #50 // Wait a bit
+      @(negedge Clock_TB);
 
       // ------------------------------------
       // Read Reg 0
       // ------------------------------------
+      @(posedge Clock_TB);
       REG_Src1_TB = 3'b000;   // reg 0 as Src #1
 
-      #110; // Wait for clock edge to pass
+      @(negedge Clock_TB);
+      #10  // Wait for data
       $display("%d <-- Marker", $stime);
 
       if (SRC1_TB !== 16'h00A0) begin
