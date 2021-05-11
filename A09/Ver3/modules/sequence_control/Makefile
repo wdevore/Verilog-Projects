@@ -6,7 +6,8 @@ SUB_MODULES_FILES = sequence_control.v
 
 DEPENDENCY_FILES = \
 	../../modules/program_counter/pc.v \
-	../../modules/sequence_control/constants.v
+	../../modules/sequence_control/constants.v \
+	tests/reset_sequence.v
 
 MODULES_FILES = ${VERILOG_FILES} ${SUB_MODULES_FILES}
 
