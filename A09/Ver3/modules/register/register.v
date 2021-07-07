@@ -24,8 +24,6 @@ always @(negedge Clk) begin
         `endif
         DOut <= DIn;
     end
-    else
-        DOut <= DOut;
 end
 
 endmodule

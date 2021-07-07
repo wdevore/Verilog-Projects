@@ -21,17 +21,17 @@
  
 module ALU
 #(
-    parameter DataWidth = 16, // Bitwidth, Default to 16 bits
+    parameter DATA_WIDTH = 16, // Bitwidth, Default to 16 bits
                               // 3 2 1 0
-    parameter FlagBits = 4    // V,N,C,Z
+    parameter FLAG_BITS = 4    // V,N,C,Z
 )
 (
-    input wire [FlagBits-1:0] IFlags,
-    input wire [DataWidth-1:0] A,
-    input wire [DataWidth-1:0] B,
-    input wire [3:0] FuncOp,            // Operation
-    output wire [DataWidth-1:0] Y,      // Results output
-    output wire [FlagBits-1:0] OFlags   // Flag result
+    input wire [FLAG_BITS-1:0] flags_i,
+    input wire [DATA_WIDTH-1:0] a_i,
+    input wire [DATA_WIDTH-1:0] b_i,
+    input wire [3:0] func_op_i,           // Operation
+    output wire [DATA_WIDTH-1:0] y_o,      // Results output
+    output wire [FLAG_BITS-1:0] flags_o    // Flag result
 );
 
 localparam ZeroFlag   = 0,
@@ -39,62 +39,62 @@ localparam ZeroFlag   = 0,
            NegFlag    = 2,
            OverFlag   = 3;  // aka. V flag
 
-reg [DataWidth-1:0] ORes;
+reg [DATA_WIDTH-1:0] ORes;
 reg cF;
 
 always @* begin
     // Initial conditions
-    ORes = {DataWidth{1'b0}};// {DataWidth{1'bx}};
+    ORes = {DATA_WIDTH{1'b0}};// {DATA_WIDTH{1'bx}};
     cF = 1'b0;
 
-    case (FuncOp)
+    case (func_op_i)
         `ADD: begin
             `ifdef SIMULATE
-                $display("%d Add_OP: A: %h, B: %h", $stime, A, B);
+                $display("%d Add_OP: A: %h, B: %h", $stime, a_i, b_i);
             `endif
 
             // Carry and sum
-            {cF, ORes} = A + B + IFlags[CarryFlag];
+            {cF, ORes} = a_i + b_i + flags_i[CarryFlag];
             `ifdef SIMULATE
                 $display("%d Add_OP: Carry %b, Sum %h", $stime, cF, ORes);
             `endif
         end
         `SUB: begin  // As if the Carry == 0
             `ifdef SIMULATE
-                $display("%d Sub_OP: A: %h - B: %h", $stime, A, B);
+                $display("%d Sub_OP: A: %h - B: %h", $stime, a_i, b_i);
             `endif
 
-            {cF, ORes} = A + ((~B) + 1);
+            {cF, ORes} = a_i + ((~b_i) + 1);
             `ifdef SIMULATE
                 $display("%d Sub_OP: Carry %b, Diff %h", $stime, cF, ORes);
             `endif
         end
         `SHL: begin // Logical shift
             `ifdef SIMULATE
-                $display("%d Shl_OP: (%d) << (%d)", $stime, A, B);
+                $display("%d Shl_OP: (%d) << (%d)", $stime, a_i, b_i);
             `endif
             // The left hand side contains the variable to shift,
             // the right hand side contains the number of shifts to perform
-            {cF, ORes} = {A[DataWidth-1], A << B};
+            {cF, ORes} = {a_i[DATA_WIDTH-1], a_i << b_i};
         end
         `SHR: begin // Logical shift
             `ifdef SIMULATE
-                $display("%d Shr_OP: (%d) >> (%d)", $stime, A, B);
+                $display("%d Shr_OP: (%d) >> (%d)", $stime, a_i, b_i);
             `endif
-            {cF, ORes} = {A[0], A >> B};
+            {cF, ORes} = {a_i[0], a_i >> b_i};
         end
         default: begin
             `ifdef SIMULATE
-                $display("%d *** ALU UNKNOWN OP: %04b", $stime, FuncOp);
+                $display("%d *** ALU UNKNOWN OP: %04b", $stime, func_op_i);
             `endif
-            ORes = {DataWidth{1'b0}};// {DataWidth{1'bx}};
+            ORes = {DATA_WIDTH{1'b0}};// {DATA_WIDTH{1'bx}};
         end
     endcase
 end
 
 // Set remaining flags
-// assign zF = ORes == {DataWidth{1'b0}};  // Zero
-// assign nF = ORes[DataWidth-1];          // Negative
+// assign zF = ORes == {DATA_WIDTH{1'b0}};  // Zero
+// assign nF = ORes[DATA_WIDTH-1];          // Negative
 
 // 2's compliment overflow flag
 // The rules for turning on the overflow flag in binary/integer math are two:
@@ -104,23 +104,23 @@ end
 //    with the sign bit off, the "overflow" flag is turned on.
 // assign oF = (
 //         // Input Sign-bits Off yet Result sign-bit On 
-//         ((A[DataWidth-1] == 0) && (B[DataWidth-1] == 0) && (ORes[DataWidth-1] == 1)) ||
+//         ((A[DATA_WIDTH-1] == 0) && (B[DATA_WIDTH-1] == 0) && (ORes[DATA_WIDTH-1] == 1)) ||
 //         // Input Sign-bits On yet Result sign-bit Off
-//         ((A[DataWidth-1] == 1) && (B[DataWidth-1] == 1) && (ORes[DataWidth-1] == 0))
+//         ((A[DATA_WIDTH-1] == 1) && (B[DATA_WIDTH-1] == 1) && (ORes[DATA_WIDTH-1] == 0))
 //     );
 
-assign OFlags = {
+assign flags_o = {
     (
         // Input Sign-bits Off yet Result sign-bit On 
-        ((A[DataWidth-1] == 0) && (B[DataWidth-1] == 0) && (ORes[DataWidth-1] == 1)) ||
+        ((a_i[DATA_WIDTH-1] == 0) && (b_i[DATA_WIDTH-1] == 0) && (ORes[DATA_WIDTH-1] == 1)) ||
         // Input Sign-bits On yet Result sign-bit Off
-        ((A[DataWidth-1] == 1) && (B[DataWidth-1] == 1) && (ORes[DataWidth-1] == 0))
+        ((a_i[DATA_WIDTH-1] == 1) && (b_i[DATA_WIDTH-1] == 1) && (ORes[DATA_WIDTH-1] == 0))
     ),                          // V
-    ORes[DataWidth-1],          // N
+    ORes[DATA_WIDTH-1],          // N
     cF,                         // C
-    ORes == {DataWidth{1'b0}}   // Z
+    ORes == {DATA_WIDTH{1'b0}}   // Z
 };
 
-assign Y = ORes;
+assign y_o = ORes;
 
 endmodule
