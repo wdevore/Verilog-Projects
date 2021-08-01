@@ -128,7 +128,7 @@ assign ALU_Ld = alu_ld;
 assign OutReg = output_port;
 
 // MUX_DST
-wire [2:0] destReg;
+wire [2:0] destReg; // 3 bits in size
 assign destReg = `Instr == `LDI ? `DestRegLDI : `DestReg;
 
 // Reset vector fetched from the bottom of memory

@@ -10,7 +10,7 @@ module ProgramCounter
     parameter WORD_SIZE = 1)
 (
     input wire clk_i,
-    input wire reset_ni,                  // Active Low
+    input wire reset_ni,                 // Active Low
     input wire ld_ni,                    // Load: Active Low
     input wire inc_ni,                   // Increment: Active Low
     input wire [DATA_WIDTH-1:0] data_i,  // Input

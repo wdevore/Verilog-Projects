@@ -116,9 +116,9 @@ assign flags_o = {
         // Input Sign-bits On yet Result sign-bit Off
         ((a_i[DATA_WIDTH-1] == 1) && (b_i[DATA_WIDTH-1] == 1) && (ORes[DATA_WIDTH-1] == 0))
     ),                          // V
-    ORes[DATA_WIDTH-1],          // N
+    ORes[DATA_WIDTH-1],         // N
     cF,                         // C
-    ORes == {DATA_WIDTH{1'b0}}   // Z
+    ORes == {DATA_WIDTH{1'b0}}  // Z
 };
 
 assign y_o = ORes;

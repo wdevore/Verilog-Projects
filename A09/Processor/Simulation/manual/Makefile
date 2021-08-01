@@ -1,6 +1,6 @@
-TEST_BENCH = mealy_tb
+TEST_BENCH = manual_tb
 
-SUB_MODULES_FILES = ../../Modules/mealy.v \
+SUB_MODULES_FILES = \
 	../../Modules/pc.v \
 	../../Modules/mux.v \
 	../../Modules/register.v

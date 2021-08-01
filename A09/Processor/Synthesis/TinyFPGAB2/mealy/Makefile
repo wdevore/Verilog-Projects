@@ -1,7 +1,7 @@
 TOP_FILE = top.v
 
 SUB_MODULES_FILES = \
-	../../../Modules/memory.v
+	../../../Modules/mealy.v
 
 MODULES_FILES = ${SUB_MODULES_FILES} ${TOP_FILE}
 
@@ -9,7 +9,7 @@ BUILD_BIN = /media/RAMDisk
 
 ICESTORM_TOOLCHAIN = /usr/local
 
-# You can add verilog generation if you use: ...top; write_verilog;
+# ; write_verilog;
 YOSYS_COMMAND = "synth_ice40 -json ${BUILD_BIN}/hardware.json -top top"
 
 # The Tiny shows up as generally ACM0 or ACM1 depending on what other
@@ -27,7 +27,7 @@ build: ${MODULES_FILES} ${PINS_CONSTRAINTS}
 	@echo "##### Building..."
 	${ICESTORM_TOOLCHAIN}/bin/yosys -p ${YOSYS_COMMAND} \
 	-l ${BUILD_BIN}/yo.log \
-	-DUSE_STATIC \
+	-Q \
 	-q \
 	-defer \
 	${MODULES_FILES}
@@ -36,10 +36,12 @@ route: ${BUILD_BIN}/hardware.json
 	@echo "##### Routing..."
 	${ICESTORM_TOOLCHAIN}/bin/nextpnr-ice40 --lp8k \
 	-q \
+	-v \
 	--package cm81 \
 	--pcf ${PINS_CONSTRAINTS} \
 	-l ${BUILD_BIN}/next.log \
 	--json ${BUILD_BIN}/hardware.json \
+	--opt-timing \
 	--asc ${BUILD_BIN}/hardware.asc
 
 upload: ${BUILD_BIN}/hardware.asc

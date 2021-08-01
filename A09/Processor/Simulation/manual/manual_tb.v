@@ -5,27 +5,26 @@
 // --------------------------------------------------------------------------
 `timescale 1ns/1ps
 
-`define VCD_OUTPUT "/media/RAMDisk/mealy_tb.vcd"
+`define VCD_OUTPUT "/media/RAMDisk/manual_tb.vcd"
 
-module mealy_tb;
+module manual_tb;
    localparam DATA_WIDTH = 8;
    localparam PC_SELECT_SIZE = 3;
    localparam ADDR_SELECT_SIZE = 2;
    
    // Test bench Signals
-   // Outputs
-   wire PC_LD_TB;
-   wire PC_RST_TB;
-   wire MAR_Reset_TB;
-   wire MAR_Ld_TB;
-   wire [PC_SELECT_SIZE-1:0] PC_SRC_TB;
-   wire [ADDR_SELECT_SIZE-1:0] ADDR_SRC_TB;
-   wire [DATA_WIDTH-1:0] MAR_Output_TB;
-
-   // Inputs
    reg Clock_TB;
 
-   reg Matrix_Reset_TB;
+   // Manual signals
+   reg PC_LD_TB;
+   reg PC_Reset_TB;
+   reg MAR_Reset_TB;
+   reg MAR_Ld_TB;
+   reg [PC_SELECT_SIZE-1:0] PC_SRC_TB;
+   reg [ADDR_SELECT_SIZE-1:0] ADDR_SRC_TB;
+
+   // Output of MAR
+   wire [DATA_WIDTH-1:0] MAR_Output_TB;
 
    localparam reset_vector = 8'hFF;
 
@@ -53,7 +52,7 @@ module mealy_tb;
    ProgramCounter #(.DATA_WIDTH(DATA_WIDTH)) PC
    (
       .clk_i(Clock_TB),
-      .reset_ni(PC_RST_TB),
+      .reset_ni(PC_Reset_TB),
       .ld_ni(PC_LD_TB),
       .inc_ni(1'b1),
       .data_i(MUX_PC_to_PC_TB),
@@ -86,21 +85,6 @@ module mealy_tb;
    );
 
    // -------------------------------------------
-   // Simple Mealy Control Matrix
-   // -------------------------------------------
-   MealyCM Matrix
-   (
-      .clk_i(Clock_TB),
-      .reset_ni(Matrix_Reset_TB),
-      .pc_rst_no(PC_RST_TB),
-      .pc_ld_no(PC_LD_TB),
-      .mar_rst_no(MAR_Reset_TB),
-      .mar_ld_no(MAR_Ld_TB),
-      .pc_src_o(PC_SRC_TB),
-      .addr_src_o(ADDR_SRC_TB)
-   );
-
-   // -------------------------------------------
    // Test bench clock - not really need for this TB
    // -------------------------------------------
    initial begin
@@ -120,45 +104,51 @@ module mealy_tb;
       $dumpvars;  // Save waveforms to vcd file
       
       $display("%d %m: Starting testbench simulation...", $stime);
-
-      Matrix_Reset_TB = 1'b1;
    end
 
    always begin
-      // ------------------------------------
-      // Let the clock run to finish out the reset sequence.
-      // ------------------------------------
-      @(posedge Clock_TB);
-      @(negedge Clock_TB);
-
-      @(posedge Clock_TB);
-      @(negedge Clock_TB);
-
-      @(posedge Clock_TB);
-      @(negedge Clock_TB);
-
-      @(posedge Clock_TB);
-      @(negedge Clock_TB);
-
-      @(posedge Clock_TB);
       $display("%d: Starting reset sequence", $stime);
-      Matrix_Reset_TB = 1'b0;
-      @(negedge Clock_TB);
-
-
       // ------------------------------------
-      // Keep reset active for 3 clock cycles
+      // Reset
       // ------------------------------------
       @(posedge Clock_TB);
-      @(negedge Clock_TB);
+      PC_Reset_TB = 1'b0;
+      MAR_Reset_TB = 1'b0;
 
-      @(posedge Clock_TB);
-      @(negedge Clock_TB);
+      @(negedge Clock_TB);    // Take Action
 
       $display("%d Deactivating Reset", $stime);
       // Now exit the reset state
-      Matrix_Reset_TB = 1'b1;
+      @(posedge Clock_TB);
+      PC_Reset_TB = 1'b1;     // Disable reset
+      MAR_Reset_TB = 1'b1;
 
+      @(negedge Clock_TB);    // Take Action
+
+      // ------------------------------------
+      // Move reset vector data through mux to PC input
+      // ------------------------------------
+      @(posedge Clock_TB);
+      PC_SRC_TB = 2'b10;      // Select Reset vector constant
+      PC_LD_TB = 1'b0;        // Enable loading PC
+
+      @(negedge Clock_TB);    // Take Action
+
+      @(posedge Clock_TB);
+      PC_LD_TB = 1'b1;        // Disable loading PC
+      ADDR_SRC_TB = 2'b00;    // Select PC output
+      MAR_Ld_TB = 1'b0;       // Enable loading MAR register
+
+      @(negedge Clock_TB);    // Take Action
+
+      @(posedge Clock_TB);
+      MAR_Ld_TB = 1'b1;       // Disable loading MAR register
+      
+      @(negedge Clock_TB);
+
+      // Add extra cycle for trailing display edge
+      @(posedge Clock_TB);
+      @(negedge Clock_TB);
 
       // ------------------------------------
       // Simulation duration

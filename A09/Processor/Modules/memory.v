@@ -11,20 +11,18 @@
 // If the TB is run from this directory then the path would be "ROM.dat"
 // `define MEM_CONTENTS "ROM.dat"
 // Otherwise it is relative to the TB.
-`ifdef USE_ROM
-    `define MEM_CONTENTS "../../Roms/Nop_Halt.dat"
-`endif
+// `define MEM_CONTENTS "../../../roms/Sub_Halt.dat"
 
 module Memory
 #(
     parameter WORDS = 8,    // 2^WORDS
     parameter DATA_WIDTH = 16)
 (
-    input wire clk_i,                    // neg-edge
-    input wire [DATA_WIDTH-1:0] data_i,  // Memory data input
+    input wire clk_i,                         // neg-edge
+    input wire [DATA_WIDTH-1:0] data_i,       // Memory data input
     input wire [WORDS-1:0] address_i,    // Memory address_i
-    input wire write_en_ni,              // Write enable (Active Low)
-    output reg [DATA_WIDTH-1:0] data_o   // Memory register data output (ASync)
+    input wire write_en_ni,                   // Write enable (Active Low)
+    output reg [DATA_WIDTH-1:0] data_o        // Memory register data output (ASync)
     // output wire [DATA_WIDTH-1:0] data_o   // Memory register data output (Sync)
 );
 
@@ -45,8 +43,13 @@ initial begin
     // warning: "WARNING: memory.v:23: $readmemh: Standard inconsistency, following 1364-2005."
     //     $readmemh (`MEM_CONTENTS, mem, 'h00, 'h04);
     `ifdef USE_ROM
-        $display("Using ROM: %s", `MEM_CONTENTS);
-        $readmemh (`MEM_CONTENTS, mem);  // , 0, 6
+        // NOTE:
+        // `` - The double-backtick(``) is essentially a token delimiter.
+        // It helps the compiler clearly differentiate between the Argument and
+        // the rest of the string in the macro text.
+        // See: https://www.systemverilog.io/macros
+        $display("Using ROM: %s", ``MEM_CONTENTS);
+        $readmemh ({"../../../roms/", ``MEM_CONTENTS, ".dat"}, mem);  // , 0, 6
     `elsif USE_STATIC
         mem[0] = 16'h00ff;       // Simple data for testing
         mem[1] = 16'h00f0;
@@ -93,7 +96,7 @@ always @(negedge clk_i) begin
     if (~write_en_ni) begin
         mem[address_i] <= data_i;
         `ifdef SIMULATE
-            $display("%d WRITE data Addr (0x%h), Data(0x%h), data_i(0x%h)", $stime, address_i, mem[address_i], data_i);
+            $display("%d Mem WRITE data Addr (0x%h), Data(0x%h), data_i(0x%h)", $stime, address_i, mem[address_i], data_i);
         `endif
     end
 end
@@ -101,7 +104,7 @@ end
 always @(negedge clk_i) begin
     data_o <= mem[address_i];
     `ifdef SIMULATE
-        $display("%d READ data Addr (0x%h), Data(0x%h), data_i(0x%h)", $stime, address_i, mem[address_i], data_i);
+        $display("%d Mem READ data Addr (0x%h), Data(0x%h), data_i(0x%h)", $stime, address_i, mem[address_i], data_i);
     `endif
 end
 
