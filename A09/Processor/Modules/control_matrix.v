@@ -382,6 +382,10 @@ always @(state, vector_state) begin
                     next_state = S_BasicExecute;
                 end
 
+                // A JMI "Jump immediate" would allow embedding an 8 bit
+                // signed address instead of loading a register with an
+                // address.
+
                 `JPL: begin // Jump and Link = Call and Return
                     `ifdef SIMULATE
                         $display("%d OPCODE: JPL", $stime);

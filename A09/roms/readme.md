@@ -1,5 +1,7 @@
 Tool for hex calcs
 http://www.eecs.umich.edu/courses/eng100/calc.html
+OR
+https://www.rapidtables.com/convert/number/index.html
 
 # Nop_Halt.dat
 ```
@@ -124,29 +126,30 @@ Adr Hex     Binary                  Assembly
 # JMP_Halt.dat
 ```
 Adr Hex     Binary                  Assembly
-@00 9106    1001_0001_0000_0110     LDI R1, 0x06     <-- absolute address
+@00 9106    1001_0001_0000_0110     LDI R1, 0x06 <-- absolute address
 @01 A001    1010_0000_0000_0001     OTR R1
-@02 7001    0111_0000_0000_0001     JMP R1   --------
+@02 7001    0111_0000_0000_0001     JMP R1   --------.
 @03 1000    0001_0000_0000_0000     NOP              |
 @04 1000    0001_0000_0000_0000     NOP              |
 @05 B000    1011_0000_0000_0000     HLT              |
-@06 9209    1001_0010_0000_1001     LDI R2, 0x09  <--   Jump to here
+@06 9209    1001_0010_0000_1001     LDI R2, 0x09  <--. Jump to here
 @07 A002    1010_0000_0000_0010     OTR R2
 @08 B000    1011_0000_0000_0000     HLT
 @FF 0000                            ---          Reset Vector
 ```
 
 # JPL_Halt.dat
+-- Use a sub routine to increment counter
 ```
 Adr Hex     Binary                  Assembly
-@00 910A    1001_0001_0000_1010     LDI R1, 0x0A  <-- Sub routine address
+@00 910A    1001_0001_0000_1010     LDI R1, 0x0A  <-- Sub routine addr
 @01 9200    1001_0010_0000_0000     LDI R2, 0x00  <-- Counter
 @02 9303    1001_0011_0000_0011     LDI R3, 0x03  <-- Count up to 3
 @03 9401    1001_0100_0000_0001     LDI R4, 0x01  <-- Count by 1
-@04 C001    1100_0000_0000_0001     JPL R1   <---------------.
-@05 A002    1010_0000_0000_0010     OTR R2                   |
-@06 341A    0011_0100_0001_1010     CMP R3, R2               |  Compare
-@07 60FD    0110_0000_1111_1100     BNE -3  >----------------.  Loop until 0
+@04 C001    1100_0000_0000_0001     JPL R1   <--------.
+@05 A002    1010_0000_0000_0010     OTR R2            |
+@06 341A    0011_0100_0001_1010     CMP R3, R2        |  Compare
+@07 60FD    0110_0000_1111_1100     BNE -3  >---------.  Loop until 0
 @08 1000    0001_0000_0000_0000     NOP
 @09 B000    1011_0000_0000_0000     HLT              
 @0A 20A2    0010_0000_1010_0010     ADD R2, R4, R2  <-- Sub routine
@@ -160,10 +163,10 @@ Adr Hex     Binary                  Assembly
 @00 9100    1001_0001_0000_0000     LDI R1, 0x00  <-- Counter
 @01 9202    1001_0010_0000_0010     LDI R2, 0x02  <-- Count by 2
 @02 9306    1001_0011_0000_0110     LDI R3, 0x06  <-- Count up to 6
-@03 2051    0010_0000_0101_0001     ADD R1, R2, R1   <-------.  Inc
-@04 A001    1010_0000_0000_0001     OTR R1                   |
-@05 3419    0011_0100_0001_1001     CMP R3, R1               |  Compare
-@06 60FD    0110_0000_1111_1100     BNE -3  >----------------.  Loop until 0
+@03 2051    0010_0000_0101_0001     ADD R1, R2, R1   <---.  Inc
+@04 A001    1010_0000_0000_0001     OTR R1               |
+@05 3419    0011_0100_0001_1001     CMP R3, R1           |  Compare
+@06 60FD    0110_0000_1111_1100     BNE -3  >------------.  Loop until 0
 @07 B000    1011_0000_0000_0000     HLT
 @FF 0000                            ---          Reset Vector
 ```
@@ -184,15 +187,17 @@ Adr Hex     Binary                  Assembly
 @00 9100    1001_0001_0000_0000     LDI R1, 0x00  <-- Counter
 @01 9201    1001_0010_0000_0001     LDI R2, 0x01  <-- Count by 1
 @02 930F    1001_0011_0000_1111     LDI R3, 0x0F  <-- Count up to F
-@03 2051    0010_0000_0101_0001     ADD R1, R2, R1   <-------.  Inc
-@04 A001    1010_0000_0000_0001     OTR R1                   |
-@05 3419    0011_0100_0001_1001     CMP R3, R1               | Compare
-@06 60FD    0110_0000_1111_1100     BNE -3           --------.  Loop until 0
+@03 2051    0010_0000_0101_0001     ADD R1, R2, R1   <---.  Inc
+@04 A001    1010_0000_0000_0001     OTR R1               |
+@05 3419    0011_0100_0001_1001     CMP R3, R1           | Compare
+@06 60FD    0110_0000_1111_1100     BNE -3   >-----------. Loop until 0
 @07 B000    1011_0000_0000_0000     HLT
 @FF 0000                            ---          Reset Vector
 ```
 
 # Cylon.dat
+R1 contains the pattern visible on the output.
+A single bit bounces back and forth within a single byte
 ```
 @00 9101    1001_0001_0000_0001     LDI R1, 0x01  <-- Pattern
 @01 9201    1001_0010_0000_0001     LDI R2, 0x01  <-- Shift by 1
@@ -200,15 +205,15 @@ Adr Hex     Binary                  Assembly
 @03 9401    1001_0100_0000_0001     LDI R4, 0x01  <-- Right limit
 @04 9506    1001_0100_0000_0110     LDI R5, 0x06  <-- Jump address to SHL
 @05 A001    1010_0000_0000_0001     OTR R1
-@06 4051    0100_0000_0101_0001     SHL R1, R1, R2  <------.
-@07 A001    1010_0000_0000_0001     OTR R1                 |
-@08 3419    0011_0100_0001_1001     CMP R3, R1             |
-@09 60FD    0110_0000_1111_1100     BNE -3    >------------. Loop while !=
-@0A 5051    0101_0000_0101_0001     SHR R1, R1, R2  <------.
-@0B A001    1010_0000_0000_0001     OTR R1                 |
-@0C 3421    0011_0100_0010_0001     CMP R4, R1             |
-@0D 60FD    0110_0000_1111_1100     BNE -3    >------------. Loop while !=
-@0E 7005    0111_0000_0000_0101     JMP R5    <-- Never reached
-@0F B000    1011_0000_0000_0000     HLT       <-- Never executed
-@FF 0000                            ---          Reset Vector
+@06 4051    0100_0000_0101_0001     SHL R1, R1, R2  <----.   <-------.
+@07 A001    1010_0000_0000_0001     OTR R1               |           |
+@08 3419    0011_0100_0001_1001     CMP R3, R1           |           |
+@09 60FD    0110_0000_1111_1100     BNE -3    >----------. while !=  |
+@0A 5051    0101_0000_0101_0001     SHR R1, R1, R2  <----.           |
+@0B A001    1010_0000_0000_0001     OTR R1               |           |
+@0C 3421    0011_0100_0010_0001     CMP R4, R1           |           |
+@0D 60FD    0110_0000_1111_1100     BNE -3    >----------. while !=  |
+@0E 7005    0111_0000_0000_0101     JMP R5  <-- Rinse and Repeat >---.
+@0F B000    1011_0000_0000_0000     HLT     <-- Never executed
+@FF 0000                            ---           Reset Vector
 ```
