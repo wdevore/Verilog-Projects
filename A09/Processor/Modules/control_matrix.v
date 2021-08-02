@@ -37,7 +37,7 @@ module SequenceControl
     // Output
     output wire out_ld_o,
     output wire out_sel_o,      // 1 Bit
-    // Misc
+    // External Signals
     output wire ready_o,              // Active high
     output wire halt_o                // Active high
 );
@@ -54,8 +54,8 @@ localparam VectorStateSize = 2;
 localparam  S_Reset          = 4'b0000,
             S_Fetch          = 4'b0001,
             S_Decode         = 4'b0010,
-            S_Execute        = 4'b0011,
-            S_BasicExecute  = 4'b0100,
+            S_ALUExecute     = 4'b0011,
+            S_BasicExecute   = 4'b0100,
             S_Ready          = 4'b0101,
             S_HALT           = 4'b0110;
 
@@ -72,9 +72,6 @@ localparam  S_Vector1       = 2'b00,
 `define REG_DEST ir_i[8:6]    // For LDI it is different
 
 `define IgnoreDest ir_i[10]    // Used mostly CMP for comparisons
-
-// Branching control
-reg takeBranch;
 
 `define ZFlag alu_flags_i[0] // Zero results
 `define CFlag alu_flags_i[1] // Carry generated
@@ -100,8 +97,8 @@ reg pc_rst;             // PC reset
 reg pc_inc;             // PC increment
 reg pc_ld;
 reg [PCSelectSize-1:0] pc_src;       // MUX_PC selector
-reg bra_src;
 
+reg bra_src;
 reg stk_ld;
 reg ir_ld;
 
@@ -131,7 +128,7 @@ initial begin
     vector_state = S_Vector1;
 end
 
-// Used for FPGA debugging
+// Used for FPGA Simlation debugging
 `ifdef SIMULATE
     reg [15:12] opCode;
     always @* begin
@@ -177,7 +174,6 @@ always @(state, vector_state) begin
     alu_op = 4'b1111;   // Unknown ALU operation
 
     alu_instr = 1'b0;   // Default -- not an ALU instruction
-    takeBranch = 1'b0;  // Default -- Don't take branch
 
     // Memory
     mem_wr = 1'b1;      // Disable Write (active low) i.e. Enable Read (Active high)
@@ -254,7 +250,10 @@ always @(state, vector_state) begin
             `ifdef SIMULATE
                 $display("%d S_Ready", $stime);
             `endif
-            ready = 1'b1;   // CPU is ready
+
+            // Manipulate signals if necessary. None at this time.
+            // You may even have another sub-sequence to handle any
+            // Ready functionality.
             next_state = S_Fetch;
         end
 
@@ -268,7 +267,6 @@ always @(state, vector_state) begin
             ready = 1'b0;
         end
 
-        // Fetch sequence
         S_Fetch: begin
             `ifdef SIMULATE
                 $display("%d S_Fetch", $stime);
@@ -277,7 +275,8 @@ always @(state, vector_state) begin
             next_state = S_Decode;
 
             ir_ld = 1'b0;       // Enable loading IR
-            // Take advantage of the next clock to bump the PC
+
+            // Also, take advantage of the next clock to bump the PC
             pc_inc = 1'b0;      // Enable Increment PC
         end
 
@@ -288,7 +287,6 @@ always @(state, vector_state) begin
 
             // --- Next state setup -------------
             next_state = S_Fetch;
-            // next_state = S_Execute;
 
             case (`OPCODE)
                 `NOP: begin // No operation (a.k.a. do nothing)
@@ -345,14 +343,8 @@ always @(state, vector_state) begin
                 // Branch Directs
                 // ---------------------------------------------------
                 `BNE: begin
-                    // The lower 8bits contains a relative address
-                    // Note: Branching to a lower address requires your
-                    // branch distance to 1 greater, for example, to branch
-                    // from address @06 to @03 you would branch -4 not -3.
-                    // This is because the PC has moved one address after
-                    // the actual branch "backward" instruction.
-                    // For branching to a higher address you don't do anything
-                    // because the PC has, again, moved forward automatically.
+                    // The lower 8bits contains a relative signed address
+                    // The address is relative to the BNE instruction itself.
                     `ifdef SIMULATE
                         $display("%d OPCODE: BNE [V:%0b,N:%0b,C:%0b,Z:%0b] : %4b", $stime, `VFlag, `NFlag, `CFlag, `ZFlag, alu_flags_i);
                     `endif
@@ -363,13 +355,13 @@ always @(state, vector_state) begin
                         bra_src = 1'b0;     // Select Signed Extended
 
                         pc_ld = 1'b0;       // Enable PC load
-                        pc_src = 2'b00;     // Select Branch address source
+                        pc_src = 3'b000;     // Select Branch address source
 
                         // The flags aren't needed after the flag
                         // has been checked.
                         flg_rst = 1'b0;     // Enable ALU flags reset
 
-                        // Add extrac cycle for branch to complete
+                        // Add extra cycle for branch to complete
                         next_state = S_BasicExecute;
                     end
                 end
@@ -386,7 +378,20 @@ always @(state, vector_state) begin
                     pc_src = 3'b011;    // Select Reg-File Source 1
                     pc_ld = 1'b0;       // Enable loading PC
 
-                    // Add extrac cycle for jump to complete
+                    // Add extra cycle for jump to complete
+                    next_state = S_BasicExecute;
+                end
+
+                `JPL: begin // Jump and Link = Call and Return
+                    `ifdef SIMULATE
+                        $display("%d OPCODE: JPL", $stime);
+                    `endif                        
+
+                    pc_src = 3'b011;    // Select Reg-File Source 1
+                    pc_ld = 1'b0;       // Enable loading PC
+                    stk_ld = 1'b0;      // Enable loading Stack reg with return address
+
+                    // Add extra cycle for jump to complete
                     next_state = S_BasicExecute;
                 end
 
@@ -394,8 +399,10 @@ always @(state, vector_state) begin
                     `ifdef SIMULATE
                         $display("%d OPCODE: RET", $stime);
                     `endif
-                    pc_src = 2'b01;     // Select Return address
+                    pc_src = 3'b001;    // Select Stack address
                     pc_ld = 1'b0;       // Enable loading PC
+                    // Add extra cycle for Return to complete
+                    next_state = S_BasicExecute;
                 end
 
                 // ---------------------------------------------------
@@ -442,7 +449,7 @@ always @(state, vector_state) begin
                         $display("%d S_Decode:: Destination required.", $stime);
                     `endif
                     // The destination is required so an extra cycle is needed.
-                    next_state = S_Execute;
+                    next_state = S_ALUExecute;
 
                     alu_ld = 1'b0;      // Enable loading ALU output
                 end
@@ -464,13 +471,15 @@ always @(state, vector_state) begin
                 $display("%d S_BasicExecute", $stime);
             `endif
 
+            // This state allows other instructions an extra clock
+            // to complete their sequence.
             // The next state is alway fetch
             next_state = S_Fetch;
         end
 
-        S_Execute: begin
+        S_ALUExecute: begin
             `ifdef SIMULATE
-                $display("%d S_Execute Dest Reg Store", $stime);
+                $display("%d S_ALUExecute Dest Reg Store", $stime);
             `endif
 
             // The next state is alway fetch

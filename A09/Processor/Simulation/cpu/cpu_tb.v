@@ -91,7 +91,7 @@ module cpu_tb;
 
       Reset_TB = 1'b1;
    
-      for(index = 0; index < 200; index = index + 1) begin
+      for(index = 0; index < 300; index = index + 1) begin
          @(posedge Clock_TB);
          @(negedge Clock_TB);
       end

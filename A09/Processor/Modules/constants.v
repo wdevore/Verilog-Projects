@@ -18,3 +18,5 @@
 
 `define OTR 4'b1010
 `define HLT 4'b1011
+
+`define JPL 4'b1100

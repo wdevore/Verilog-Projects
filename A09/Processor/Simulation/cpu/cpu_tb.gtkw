@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sun Aug  1 02:14:32 2021
+[*] Mon Aug  2 02:57:02 2021
 [*]
 [dumpfile] "/media/RAMDisk/cpu_tb.vcd"
-[dumpfile_mtime] "Sun Aug  1 02:13:49 2021"
-[dumpfile_size] 60073
+[dumpfile_mtime] "Mon Aug  2 02:49:29 2021"
+[dumpfile_size] 49320
 [savefile] "/media/iposthuman/Nihongo/Hardware/verilog/Verilog-Projects/A09/Processor/Simulation/cpu/cpu_tb.gtkw"
 [timestart] 0
-[size] 3836 1249
+[size] 3836 1218
 [pos] 0 27
-*-20.038927 3437000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-19.301962 4039000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
 [sst_width] 254
 [signals_width] 283
 [sst_expanded] 1
-[sst_vpaned_height] 372
+[sst_vpaned_height] 363
 @28
 [color] 2
 cpu_tb.Clock_TB
@@ -54,6 +54,7 @@ cpu_tb.IR_TB[15:0]
 @28
 cpu_tb.cpu.ControlMatrix.stk_ld_o
 @22
++{StackOut} cpu_tb.cpu.Stack.data_o[15:0]
 cpu_tb.cpu.ControlMatrix.bra_src_o
 [color] 3
 cpu_tb.cpu.branchAddress[15:0]
@@ -124,7 +125,6 @@ cpu_tb.cpu.Alu.ORes[15:0]
 @28
 cpu_tb.cpu.ControlMatrix.flg_ld_o
 cpu_tb.cpu.ControlMatrix.flg_rst_o
-cpu_tb.cpu.ControlMatrix.takeBranch
 @200
 -Bit Extenders
 @22
