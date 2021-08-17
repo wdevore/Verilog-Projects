@@ -11,7 +11,8 @@
 // If the TB is run from this directory then the path would be "ROM.dat"
 // `define MEM_CONTENTS "ROM.dat"
 // Otherwise it is relative to the TB.
-// `define MEM_CONTENTS "../../../roms/Sub_Halt.dat"
+`define ROM_PATH "../../../roms/"
+`define ROM_EXTENSION ".dat"
 
 module Memory
 #(
@@ -48,8 +49,10 @@ initial begin
         // It helps the compiler clearly differentiate between the Argument and
         // the rest of the string in the macro text.
         // See: https://www.systemverilog.io/macros
+
+        // This only works with BRAM. It generally doesn't work with SPRAM constructs.
         $display("Using ROM: %s", ``MEM_CONTENTS);
-        $readmemh ({"../../../roms/", ``MEM_CONTENTS, ".dat"}, mem);  // , 0, 6
+        $readmemh ({`ROM_PATH, ``MEM_CONTENTS, `ROM_EXTENSION}, mem);  // , 0, 6
     `elsif USE_STATIC
         mem[0] = 16'h00ff;       // Simple data for testing
         mem[1] = 16'h00f0;

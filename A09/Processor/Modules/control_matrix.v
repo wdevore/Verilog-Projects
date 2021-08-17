@@ -50,7 +50,9 @@ localparam DataSrcSelectSize = 2;   // 4 possible sources
 localparam StateSize = 4;
 localparam VectorStateSize = 2;
 
+// ---------------------------------------------------
 // Sequence states
+// ---------------------------------------------------
 localparam  S_Reset          = 4'b0000,
             S_Fetch          = 4'b0001,
             S_Decode         = 4'b0010,
@@ -64,7 +66,9 @@ localparam  S_Vector1       = 2'b00,
             S_Vector2       = 2'b01,
             S_Vector3       = 2'b10;
 
-// Instruction Field
+// ---------------------------------------------------
+// Bit field definitions
+// ---------------------------------------------------
 `define OPCODE ir_i[15:12]    // op-code field
 
 `define REG_SRC1 ir_i[2:0]
@@ -73,26 +77,35 @@ localparam  S_Vector1       = 2'b00,
 
 `define IgnoreDest ir_i[10]    // Used mostly CMP for comparisons
 
+// The ALU operation *is* the instruction itself.
+`define ALUOp  ir_i[15:12]
+
 `define ZFlag alu_flags_i[0] // Zero results
 `define CFlag alu_flags_i[1] // Carry generated
 `define NFlag alu_flags_i[2] // Negative bit set -- Sign
 `define VFlag alu_flags_i[3] // Overflow occured
 
+// ---------------------------------------------------
 // Internal state signals
+// ---------------------------------------------------
 reg [StateSize-1:0] state;        // 3Bits for state
 reg [StateSize-1:0] next_state;   // 3Bits for next state
 
 reg [VectorStateSize-1:0] vector_state;
 reg [VectorStateSize-1:0] next_vector_state;
 
+// ---------------------------------------------------
 // External Functional states
+// ---------------------------------------------------
 reg halt;
 reg ready; // The "ready" flag is Set when the CPU has complete its reset activities.
 
+// ---------------------------------------------------
+// Internal signals
+// ---------------------------------------------------
 // Once the reset sequence has complete this flag is Set.
 reg resetComplete;
 
-// Internal signals
 reg pc_rst;             // PC reset
 reg pc_inc;             // PC increment
 reg pc_ld;
@@ -109,7 +122,6 @@ reg flg_ld;
 reg flg_rst;
 reg alu_ld;
 reg [ALUOpSize-1:0] alu_op;
-reg alu_instr;
 
 reg mem_wr;
 reg [1:0] addr_src;     // MUX_ADDR selector
@@ -117,10 +129,9 @@ reg [1:0] addr_src;     // MUX_ADDR selector
 reg reg_we;
 reg [1:0] data_src;     // MUX_DATA selector
 
-// The ALU operation *is* the instruction itself.
-`define ALUOp  ir_i[15:12]
-
+// ---------------------------------------------------
 // Simulation
+// ---------------------------------------------------
 initial begin
     // Be default the CPU always attempts to start in Reset mode.
     state = S_Reset;
@@ -172,8 +183,6 @@ always @(state, vector_state) begin
     flg_ld = 1'b1;      // Disable Flag state loading
     alu_ld = 1'b1;      // Disable loading ALU output
     alu_op = 4'b1111;   // Unknown ALU operation
-
-    alu_instr = 1'b0;   // Default -- not an ALU instruction
 
     // Memory
     mem_wr = 1'b1;      // Disable Write (active low) i.e. Enable Read (Active high)
@@ -303,39 +312,45 @@ always @(state, vector_state) begin
                     `ifdef SIMULATE
                         $display("%d OPCODE: ADD", $stime);
                     `endif
-                    alu_instr = 1'b1;
+
+                    next_state = S_ALUExecute;
                     alu_op = `ALUOp;
                 end
 
-                `SUB: begin // ALU subtract operation
+                `SUB: begin // ALU subtract or compare operation
                     if (`IgnoreDest == 1'b0) begin
                         `ifdef SIMULATE
                             $display("%d OPCODE: SUB", $stime);
                         `endif
+                        // The destination is required so an extra cycle is needed.
+                        next_state = S_ALUExecute;
                     end
                     else begin
+                        // For some instructions, for example CMP,
+                        // we don't care about a destination just the ALU flags.
                         `ifdef SIMULATE
                             $display("%d OPCODE: CMP", $stime);
                         `endif
                     end
 
-                    alu_instr = 1'b1;   // See just below
                     alu_op = `ALUOp;
                 end
 
-                `SHL: begin // ALU XOR operation
+                `SHL: begin // ALU Shift-left Logical operation
                     `ifdef SIMULATE
                         $display("%d OPCODE: SHL", $stime);
                     `endif
-                    alu_instr = 1'b1;
+
+                    next_state = S_ALUExecute;
                     alu_op = `ALUOp;
                 end
 
-                `SHR: begin // ALU XOR operation
+                `SHR: begin // ALU Shift-right Logical operation
                     `ifdef SIMULATE
                         $display("%d OPCODE: SHR", $stime);
                     `endif
-                    alu_instr = 1'b1;
+
+                    next_state = S_ALUExecute;
                     alu_op = `ALUOp;
                 end
 
@@ -447,25 +462,9 @@ always @(state, vector_state) begin
 
             endcase
 
-            if (alu_instr == 1'b1) begin
-                if (`IgnoreDest == 1'b0) begin
-                    `ifdef SIMULATE
-                        $display("%d S_Decode:: Destination required.", $stime);
-                    `endif
-                    // The destination is required so an extra cycle is needed.
-                    next_state = S_ALUExecute;
-
-                    alu_ld = 1'b0;      // Enable loading ALU output
-                end
-                else begin
-                    // For some instructions, for example CMP,
-                    // we don't care about a destination just the ALU flags.
-                    `ifdef SIMULATE
-                        $display("%d S_Decode:: Destination ignored.", $stime);
-                    `endif
-                end
-
-                // We always need the ALU status bits
+            // If it's an ALU instruction then set signals
+            if (alu_op != 4'b1111) begin
+                alu_ld = 1'b0;      // Enable loading ALU output
                 flg_ld = 1'b0;      // Enable loading ALU flags
             end
         end

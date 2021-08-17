@@ -12,8 +12,6 @@ module cpu_tb;
    parameter DataWidth_TB = 16;     // 16bit Data width
    parameter WordSize_TB = 1;       // Instructions a 1 = 2bytes in size
 
-   parameter V_OUTPUT = "/media/RAMDisk/cpu_tb.vcd";
-
    // Test bench Signals
  
    // Inputs
@@ -91,7 +89,7 @@ module cpu_tb;
 
       Reset_TB = 1'b1;
    
-      for(index = 0; index < 300; index = index + 1) begin
+      for(index = 0; index < `CLOCKS; index = index + 1) begin
          @(posedge Clock_TB);
          @(negedge Clock_TB);
       end

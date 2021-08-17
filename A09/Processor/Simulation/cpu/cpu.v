@@ -17,20 +17,18 @@ module CPU
     input wire reset_ni,
     output wire ready_o,
     output wire halt_o,
-    output wire ir_ld_o,      // Visual debug
-    output wire mem_wr_o,     // Visual debug
-    output wire out_ld_o,     // Visual debug
-    output wire alu_ld_o,     // Visual debug
-    output wire [DATA_WIDTH-1:0] ir_o,
-    output wire [DATA_WIDTH-1:0] out_o
+    output wire [DATA_WIDTH-1:0] out_o,   // Visual debug
+    output wire [DATA_WIDTH-1:0] ir_o,    // Visual debug
+    output wire ir_ld_o,                  // Visual debug
+    output wire mem_wr_o,                 // Visual debug
+    output wire out_ld_o,                 // Visual debug
+    output wire alu_ld_o                  // Visual debug
 );
 
 localparam ALUOpsSize = 4;
 localparam ALUFlagSize = 4;
 localparam PCSelectSize = 3;
-
-// AddrSize is the number of bits for an address
-localparam AddrSize = 8;
+localparam AddrSize = 8;  // AddrSize is the number of bits for an address
 
 // --------------------------------------------------
 // Internal signals (a.k.a. wires) between modules
@@ -93,6 +91,10 @@ wire out_ld;
 wire ready;
 wire halt;
 
+// ---------------------------------------------------------------
+// Defines for easier references
+// ---------------------------------------------------------------
+
 // IR register-file bit fields
 `define DestRegLDI  ir[10:8]    // For LDI instruction
 `define DestReg     ir[8:6]
@@ -106,6 +108,10 @@ wire halt;
 `define AddrH    ir[10:3]           // zero-extend-H
 `define AddrL    ir[AddrSize-1:0]   // zero-extend-L
 
+// ---------------------------------------------------------------
+// Sign extenders
+// ---------------------------------------------------------------
+
 // Zero extend higher/middle absolute address bits from the IR register.
 assign absoluteZeroExtH = {{DATA_WIDTH-AddrSize{1'b0}}, `AddrH};
 // Zero extend lower absolute address bits from the IR register.
@@ -114,26 +120,14 @@ assign absoluteZeroExtL = {{DATA_WIDTH-AddrSize{1'b0}}, `AddrL};
 // Sign extend the lower signed address bit from the IR register.
 assign relativeSignedExt = {{DATA_WIDTH-AddrSize{ir[AddrSize-1]}}, `AddrL};
 
-// To generate the branch address we need to subtract 1 from the PC
+// ---------------------------------------------------------------
+// Vectoring
+// ---------------------------------------------------------------
+
+// To generate the branch address we need to subtract WORD_SIZE from the PC
 // because the PC has been auto-incremented to the next address which
 // means it isn't at the current address.
-// BNE +off sub 0
-// BNE -off sub 1
 assign branchAddress = mux_bra_to_alu2 + (pc_out - WORD_SIZE);
-
-// ---------------------------------------------------------------
-// Route signals to module outputs
-// ---------------------------------------------------------------
-// Visual debugging. Routes internal signals to cpu output
-assign ir_o = ir;
-assign alu_ld_o = alu_ld;
-assign out_o = output_port;
-assign ready_o = ready;
-assign halt_o = halt;
-
-// MUX_DST
-wire [2:0] destReg; // 3 bits in size
-assign destReg = `Instr == `LDI ? `DestRegLDI : `DestReg;
 
 // Reset vector fetched referencing the bottom of memory
 localparam ResetVector = 16'hFF;
@@ -186,7 +180,7 @@ ProgramCounter #(
 // -------- Module ------------------------------------------
 // Create memory and connect to IR 
 // ----------------------------------------------------------
-Memory memory(
+Memory memory (
     .clk_i(clk_i),
     .data_i(source1),              // Register file src 1
     .address_i(mux_addr_to_mem_addr[ADDR_WIDTH-1:0]),
@@ -283,6 +277,10 @@ Mux2 #(
     .data_o(mux_out_to_output)
 );
 
+// MUX_DST
+wire [2:0] destReg; // 3 bits in size
+assign destReg = `Instr == `LDI ? `DestRegLDI : `DestReg;
+
 // ======================================================
 // Registers
 // ======================================================
@@ -338,5 +336,15 @@ Register #(.DATA_WIDTH(DATA_WIDTH)) OutputR
     .data_i(mux_out_to_output),       // ALU output
     .data_o(output_port)
 );
+
+// ---------------------------------------------------------------
+// Route signals to module outputs
+// ---------------------------------------------------------------
+// Visual debugging. Routes internal signals to cpu output
+assign ir_o = ir;
+assign alu_ld_o = alu_ld;
+assign out_o = output_port;
+assign ready_o = ready;
+assign halt_o = halt;
 
 endmodule

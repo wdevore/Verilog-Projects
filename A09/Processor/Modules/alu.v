@@ -77,7 +77,7 @@ always @* begin
             // the right hand side contains the number of shifts to perform
             {cF, ORes} = {a_i[DATA_WIDTH-1], a_i << b_i};
         end
-        `SHR: begin // Logical shift
+        `SHR: begin // Logical shift (Arithmetic is >>>)
             `ifdef SIMULATE
                 $display("%d Shr_OP: (%d) >> (%d)", $stime, a_i, b_i);
             `endif
