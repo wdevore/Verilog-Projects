@@ -5,31 +5,28 @@
 
 // --------------------------------------------------------------------------
 // 256x16 BRAM memory
-// Single or Dual Port
+// ROM
 // --------------------------------------------------------------------------
 // The path to the data file is relative to the test bench (TB).
 // If the TB is run from this directory then the path would be "ROM.dat"
 // `define MEM_CONTENTS "ROM.dat"
 // Otherwise it is relative to the TB.
-`define ROM_PATH "../../../roms/"
+`define ROM_PATH "../../roms/"
 `define ROM_EXTENSION ".dat"
-// `define MEM_CONTENTS "Nop_Halt"
+`define MEM_CONTENTS "Cylon"
 
-module Memory
+module RomMemory
 #(
     parameter WORDS = 8,    // 2^WORDS
     parameter DATA_WIDTH = 16)
 (
     input wire clk_i,                         // neg-edge
-    input wire [DATA_WIDTH-1:0] data_i,       // Memory data input
     input wire [WORDS-1:0] address_i,    // Memory address_i
-    input wire write_en_ni,                   // Write enable (Active Low)
     output reg [DATA_WIDTH-1:0] data_o        // Memory register data output (ASync)
-    // output wire [DATA_WIDTH-1:0] data_o   // Memory register data output (Sync)
 );
 
 // Memory bank
-reg [DATA_WIDTH-1:0] mem [(1<<WORDS)-1:0]; // The actual memory
+reg [DATA_WIDTH-1:0] mem [0:(1<<WORDS)-1]; // The actual memory
 
 // Debugging
 `ifdef SIMULATE
@@ -49,12 +46,11 @@ initial begin
         // `` - The double-backtick(``) is essentially a token delimiter.
         // It helps the compiler clearly differentiate between the Argument and
         // the rest of the string in the macro text.
-        // Note: this approach doesn't work yosys very well.
         // See: https://www.systemverilog.io/macros
 
         // This only works with BRAM. It generally doesn't work with SPRAM constructs.
-        $display("Using ROM: %s", ``MEM_CONTENTS);
-        $readmemh ({`ROM_PATH, ``MEM_CONTENTS, `ROM_EXTENSION}, mem);  // , 0, 6
+        $display("Using ROM: %s", `MEM_CONTENTS);
+        $readmemh({`ROM_PATH, `MEM_CONTENTS, `ROM_EXTENSION}, mem);  // , 0, 6
     `elsif USE_STATIC
         mem[0] = 16'h00ff;       // Simple data for testing
         mem[1] = 16'h00f0;
@@ -76,62 +72,14 @@ initial begin
 end
 
 // --------------------------------
-// Register blobs
-// --------------------------------
-// Force Register blocks. Remove data_o <= ... above as well.
-// assign data_o = mem[address_i];
-
-// --------------------------------
-// Single Port RAM -- Ultra+ class chips
-// --------------------------------
-// always @(negedge clk_i) begin
-//     if (~write_en_ni) begin
-//         mem[address_i] <= data_i;
-//         `ifdef SIMULATE
-//             $display("%d WRITE data at Addr(0x%h), Mem(0x%h), data_i(0x%h)", $stime, address_i, mem[address_i], data_i);
-//         `endif
-//     end
-//     data_o <= mem[address_i];  // <-- remove this to simulate Register blobs
-// end
-
-// --------------------------------
-// Dual Port RAM --  LP/HX and Ultra+ classes
+// ROM
 // --------------------------------
 always @(negedge clk_i) begin
-    if (~write_en_ni) begin
-        mem[address_i] <= data_i;
-        `ifdef SIMULATE
-            $display("%d Mem WRITE data Addr (0x%h), Data(0x%h), data_i(0x%h)", $stime, address_i, mem[address_i], data_i);
-        `endif
-    end
-end
-
-always @(negedge clk_i) begin
-    data_o <= mem[address_i];
     `ifdef SIMULATE
-        $display("%d Mem READ data Addr (0x%h), Data(0x%h), data_i(0x%h)", $stime, address_i, mem[address_i], data_i);
+        $display("%d READ data at Addr(0x%h), Mem(0x%h), data_i(0x%h)", $stime, address_i, mem[address_i], data_i);
     `endif
+    data_o <= mem[address_i];
 end
-
-
-// --------------------------------
-// Handcrafted -- NOT RECOMMENDED
-// --------------------------------
-// SB_RAM256x16 ram256x16_inst (
-//     .RDATA(data_o[15:0]),
-//     .RADDR(address_i[7:0]),
-//     .RCLK(clk_i),
-//     .RCLKE(1'b1),
-//     .RE(1'b1),
-//     .WADDR(address_i[7:0]),
-//     .WCLK(clk_i),
-//     .WCLKE(1'b1),
-//     .WDATA(data_i[15:0]),
-//     .WE(~write_en_ni),
-//     .MASK(16'h0000),
-//     .READ_MODE(2'h0),
-//     .WRITE_MODE(2'h0)
-// );
 
 endmodule
 

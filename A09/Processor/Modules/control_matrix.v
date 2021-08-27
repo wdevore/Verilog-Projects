@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------------
 // Sequence control matrix
 // --------------------------------------------------------------------------
- 
+
 module SequenceControl
 #(
     parameter DATA_WIDTH = 16
@@ -155,28 +155,28 @@ always @(state, vector_state) begin
     // ======================================
     // Initial conditions on a *state* or *vector_state* change
     // ======================================
-    ready = 1'b1;           // Default: CPU is ready
+    ready = 1'b1;           // Default: CPU is ready           -- Green
     resetComplete = 1'b1;   // Default: Reset is complete
 
     next_state = S_Reset;
     next_vector_state = S_Vector1;
     
-    halt = 1'b0;        // Disable halt regardless of state
+    halt = 1'b0;        // Disable halt regardless of state    -- Red
 
     // PC
     pc_rst = 1'b1;      // Disable resetting PC
-    pc_inc = 1'b1;      // Disable Increment PC
-    pc_ld =  1'b1;      // Disable PC loading
+    pc_inc = 1'b1;      // Disable Increment PC  -- Red
+    pc_ld =  1'b1;      // Disable PC loading    -- Blue
     pc_src = 3'b111;    // Select PC
     bra_src = 1'b0;     // Select Sign extend
 
     // Misc: Stack, Output
     stk_ld = 1'b1;      // Disable Stack loading
-    ir_ld = 1'b1;       // Disable IR loading
+    ir_ld = 1'b1;       // Disable IR loading       -- Yellow
 
     // Output 
-    out_ld = 1'b1;      // Disable output loading
-    out_sel = 1'b0;    // Reg-File
+    out_ld = 1'b1;      // Disable output loading  -- Yellow
+    out_sel = 1'b0;     // Reg-File
 
     // ALU and Flags
     flg_rst = 1'b1;     // Disbled ALU flags reset
@@ -189,7 +189,7 @@ always @(state, vector_state) begin
     addr_src = 2'b00;   // Select PC as source
 
     // Reg-File
-    reg_we = 1'b1;      // Disable writing to reg file
+    reg_we = 1'b1;      // Disable writing to reg file      -- Yellow
     data_src = 2'b00;   // Select Zero extended-L source
 
     // ======================================
@@ -366,7 +366,9 @@ always @(state, vector_state) begin
 
                     // If Z-flag NOT Set then branch
                     if (`ZFlag == 1'b0) begin
-                        $display("%d +++ Taking branch +++", $stime);
+                        `ifdef SIMULATE
+                            $display("%d +++ Taking branch +++", $stime);
+                        `endif
                         bra_src = 1'b0;     // Select Signed Extended
 
                         pc_ld = 1'b0;       // Enable PC load

@@ -12,19 +12,21 @@
 * permissions and limitations under the License.                              *
 *                                                                             *
 ******************************************************************************/
-module chip (
+module top (
     // 25MHz clock input
-    input  clk,
+    input  wire clk,
     // Led outputs
-    output [3:0] led
+    output wire [3:0] led,
+    output wire [15:0] signals
   );
 
   // turn other leds off (active low)
   assign led[2:0] = 3'b111;
 
   blink my_blink (
-    .clk   (clk),
-    .led (led[3])
+    .clk(clk),
+    .led(led[3]),
+    .signals(signals)
   );
 
 endmodule

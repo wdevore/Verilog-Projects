@@ -1,10 +1,16 @@
 set_io clk 60
 
-set_io led[0] 49 # B81/GBin5 L0 Blue led / S2 button
-set_io led[1] 52 # B82/GBin4 L1 Green led / S1 button
-set_io led[2] 55 # B91 L3 Yellow led
-set_io led[3] 56 # B94 cs Red led
-# set_io whiteLed 1 # PMOD 6-42
+# Active low signal
+set_io activity 52 # Heart beat clock
+
+set_io mem_wr  24
+set_io addr0   23
+set_io addr1   20
+
+# Control signals
+set_io clock_i 26     # Clock from microcontroller
+set_io reset_i 25     # Reset from microcontroller
+
 
 # White LEDs
 set_io signals[0] 139

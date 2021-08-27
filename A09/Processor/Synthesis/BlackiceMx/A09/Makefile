@@ -1,23 +1,33 @@
-TOP_FILE = top.v
+TOP_FILE = a09.v
 
-SUB_MODULES_FILES = \
-	../../../Modules/memory.v
+# Leaving any one of these sub modules out will result in a
+# yosys error of: "`\xyz' is not part of the design" 
+SUB_MODULES_FILES = cpu.v \
+	../../../Modules/control_matrix.v \
+	../../../Modules/alu.v \
+	../../../Modules/rom_memory.v \
+	../../../Modules/mux.v \
+	../../../Modules/register_file.v \
+	../../../Modules/register.v \
+	../../../Modules/pc.v
 
-MODULES_FILES = ${SUB_MODULES_FILES} ${TOP_FILE}
+MODULES_FILES = ${TOP_FILE} ${SUB_MODULES_FILES}
 
 BUILD_BIN = /media/RAMDisk
 
 ICESTORM_TOOLCHAIN = /usr/local
 
 # You can add verilog generation if you use: ...top; write_verilog;
-YOSYS_COMMAND = "synth_ice40 -json ${BUILD_BIN}/hardware.json -top top"
+YOSYS_COMMAND = "synth_ice40 -blif ${BUILD_BIN}/chip.blif -json ${BUILD_BIN}/hardware.json -top top;"
 
-# The Tiny shows up as generally ACM0 or ACM1 depending on what other
+# -DMEM_CONTENTS=$(ROM)
+
+# The BlackiceMx shows up as generally ACM0 or ACM1 depending on what other
 # devices you have connected. Be sure to run "dmesg -w" and see what
 # the device name is.
 TARGET_PORT = /dev/ttyACM0
 
-PINS_CONSTRAINTS = pins.pcf
+PINS_CONSTRAINTS = pin.pcf
 
 .PHONY: all
 
@@ -27,15 +37,15 @@ build: ${MODULES_FILES} ${PINS_CONSTRAINTS}
 	@echo "##### Building..."
 	${ICESTORM_TOOLCHAIN}/bin/yosys -p ${YOSYS_COMMAND} \
 	-l ${BUILD_BIN}/yo.log \
-	-DUSE_STATIC \
+	-DUSE_ROM \
 	-q \
 	-defer \
 	${MODULES_FILES}
 
 route: ${BUILD_BIN}/hardware.json
 	@echo "##### Routing..."
-	${ICESTORM_TOOLCHAIN}/bin/nextpnr-ice40 --lp8k \
-	--package cm81 \
+	${ICESTORM_TOOLCHAIN}/bin/nextpnr-ice40 --hx8k \
+	--package tq144:4k \
 	-q \
 	--pcf ${PINS_CONSTRAINTS} \
 	-l ${BUILD_BIN}/next.log \
@@ -46,5 +56,5 @@ upload: ${BUILD_BIN}/hardware.asc
 	@echo "##### Packing..."
 	${ICESTORM_TOOLCHAIN}/bin/icepack ${BUILD_BIN}/hardware.asc ${BUILD_BIN}/hardware.bin
 	@echo "##### Uploading..."
-	tinyfpgab -c ${TARGET_PORT} --program ${BUILD_BIN}/hardware.bin
-
+	stty -F ${TARGET_PORT} raw
+	cat ${BUILD_BIN}/hardware.bin >${TARGET_PORT}

@@ -1,4 +1,4 @@
-TOP_FILE = chip.v
+TOP_FILE = top.v
 
 SUB_MODULES_FILES = blink.v
 
@@ -8,7 +8,7 @@ BUILD_BIN = /media/RAMDisk
 
 ICESTORM_TOOLCHAIN = /usr/local
 
-YOSYS_COMMAND = "synth_ice40 -blif ${BUILD_BIN}/chip.blif -json ${BUILD_BIN}/hardware.json -top chip"
+YOSYS_COMMAND = "synth_ice40 -blif ${BUILD_BIN}/chip.blif -json ${BUILD_BIN}/hardware.json -top top"
 
 # The BlackiceMx shows up as generally ACM0 or ACM1 depending on what other
 # devices you have connected. Be sure to run "dmesg -w" and see what
